@@ -1,0 +1,24 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: lightgray;
+}
+
+.container {
+    max-width: 70rem;
+    margin: 4rem auto;
+    padding: 4rem;
+    background: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+}
+
+@media (max-width: 70rem) {
+    .container {
+        margin: 4rem 0;
+        padding: 2rem;
+        max-width: 100%;
+    }
+}
