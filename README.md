@@ -1,26 +1,102 @@
-# MAVILLE Application
+# MaVille - Application de Gestion des Travaux Publics
 
-Requires Java 21 and Maven.
+## Description du projet
 
-## Install & Run
+**MaVille** est une application développée dans le cadre du cours IFT2255 (Génie Logiciel) qui vise à automatiser et améliorer la gestion des travaux publics à Montréal. L'application facilite la communication entre les résidents, les prestataires de services et le Service des Travaux Publics de Montréal (STPM).
 
-These are the instructions to compile and run the app in command line.
-You can also use whatever is available from your favorite IDE.
+### Fonctionnalités principales
 
-1. Clone the repository using git (see Code button above), move to the created folder
-2. Build an executable: `mvn package`
-3. Run: `java -jar target/maVille-1.0-SNAPSHOT.jar`
+   **Pour les résidents :**
+  - Signaler des problèmes  (nids-de-poule, fissures, etc.)
+  - Consulter ses signalements passés
+  - Voir les travaux en cours dans son arrondissement
 
-You can also run tests: `mvn test`
+  **Pour les prestataires :**
+  - Consulter les problèmes signalés en attente
+  - Soumettre des candidatures pour des projets
+  - Gérer ses candidatures (modifier, annuler, consulter)
 
-## Project structure
+### Contexte académique
 
-- `README.md`  -> This file ;)
-- `pom.xml`    -> Maven project information
-- `.gitignore` -> Specifies which files are ignored by git 
-- `src/main`   -> Code for the app
-- `src/test`   -> Code for the tests
-- `rapport/`   -> The engineering report you have to write for this course (in HTML)
-- `visual_paradigm/` -> A place to put your Visual Paradigm project (also try to work one at a time on vpp files and push often to avoid merge conflicts)
+Ce projet est réalisé en 3 étapes :
+- **Devoir 1** (actuel) : Modélisation du domaine et prototype fonctionnel
+- **Devoir 2** : Conception détaillée
+- **Devoir 3** : Implémentation complète
 
+## Organisation du répertoire
 
+```
+maville/
+├── README.md                   # Ce fichier
+├── rapport/                    # Documentation du projet
+│   ├── index.html              # Rapport principal en HTML
+│   ├── style.css               # Styles CSS
+│   └── images/                 # Images et diagrammes
+│       ├── udem_logo.png       
+│       ├── diagramme_activites.png  # Diagramme d'activités
+│       └── diagramme_classes.png    # Diagramme de classes
+│       └──diagramme_CU.png          # Diagramme de cas d'utilisation
+│
+├── src/                        
+│   └── ca/
+│       └── udem/
+│           └── maville/
+│               ├── Main.java           # Demarrage de l'app
+│               ├── modele/            # Entités du domaine
+│               │   ├── Resident.java
+│               │   ├── Prestataire.java
+│               │   ├── Probleme.java
+│               │   ├── Candidature.java
+│               │   ├── Projet.java
+│               │   ├── TypeTravaux.java
+│               │   ├── Priorite.java
+│               │   ├── StatutCandidature.java
+│               │   └── StatutProjet.java
+│               ├── service/           # Logique métier
+│               │   ├── GestionnaireProblemes.java
+│               │   └── GestionnaireProjets.java
+│               └── ui/                # Interface utilisateur
+│                   ├── MenuPrincipal.java
+│                   ├── MenuResident.java
+│                   ├── MenuPrestataire.java
+│                   ├── AffichageConsole.java
+│                   └── SaisieConsole.java
+│
+├──visual_paradigm/
+         ├──Diagrammes d'activités .vpp    #fichiers .vpp 
+         ├──Diagrammes de classe .vpp
+         ├──Diagrammes de cas d'utilisation .vpp
+```
+
+### Exécution
+```
+
+1. Téléchargez le fichier maVille-1.0-SNAPSHOT.jar depuis la section "Releases" du projet GitHub.
+2. Ouvrez un terminal et placez-vous dans le dossier où se trouve le fichier JAR.
+3. Exécutez la commande suivante :
+                                java -jar maVille-1.0-SNAPSHOT.jar
+```
+
+### Navigation dans l'application
+1. Choisir votre profil (Résident ou Prestataire)
+2. Naviguer avec les numéros des menus
+3. Utiliser `0` pour revenir au menu précédent
+4. Suivre les instructions à l'écran
+5. Choisir "Quitter" pour terminer
+
+## Documentation
+
+- **Rapport complet :** Ouvrir `rapport/index.html` dans un navigateur
+- **Modélisation :** Diagrammes UML dans le dossier `rapport/images/`
+- **Code source :** Commenté en français, organisé en couches
+
+## Technologies utilisées
+
+- **Langage :** Java
+- **Architecture :** MVC (Modèle-Vue-Contrôleur)
+- **Interface :** Console (ligne de commande)
+- **Documentation :** HTML/CSS 
+
+---
+
+**Note :** Ce prototype démontre la faisabilité de l'application MaVille et constitue une base solide pour le développement d'une solution complète qui automatisera la gestion des travaux publics à Montréal.
