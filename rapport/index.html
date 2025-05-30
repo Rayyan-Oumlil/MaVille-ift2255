@@ -1,19 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Rapport IFT2255</title>
-
-    <!-- Surtout n'hésitez pas à toucher au css si vous en avez besoin ;) -->
+    <title>Rapport IFT2255 - Projet MaVille</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-    <img src="images/udem_logo.png" alt="Université de Montréal" style="width: 10rem;">
+    <img src="images/udem_logo.png" alt="Université de Montréal" style="width: 10rem; margin-bottom: 20px;">
+    <hr>
+    
+    <h1>Projet MaVille - Application de Gestion des Travaux Publics</h1>
+    
+    <div class="important">
+        <strong>Cours :</strong> IFT2255 - Génie Logiciel<br>
+        <strong>Session :</strong> Hiver 2025<br>
+        <strong>Devoir :</strong> Devoir 1 - Modélisation et Prototype
+    </div>
+
+    <div class="toc">
+        <h2>Table des matières</h2>
+        <ul>
+            <li>1. Cadre du projet
+                <ul>
+                    <li>1.1 Description du projet</li>
+                    <li>1.2 Hypothèses</li>
+                    <li>1.3 Équipe</li>
+                </ul>
+            </li>
+            <li>2. Modélisation du domaine
+                <ul>
+                    <li>2.1 Glossaire</li>
+                    <li>2.2 Diagramme d'activités</li>
+                    <li>2.3 Diagramme de classes</li>
+                </ul>
+            </li>
+            <li>3. Modélisation des exigences
+                <ul>
+                    <li>3.1 Besoins non-fonctionnels</li>
+                    <li>3.2 Besoins fonctionnels</li>
+                </ul>
+            </li>
+            <li>4. Prototype</li>
+        </ul>
+    </div>
+
+    <h2>1. Cadre du projet</h2>
+
+    <h3>1.1 Description du projet</h3>
+
+    <h4>Contexte</h4>
+    <p>À Montréal, la présence fréquente de travaux publics et privés fait partie du quotidien des citoyens. Ces interventions, parfois mal planifiées ou insuffisamment signalées, engendrent régulièrement des désagréments : ralentissements de la circulation, fermetures temporaires de rues, obstacles pour les piétons… Ces perturbations contribuent à un climat d’incertitude et d’insatisfaction parmi les résidents, qui voient leur mobilité et leur routine souvent bouleversées sans préavis.</p>
+
+    <h4>Problèmes à résoudre</h4>
+    <ul>
+        <li><strong>Communication déficiente :</strong> Les résidents sont souvent surpris par des interventions touchant leur mobilité</li>
+        <li><strong>Processus manuel :</strong> Le STPM utilise actuellement des fichiers Excel et des communications manuelles</li>
+        <li><strong>Manque de coordination :</strong> Les échanges entre résidents, prestataires et STPM sont inefficaces</li>
+        <li><strong>Absence de notifications :</strong> Pas de système automatisé pour informer les parties prenantes</li>
+    </ul>
+
+    <h4>Proposition</h4>
+    <p>Le STPM propose la création de l'application <strong>MaVille</strong> pour automatiser et améliorer la communication des activités et travaux. Cette application permettra une collaboration plus étroite entre les résidents, les prestataires et le STPM, réduisant significativement les incompréhensions entre les différents acteurs.</p>
+
+<h3>1.2 Hypothèses</h3>
+
+    <div class="hypothese">
+        <h4>Hypothèse 1 : Portée du prototype</h4>
+        <p>Ce premier devoir se concentre sur la modélisation et un prototype fonctionnel de base. Les aspects de conception détaillée et d'implémentation complète seront abordés dans les devoirs 2 et 3 respectivement.</p>
+    </div>
+
+    <div class="hypothese">
+        <h4>Hypothèse 2 : Interface simplifiée</h4>
+        <p>Pour ce prototype initial, nous utilisons une interface en ligne de commande qui permet de valider la logique métier sans se préoccuper de l'interface graphique finale.</p>
+    </div>
+
+    <div class="hypothese">
+        <h4>Hypothèse 3 : Stockage temporaire</h4>
+        <p>Les données sont stockées en mémoire pour ce prototype. L'intégration d'une base de données persistante sera considérée lors de la phase d'implémentation (Devoir 3).</p>
+    </div>
+
+    <div class="hypothese">
+        <h4>Hypothèse 4 : Authentification reportée</h4>
+        <p>L'authentification et la gestion des sessions utilisateurs sont volontairement simplifiées dans ce prototype pour se concentrer sur les fonctionnalités métier essentielles.</p>
+    </div>
+
+    <div class="hypothese">
+        <h4>Hypothèse 5 : Validation de concept</h4>
+        <p>Ce prototype vise principalement à démontrer la faisabilité des cas d'utilisation principaux et à valider notre compréhension du domaine métier avant la conception détaillée.</p>
+    </div>
+
+    <h3>1.3 Équipe</h3>
+
+    <div class="equipe-member">
+        <strong>Nom complet :</strong> Younes Lagha<br>
+        <strong>Matricule :</strong> 20256168<br>
+        <strong>Discord :</strong> younes_lgha<br>
+        <strong>GitHub :</strong> YounesLagha
+    </div>
+
+    <div class="equipe-member">
+        <strong>Nom complet :</strong> Karim Omairi<br>
+        <strong>Matricule :</strong> 20288301 <br>
+        <strong>Discord :</strong> dhxft<br>
+        <strong>GitHub :</strong> dhxft
+    </div>
+        <div class="equipe-member">
+        <strong>Nom complet :</strong> Rayyan Oumlil <br>
+        <strong>Matricule :</strong> 20299978 <br>
+        <strong>Discord :</strong> rayyan20062<br>
+        <strong>GitHub :</strong> Rayyan-Oumlil 
+    </div>
+        <div class="equipe-member">
+        <strong>Nom complet :</strong> Haipeng Lu <br>
+        <strong>Matricule :</strong> 20180790 <br>
+        <strong>Discord :</strong> ccoldbrew<br>
+        <strong>GitHub :</strong> yiannis0916
+
+    </div>
+    
+
+    <h2>2. Modélisation du domaine</h2>
+
+    <h3>2.1 Glossaire</h3>
+
+    <ul>
+        <li><strong>STPM</strong> : Service des Travaux Publics de Montréal, responsable de la gestion des signalements et des projets de travaux.</li>
+        <li><strong>Résident</strong> : Citoyen de Montréal pouvant signaler un problème sur la voie publique.</li>
+        <li><strong>Prestataire</strong> : Entreprise ou organisme proposant des projets pour résoudre des problèmes signalés.</li>
+        <li><strong>Problème</strong> : Incident de voirie signalé par un résident (ex. : nid-de-poule, fissure, etc.).</li>
+        <li><strong>Signalement</strong> : Action de signaler un problème au STPM, accompagnée d'une description et de la localisation.</li>
+        <li><strong>Fiche problème</strong> : Document interne contenant les détails d'un signalement (type, localisation, priorité).</li>
+        <li><strong>Priorité</strong> : Niveau d'urgence du problème : faible, moyenne ou élevée.</li>
+        <li><strong>Candidature</strong> : Proposition d'un prestataire pour prendre en charge un ou plusieurs problèmes.</li>
+        <li><strong>Projet</strong> : Ensemble de travaux validés à réaliser, incluant dates, budget et prestataire attitré.</li>
+        <li><strong>Notification</strong> : Message envoyé automatiquement à un utilisateur concernant un changement de statut d'un projet ou d'un problème.</li>
+        <li><strong>StatutProjet</strong> : État d'un projet (ex. : EN_ATTENTE, EN_COURS, TERMINE).</li>
+        <li><strong>StatutCandidature</strong> : État d'une candidature (EN_ATTENTE, APPROUVEE, REJETEE).</li>
+    </ul>
+
+    <h3>2.2 Diagramme d'activités du processus métier</h3>
+
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme d'activités - Processus actuel du STPM</strong></p>
+        <ol style="text-align: left; display: inline-block;">
+        </ol>
+    </div>
+
+    <h3>2.3 Diagramme de classes du domaine</h3>
+
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de classes - Modèle du domaine</strong></p>
+        <ul style="text-align: left; display: inline-block;">
+        </ul>
+    </div>
+
+    <h2>3. Modélisation des exigences</h2>
+
+    <h3>3.1 Besoins non-fonctionnels</h3>
+
+
+
+    <h2>4. Prototype</h2>
+
+    <h3>4.1 Architecture du prototype</h3>
+
+    <p>Le prototype suit une architecture en couches :</p>
+    <ul>
+        <li><strong>Couche UI (ca.udem.maville.ui) :</strong> Gestion de l'interface utilisateur console</li>
+        <li><strong>Couche Service (ca.udem.maville.service) :</strong> Logique métier et gestionnaires</li>
+        <li><strong>Couche Modèle (ca.udem.maville.modele) :</strong> Entités du domaine</li>
+    </ul>
+
+    <h3>4.2 Fonctionnalités implémentées</h3>
+
+    <div class="success">
+        <h4> --> Fonctionnalités pour les résidents</h4>
+        <ul>
+            <li>Signalement de problèmes avec toutes les informations requises</li>
+            <li>Consultation de ses signalements par email</li>
+            <li>Consultation des travaux en cours par arrondissement</li>
+        </ul>
+    </div>
+
+    <div class="success">
+        <h4>-->  Fonctionnalités pour les prestataires</h4>
+        <ul>
+            <li>Consultation libre des problèmes en attente</li>
+            <li>Soumission de candidatures avec formulaire complet</li>
+            <li>Gestion des candidatures (consulter, modifier, annuler)</li>
+        </ul>
+    </div>
+
+    <div class="success">
+        <h4>-->  Fonctionnalités techniques</h4>
+        <ul>
+            <li>Menu principal avec choix de profil</li>
+            <li>Validation des saisies utilisateur</li>
+            <li>Gestion des erreurs et messages informatifs</li>
+            <li>Code modulaire et commenté</li>
+        </ul>
+    </div>
+
+    <h3>4.3 Instructions d'utilisation</h3>
+
+<div class="code-section">
+    <h4>Exécution via le JAR (recommandé)</h4>
+    <pre>
+ 1. Téléchargez le fichier maVille-1.0-SNAPSHOT.jar depuis la section "Releases" du projet GitHub.
+ 2. Ouvrez un terminal et placez-vous dans le dossier où se trouve le fichier JAR.
+ 3. Exécutez la commande suivante :
+java -jar maVille-1.0-SNAPSHOT.jar
+    </pre>
+    <h4>Alternative : Utilisation avec un IDE (IntelliJ, VSCODE, etc.)</h4>
+    <ol>
+        <li>Importez le projet en tant que projet Maven dans votre IDE préféré.</li>
+        <li>Lancez la classe <code>ca.udem.maville.Main</code> (clic droit &gt; "Run" ou équivalent).</li>
+    </ol>
+</div>
+
+
+    <h4>Navigation dans l'application</h4>
+    <ol>
+        <li>Au démarrage, choisir le profil (Résident ou Prestataire)</li>
+        <li>Naviguer dans les menus avec les numéros</li>
+        <li>Utiliser "0" pour revenir au menu précédent</li>
+        <li>Suivre les instructions à l'écran pour les saisies</li>
+        <li>Choisir "Quitter" dans le menu principal pour terminer</li>
+    </ol>
+
+    <h3>4.4 Limitations et améliorations futures</h3>
+
+    <div class="important">
+        <h4>Limitations actuelles</h4>
+        <ul>
+            <li>Données non persistantes (perdues à la fermeture)</li>
+            <li>Interface console uniquement</li>
+            <li>Authentification simplifiée</li>
+            <li>Pas de notifications automatiques</li>
+        </ul>
+    </div>
+
+    <h4>Améliorations futures</h4>
+    <ul>
+        <li>Interface graphique web ou mobile</li>
+        <li>Base de données persistante</li>
+        <li>Système d'authentification complet</li>
+        <li>Intégration avec les systèmes municipaux existants</li>
+    </ul>
+
     <hr>
 
-    <h1>Titre</h1>
-    <p>Bla bla bla je suis un rapport.</p>
+    <div class="success">
+        <h3>Conclusion</h3>
+        <p>Ce prototype démontre la faisabilité de l'application MaVille et implémente les fonctionnalités essentielles demandées. Il constitue une base solide pour le développement d'une solution complète qui automatisera et améliorera significativement la gestion des travaux publics à Montréal.</p>
+    </div>
+
 </div>
 </body>
 </html>
