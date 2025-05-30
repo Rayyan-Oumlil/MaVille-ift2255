@@ -62,10 +62,6 @@ maville/
 │                   ├── AffichageConsole.java
 │                   └── SaisieConsole.java
 │
-├──visual_paradigm/
-         ├──Diagrammes d'activités .vpp    #fichiers .vpp 
-         ├──Diagrammes de classe .vpp
-         ├──Diagrammes de cas d'utilisation .vpp
 ```
 
 ### Exécution
