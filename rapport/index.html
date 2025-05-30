@@ -160,8 +160,27 @@
     <h2>3. Modélisation des exigences</h2>
 
     <h3>3.1 Besoins non-fonctionnels</h3>
+    <li><strong>Protection des données confidentielles : </strong>L’application ne doit pas stocker ou afficher de données sensibles (comme les noms ou adresses complètes des résidents) sans autorisation explicite. Les signalements doivent être anonymisés du côté public.</li>
+    <li><strong>Capacité à gérer plusieurs signalements simultanément :</strong> Le système doit permettre l’enregistrement et la consultation de plusieurs signalements en parallèle sans perte ou écrasement de données.</li>
+    <li><strong>Bilinguisme (français/anglais) :</strong> L’application doit être disponible en français et en anglais, avec une option de sélection de langue.</li>
+    <li><strong>Rapidité de signalement :</strong> Le parcours utilisateur pour signaler un problème ne doit pas excéder trois étapes, afin de limiter la friction et encourager l’usage.</li>
+    <li><strong>l'intégration d’une carte de Montréal (si applicable dans une version ultérieure) :</strong> L’application doit être conçue pour pouvoir intégrer une API cartographique (ex. : Google Maps, OpenStreetMap) pour localiser visuellement les signalements, en tenant compte des permissions d’utilisation et de la granularité des données.</li>
 
+ <h3>3.2 Diagramme de cas d'utilisation et descriptions</h3>
 
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de cas d'utilisation </strong></p>
+        <ul style="text-align: left; display: inline-block;">
+        </ul>
+          <img src="images/diagramme_CU.jpg" alt="Diagramme de cas d'utilisation" style="max-width: 100%; height: auto; margin-top: 20px; border: 1px solid #ddd; border-radius: 8px;">
+    </div>
+<h3>Descriptions des cas d'utilisations :</h3>
+
+    <li><strong></strong></li>
+    <li><strong></strong></li>
+    <li><strong></strong></li>
+    <li><strong></strong></li>
+    <li><strong></strong></li>
 
     <h2>4. Prototype</h2>
 
@@ -173,7 +192,6 @@
         <li><strong>Couche Service (ca.udem.maville.service) :</strong> Logique métier et gestionnaires</li>
         <li><strong>Couche Modèle (ca.udem.maville.modele) :</strong> Entités du domaine</li>
     </ul>
-
     <h3>4.2 Fonctionnalités implémentées</h3>
 
     <div class="success">
