@@ -176,11 +176,46 @@
     </div>
 <h3>Descriptions des cas d'utilisations :</h3>
 
-    <li><strong></strong></li>
-    <li><strong></strong></li>
-    <li><strong></strong></li>
-    <li><strong></strong></li>
-    <li><strong></strong></li>
+<ul>
+    <li><strong>Acteur principal : Citoyens</strong> : Résidents/habitants de la ville, majoritairement les utilisateurs, inclus l'Agent STPM et le Prestataire.</li>
+    
+    <li><strong>Acteurs secondaires</strong> : 
+        <ul>
+            <li><strong>Agent STPM</strong> : Il reçoit les plaintes des citoyens et décide si elles sont valides ou non, dépend des formulaires des citoyens.</li>
+            <li><strong>Prestataire</strong> : Il effectue les réparations ou interventions demandées suite à une plainte approuvée.</li>
+        </ul>
+    </li>
+
+    <li><strong>Soumettre une plainte</strong> : Les citoyens ont comme rôle d’utiliser l’application pour signaler un problème ou une anomalie dans la région et remplir un formulaire qui le décrit.</li>
+    
+    <li><strong>Approbation d’une plainte</strong> : L’Agent STPM a comme rôle d’analyser les plaintes soumises par les citoyens et doit les approuver ou rejeter selon plusieurs facteurs.</li>
+    
+    <li><strong>Attribuer la plainte</strong> : Si la plainte est approuvée par l’Agent, elle est assignée à un prestataire responsable des réparations (plus haut niveau).</li>
+    
+    <li><strong>Confirmation des réparations</strong> : Le Prestataire confirme que les réparations vont débuter ou sont prises en compte par la municipalité.</li>
+    
+    <li><strong>Envoyer une notification</strong> : Le citoyen reçoit une notification pour lui confirmer que sa demande a bien été prise en compte.</li>
+    
+    <li><strong>Scénario/Description</strong> : Le citoyen ouvre l’application, se dirige vers "Soumettre une plainte" où il remplit un formulaire contenant toutes les informations nécessaires pour aider à la résolution du problème (type de problème, localisation, etc.). Il clique sur un bouton permettant d’envoyer le formulaire qui sera pris en compte par un Agent ayant comme travail de confirmer la légitimité de la plainte pour ensuite etre affiché au prestataires qui vont proposer un projet ou non, si le budget est respecté,le projet peut debuter. Le citoyen sera notifié.</li>
+    
+    <li><strong>Extension</strong> : Localisation incorrecte, Informations manquantes, Photo floue, Problème déjà attribué.</li>
+    
+    <li><strong>Préconditions</strong> : 
+        <ul>
+            <li>Agent authentifié</li>
+            <li>Une plainte doit avoir été soumise</li>
+            <li>Droit d’accès élevé pour l’Agent</li>
+        </ul>
+    </li>
+    
+    <li><strong>Postconditions</strong> : 
+        <ul>
+            <li>Les plaintes sont stockées dans le système</li>
+            <li>Approbation attendue par l’Agent/Prestataire</li>
+        </ul>
+    </li>
+</ul>
+
 
     <h2>4. Prototype</h2>
 
