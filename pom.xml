@@ -3,26 +3,50 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>ca.udem</groupId>
     <artifactId>maVille</artifactId>
     <version>1.0-SNAPSHOT</version>
-
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <dependencies>
+        <!-- JUnit pour les tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.12.2</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Jackson pour JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        
+        <!-- Javalin pour serveur REST -->
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>5.6.1</version>
+        </dependency>
+        
+        <!-- OkHttp pour client REST -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.11.0</version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -50,5 +74,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>
