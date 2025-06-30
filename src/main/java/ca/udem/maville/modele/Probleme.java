@@ -2,6 +2,7 @@ package ca.udem.maville.modele;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 /*
     Représente un problème signalé par un résident.
@@ -20,6 +21,11 @@ public class Probleme {
     private Priorite priorite;
     private boolean resolu;              
 
+    // Constructeur par défaut NÉCESSAIRE pour Jackson
+    public Probleme() {
+        // Constructeur vide pour la désérialisation JSON
+    }
+
     /*
         Constructeur - initialise avec priorité MOYENNE par défaut
      */
@@ -36,6 +42,7 @@ public class Probleme {
 
     // Getters et Setters 
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     
     public String getLieu() { return lieu; }
     public void setLieu(String lieu) { this.lieu = lieu; }
@@ -50,12 +57,27 @@ public class Probleme {
     public void setDeclarant(Resident declarant) { this.declarant = declarant; }
     
     public LocalDateTime getDateSignalement() { return dateSignalement; }
+    public void setDateSignalement(LocalDateTime dateSignalement) { this.dateSignalement = dateSignalement; }
     
     public Priorite getPriorite() { return priorite; }
     public void setPriorite(Priorite priorite) { this.priorite = priorite; }
     
     public boolean isResolu() { return resolu; }
     public void setResolu(boolean resolu) { this.resolu = resolu; }
+
+    /**
+     * Synchronise le compteur d'ID avec l'ID maximum existant
+     * Appelé après le chargement depuis JSON pour éviter les doublons d'ID
+     */
+    public static void synchroniserCompteurId(List<Probleme> problemesExistants) {
+        if (problemesExistants != null && !problemesExistants.isEmpty()) {
+            int maxId = problemesExistants.stream()
+                .mapToInt(Probleme::getId)
+                .max()
+                .orElse(0);
+            compteurId.set(maxId + 1);
+        }
+    }
 
     @Override
     public String toString() {

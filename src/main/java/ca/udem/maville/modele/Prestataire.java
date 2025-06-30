@@ -12,6 +12,11 @@ public class Prestataire {
     private String telephone;
     private String email;
 
+    // Constructeur par défaut NÉCESSAIRE pour Jackson
+    public Prestataire() {
+        // Constructeur vide pour la désérialisation JSON
+    }
+
     /*
        Constructeur - crée un prestataire avec les infos de base
      */

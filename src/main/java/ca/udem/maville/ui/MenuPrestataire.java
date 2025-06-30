@@ -1,50 +1,29 @@
 package ca.udem.maville.ui;
 
-import ca.udem.maville.modele.*;
-import ca.udem.maville.service.*;
-import java.util.List;
-import java.util.ArrayList;
+import ca.udem.maville.ui.client.HttpClient;
 
-/*
-    Menu spécialisé pour les prestataires de services (entreprises)
-    Permet de consulter les problèmes, soumettre des candidatures et gérer ses projets
+/**
+ * Menu prestataire adapté pour l'architecture REST
+ * Utilise HttpClient au lieu d'appels directs aux gestionnaires
  */
 public class MenuPrestataire {
-    // Outils d'interface utilisateur
-    private SaisieConsole saisie;
-    private AffichageConsole affichage;
+    // Remplacement des gestionnaires par le client HTTP
+    private HttpClient httpClient;
+    private SaisieConsole saisie; // AJOUT DE L'ATTRIBUT MANQUANT
     
-    // Services métier
-    private GestionnaireProblemes gestionnaireProblemes;
-    private GestionnaireProjets gestionnaireProjets;
-
-    /*
-        Constructeur - initialise le menu avec les services nécessaires
-     */
-    public MenuPrestataire(GestionnaireProblemes gestionnaireProblemes, GestionnaireProjets gestionnaireProjets) {
-        this.saisie = new SaisieConsole();
-        this.affichage = new AffichageConsole();
-        this.gestionnaireProblemes = gestionnaireProblemes;
-        this.gestionnaireProjets = gestionnaireProjets;
+    // Constructeur adapté pour recevoir HttpClient
+    public MenuPrestataire(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        this.saisie = new SaisieConsole(); // INITIALISATION
     }
-
-    /*
-        Affiche le menu principal du prestataire et gère ses choix
-     */
+    
     public void afficher() {
         boolean continuer = true;
         
+        System.out.println("\n=== Interface Prestataire - Architecture REST ===");
+        
         while (continuer) {
-            affichage.afficherTitre("Menu Prestataire");
-            
-            // Options disponibles pour un prestataire
-            String[] options = {
-                "Consulter les problèmes signalés",
-                "Soumettre une candidature pour un projet",
-                "Gérer mes candidatures"
-            };
-            
-            affichage.afficherMenu(options);
+            afficherOptions();
             int choix = saisie.lireEntier("Votre choix: ");
             
             switch (choix) {
@@ -52,376 +31,311 @@ public class MenuPrestataire {
                     consulterProblemes();
                     break;
                 case 2:
-                    soumettreCandidate();
+                    rechercherProblemes();
                     break;
                 case 3:
-                    gererCandidatures();
+                    soumettreCandiature();
+                    break;
+                case 4:
+                    mettreAJourProjet();
+                    break;
+                case 5:
+                    consulterMesProjets();
                     break;
                 case 0:
-                    continuer = false; // Retour au menu principal
+                    continuer = false;
                     break;
                 default:
-                    affichage.afficherErreur("Choix invalide");
-            }
-            
-            if (continuer) {
-                saisie.attendreEntree();
+                    System.out.println("Choix invalide. Veuillez réessayer.");
             }
         }
     }
-
-    /*
-        Simule la consultation libre des problèmes au bureau du STPM
+    
+    private void afficherOptions() {
+        System.out.println("\n=== MENU PRESTATAIRE ===");
+        System.out.println("1. Consulter tous les problèmes disponibles");
+        System.out.println("2. Rechercher problèmes (avec filtres)");
+        System.out.println("3. Soumettre une candidature");
+        System.out.println("4. Mettre à jour un projet");
+        System.out.println("5. Consulter mes projets");
+        System.out.println("0. Retour menu principal");
+    }
+    
+    /**
+     * Consulter tous les problèmes disponibles via API REST
      */
     private void consulterProblemes() {
-        affichage.afficherSousTitre("Consultation des problèmes signalés");
+        System.out.println("\n=== TOUS LES PROBLEMES DISPONIBLES ===");
         
-        // Simulation de la visite au bureau STPM
-        affichage.afficherMessage("=== FICHES PROBLÈMES EN ATTENTE ===");
-        affichage.afficherMessage("(Consultation libre - Bureau STPM)");
-        affichage.afficherMessage("");
+        System.out.println("Récupération des problèmes via API REST...");
         
-        // Récupère tous les problèmes en attente
-        List<Probleme> problemesDisponibles = gestionnaireProblemes.listerProblemesNonResolus();
+        // APPEL REST pour récupérer tous les problèmes
+        String resultat = httpClient.consulterProblemes(null, null);
         
-        if (problemesDisponibles.isEmpty()) {
-            affichage.afficherMessage("Aucun problème en attente actuellement.");
-            affichage.afficherMessage("Revenez consulter plus tard.");
-        } else {
-            affichage.afficherMessage("Problèmes en attente que vous pouvez consulter :");
-            affichage.afficherListeProblemes(problemesDisponibles);
-            
-            // Guide l'utilisateur vers l'étape suivante
-            affichage.afficherMessage("");
-            affichage.afficherMessage("  Si un problème vous intéresse :");
-            affichage.afficherMessage("  --> Utilisez l'option 2 pour soumettre une candidature");
-            affichage.afficherMessage("  --> Vous remplirez alors le formulaire avec vos informations");
-        }
+        // Affichage des résultats
+        System.out.println(resultat);
+        
+        System.out.println("\nCes problèmes sont disponibles pour soumission de candidatures.");
+        
+        pauseAvantContinuer();
     }
-
-    /*
-        Gère la soumission d'une nouvelle candidature
-        Processus complet : sélection problèmes + remplissage formulaire + confirmation
+    
+    /**
+     * Rechercher des problèmes avec filtres via API REST
      */
-    private void soumettreCandidate() {
-        affichage.afficherSousTitre("Soumettre une candidature pour un projet");
+    private void rechercherProblemes() {
+        System.out.println("\n=== RECHERCHER DES PROBLEMES ===");
         
-        // Afficher les problèmes disponibles pour candidature
-        List<Probleme> problemesDisponibles = gestionnaireProblemes.listerProblemesNonResolus();
-        if (problemesDisponibles.isEmpty()) {
-            affichage.afficherMessage("Aucun problème disponible pour candidature actuellement.");
-            return;
-        }
+        System.out.println("Filtres de recherche disponibles :");
+        System.out.println("1. Par quartier uniquement");
+        System.out.println("2. Par type de travaux uniquement");
+        System.out.println("3. Par quartier ET type de travaux");
+        System.out.println("0. Annuler");
         
-        affichage.afficherMessage("Problèmes disponibles pour candidature :");
-        affichage.afficherListeProblemes(problemesDisponibles);
-        affichage.afficherMessage("");
+        int choixFiltre = saisie.lireEntier("Votre choix : ");
         
-        // Sélection des problème(s) d'intérêt
-        List<Integer> problemesVises = saisie.lireListeEntiers("IDs des problèmes qui vous intéressent");
-        if (problemesVises.isEmpty()) {
-            affichage.afficherErreur("Aucun problème sélectionné.");
-            return;
-        }
+        String quartier = null;
+        String typeTravaux = null;
         
-        // Validation que les problèmes existent et sont disponibles
-        List<Probleme> problemesSelectionnes = new ArrayList<>();
-        for (Integer id : problemesVises) {
-            Probleme p = gestionnaireProblemes.trouverProblemeParId(id);
-            if (p != null && !p.isResolu()) {
-                problemesSelectionnes.add(p);
-            } else {
-                affichage.afficherErreur("Problème #" + id + " introuvable ou déjà résolu. Ignoré.");
-            }
-        }
-        
-        if (problemesSelectionnes.isEmpty()) {
-            affichage.afficherErreur("Aucun problème valide sélectionné.");
-            return;
-        }
-        
-        // Remplissage du formulaire de candidature
-        affichage.afficherSousTitre("Formulaire de candidature");
-        affichage.afficherMessage("Veuillez remplir vos informations d'entreprise :");
-        String numeroEntreprise = saisie.lireChaineNonVide("Numéro d'entreprise (NE) : ");
-        String nomEntreprise = saisie.lireChaineNonVide("Nom de l'entreprise : ");
-        String contactNom = saisie.lireChaineNonVide("Nom du contact : ");
-        String telephone = saisie.lireChaineNonVide("Téléphone : ");
-        String email = saisie.lireChaineNonVide("Email : ");
-        
-        // Crée l'objet Prestataire pour cette candidature
-        Prestataire prestataire = new Prestataire(numeroEntreprise, nomEntreprise, contactNom, telephone, email);
-        String descriptionProjet = saisie.lireChaineNonVide("Description de votre projet de travaux : ");
-        double coutEstime = saisie.lireDouble("Coût estimé du projet ($) : ");
-        java.time.LocalDate dateDebut = saisie.lireDate("Date de début prévue");
-        java.time.LocalDate dateFin = saisie.lireDate("Date de fin prévue");
-        
-        // Validation logique des dates
-        if (dateDebut.isAfter(dateFin)) {
-            affichage.afficherErreur("La date de début doit être antérieure à la date de fin.");
-            return;
-        }
-        
-        // Récapitulatif du formulaire complet
-        affichage.afficherSousTitre("Récapitulatif du formulaire de candidature");
-        affichage.afficherMessage("=== INFORMATIONS ENTREPRISE ===");
-        affichage.afficherMessage("Numéro d'entreprise (NE) : " + numeroEntreprise);
-        affichage.afficherMessage("Nom de l'entreprise : " + nomEntreprise);
-        affichage.afficherMessage("Contact : " + contactNom);
-        affichage.afficherMessage("Téléphone : " + telephone);
-        affichage.afficherMessage("Email : " + email);
-        affichage.afficherMessage("");
-        affichage.afficherMessage("=== PROJET PROPOSÉ ===");
-        affichage.afficherMessage("Problèmes ciblés : " + problemesVises);
-        affichage.afficherMessage("Description du projet : " + descriptionProjet);
-        affichage.afficherMessage("Coût estimé : " + coutEstime + " $");
-        
-        // Formatage des dates pour l'affichage
-        java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        affichage.afficherMessage("Date de début prévue : " + dateDebut.format(dateFormatter));
-        affichage.afficherMessage("Date de fin prévue : " + dateFin.format(dateFormatter));
-        
-        // Confirmation et soumission
-        if (saisie.confirmer("Confirmer la soumission de ce formulaire de candidature ?")) {
-            // Enregistre la candidature via le gestionnaire
-            Candidature candidature = gestionnaireProjets.soumettreCandidat(
-                prestataire, problemesVises, descriptionProjet, coutEstime, dateDebut, dateFin);
-            
-            // Confirmation avec informations utiles
-            affichage.afficherSucces("Formulaire de candidature soumis avec succès !");
-            affichage.afficherMessage("Numéro de candidature : " + candidature.getId());
-            affichage.afficherMessage("Statut : " + candidature.getStatut().getDescription());
-            affichage.afficherMessage("");
-            
-            // Explique la suite du processus
-            affichage.afficherMessage("Votre candidature sera examinée par les agents du STPM.");
-            affichage.afficherMessage("Si votre projet respecte le budget municipal, vous serez notifié");
-            affichage.afficherMessage("de l'approbation et le projet sera officialisé.");
-        } else {
-            affichage.afficherMessage("Soumission annulée.");
-        }
-    }
-
-    /*
-        Point d'entrée pour la gestion des candidatures existantes
-        Permet de consulter, modifier ou annuler ses candidatures
-     */
-    private void gererCandidatures() {
-        affichage.afficherSousTitre("Gestion de mes candidatures");
-        
-        // Identification du prestataire 
-        affichage.afficherMessage("Pour retrouver vos candidatures, veuillez vous identifier :");
-        String numeroEntreprise = saisie.lireChaineNonVide("Numéro d'entreprise (NE) : ");
-        
-        // Recherche des candidatures de ce prestataire
-        List<Candidature> toutesLesCandidatures = gestionnaireProjets.listerCandidatures();
-        List<Candidature> mesCandidatures = new ArrayList<>();
-        
-        // Filtre pour ne garder que les candidatures de cette entreprise
-        for (Candidature candidature : toutesLesCandidatures) {
-            if (candidature.getPrestataire().getNumeroEntreprise().equals(numeroEntreprise)) {
-                mesCandidatures.add(candidature);
-            }
-        }
-        
-        if (mesCandidatures.isEmpty()) {
-            affichage.afficherMessage("Aucune candidature trouvée pour le numéro d'entreprise : " + numeroEntreprise);
-            return;
-        }
-        
-        // Affichage des candidatures trouvées
-        affichage.afficherMessage("Vos candidatures :");
-        affichage.afficherListeCandidatures(mesCandidatures);
-        
-        // Menu des actions possibles
-        String[] optionsGestion = {
-            "Consulter le détail d'une candidature",
-            "Modifier une candidature",
-            "Annuler une candidature"
-        };
-        
-        affichage.afficherMenu(optionsGestion);
-        int choix = saisie.lireEntier("Que souhaitez-vous faire ? ");
-        
-        // Traite le choix de l'utilisateur
-        switch (choix) {
+        switch (choixFiltre) {
             case 1:
-                consulterDetailCandidature(mesCandidatures);
+                System.out.println("\nQuartiers disponibles : Centre-ville, Rosemont, Plateau, Ville-Marie, etc.");
+                quartier = saisie.lireChaine("Entrez le nom du quartier : ");
                 break;
+                
             case 2:
-                modifierCandidature(mesCandidatures);
+                typeTravaux = choisirTypeTravaux();
                 break;
+                
             case 3:
-                annulerCandidature(mesCandidatures);
+                System.out.println("\nQuartiers disponibles : Centre-ville, Rosemont, Plateau, Ville-Marie, etc.");
+                quartier = saisie.lireChaine("Entrez le nom du quartier : ");
+                typeTravaux = choisirTypeTravaux();
                 break;
+                
             case 0:
-                return; // Retour au menu prestataire
+                return;
+                
             default:
-                affichage.afficherErreur("Choix invalide");
+                System.out.println("Choix invalide");
+                return;
         }
+        
+        // Affichage des critères de recherche
+        System.out.println("\n=== RECHERCHE EN COURS ===");
+        if (quartier != null && !quartier.trim().isEmpty()) {
+            System.out.println("Quartier : " + quartier);
+        }
+        if (typeTravaux != null && !typeTravaux.trim().isEmpty()) {
+            System.out.println("Type de travaux : " + typeTravaux);
+        }
+        
+        System.out.println("\nRécupération des problèmes...");
+        
+        // APPEL REST avec filtres de recherche
+        String resultat = httpClient.consulterProblemes(quartier, typeTravaux);
+        
+        // Affichage des résultats filtrés
+        System.out.println("\n" + resultat);
+        
+        // Si aucun résultat
+        if (resultat.contains("Nombre de problèmes trouvés : 0")) {
+            System.out.println("\nAucun problème ne correspond à vos critères de recherche.");
+            System.out.println("Essayez avec d'autres filtres.");
+        }
+        
+        pauseAvantContinuer();
     }
-
-    /*
-        Affiche le détail complet d'une candidature spécifique
+    
+    /**
+     * Soumettre une candidature pour un projet via API REST
      */
-    private void consulterDetailCandidature(List<Candidature> candidatures) {
-        if (candidatures.isEmpty()) return;
+    private void soumettreCandiature() {
+        System.out.println("\n=== SOUMETTRE UNE CANDIDATURE ===");
         
-        int id = saisie.lireEntier("ID de la candidature à consulter : ");
+        // Collecte des informations de candidature
+        String prestataireId = saisie.lireChaine("Votre ID prestataire (NEQ) : ");
+        String titre = saisie.lireChaine("Titre du projet : ");
+        String description = saisie.lireChaine("Description du projet : ");
         
-        // Recherche de la candidature par ID
-        Candidature candidature = null;
-        for (Candidature c : candidatures) {
-            if (c.getId() == id) {
-                candidature = c;
-                break;
-            }
+        System.out.println("\nType de travaux :");
+        String typeTravaux = choisirTypeTravaux();
+        
+        String dateDebut = saisie.lireChaine("Date de début (YYYY-MM-DD) : ");
+        String dateFin = saisie.lireChaine("Date de fin (YYYY-MM-DD) : ");
+        
+        // Gestion du coût avec validation
+        double cout = 0;
+        try {
+            cout = saisie.lireDouble("Coût estimé ($) : ");
+        } catch (Exception e) {
+            System.out.println("Coût invalide, défini à 0");
+            cout = 0;
         }
         
-        if (candidature == null) {
-            affichage.afficherErreur("Candidature introuvable.");
-            return;
+        // Récapitulatif de la candidature
+        System.out.println("\n=== RÉCAPITULATIF CANDIDATURE ===");
+        System.out.println("Prestataire : " + prestataireId);
+        System.out.println("Titre : " + titre);
+        System.out.println("Type : " + typeTravaux);
+        System.out.println("Période : " + dateDebut + " à " + dateFin);
+        System.out.println("Coût : " + cout + "$");
+        
+        // Confirmation avant envoi
+        String confirmation = saisie.lireChaine("\nConfirmer la soumission? (oui/non) : ");
+        
+        if (confirmation.toLowerCase().startsWith("o")) {
+            System.out.println("Soumission de la candidature via API REST...");
+            
+            // APPEL REST pour soumettre la candidature
+            String resultat = httpClient.soumettreCandiature(
+                prestataireId, titre, description, typeTravaux, 
+                dateDebut, dateFin, cout
+            );
+            
+            // Affichage du résultat
+            System.out.println(resultat);
+            System.out.println("Votre candidature sera évaluée par le STPM.");
+        } else {
+            System.out.println("Candidature annulée.");
         }
         
-        // Affiche tous les détails de la candidature
-        affichage.afficherSousTitre("Détail de la candidature #" + candidature.getId());
-        affichage.afficherCandidature(candidature);
+        pauseAvantContinuer();
     }
-
-    /*
-        Permet de modifier une candidature existante
-        Seules les candidatures non encore traitées peuvent être modifiées
+    
+    /**
+     * Mettre à jour un projet en cours via API REST
      */
-    private void modifierCandidature(List<Candidature> candidatures) {
-        //Filtrer les candidatures modifiables
-        List<Candidature> candidaturesModifiables = new ArrayList<>();
-        for (Candidature c : candidatures) {
-            if (c.peutEtreModifiee()) { // Vérifie le statut (doit être SOUMISE)
-                candidaturesModifiables.add(c);
-            }
-        }
+    private void mettreAJourProjet() {
+        System.out.println("\n=== METTRE A JOUR UN PROJET ===");
         
-        if (candidaturesModifiables.isEmpty()) {
-            affichage.afficherMessage("Aucune candidature modifiable.");
-            affichage.afficherMessage("Les candidatures ne peuvent être modifiées que tant qu'elles");
-            affichage.afficherMessage("n'ont pas été traitées par un agent STPM.");
-            return;
-        }
+        String projetId = saisie.lireChaine("ID du projet à modifier : ");
         
-        // Affichage des candidatures modifiables
-        affichage.afficherMessage("Candidatures modifiables (statut: " + StatutCandidature.SOUMISE + ") :");
-        affichage.afficherListeCandidatures(candidaturesModifiables);
+        System.out.println("\nQue voulez-vous modifier? (laissez vide pour ignorer)");
         
-        int id = saisie.lireEntier("ID de la candidature à modifier : ");
+        // Collecte des modifications
+        String nouveauStatut = saisie.lireChaine("Nouveau statut (EN_COURS/SUSPENDU/TERMINE) : ");
+        String nouvelleDescription = saisie.lireChaine("Nouvelle description : ");
+        String nouvelleDateFin = saisie.lireChaine("Nouvelle date de fin (YYYY-MM-DD) : ");
         
-        // Validation de l'ID
-        Candidature candidature = null;
-        for (Candidature c : candidaturesModifiables) {
-            if (c.getId() == id) {
-                candidature = c;
-                break;
-            }
-        }
+        // Nettoyage des champs vides
+        if (nouveauStatut.trim().isEmpty()) nouveauStatut = null;
+        if (nouvelleDescription.trim().isEmpty()) nouvelleDescription = null;
+        if (nouvelleDateFin.trim().isEmpty()) nouvelleDateFin = null;
         
-        if (candidature == null) {
-            affichage.afficherErreur("Candidature introuvable ou non modifiable.");
-            return;
-        }
-        
-        // Affichage des valeurs actuelles
-        affichage.afficherSousTitre("Modification de la candidature #" + candidature.getId());
-        affichage.afficherMessage("Valeurs actuelles :");
-        affichage.afficherCandidature(candidature);
-        affichage.afficherMessage("");
-        
-        // Saisie des nouvelles valeurs
-        String nouvelleDescription = saisie.lireChaineNonVide("Nouvelle description du projet : ");
-        double nouveauCout = saisie.lireDouble("Nouveau coût estimé ($) : ");
-        java.time.LocalDate nouvelleDateDebut = saisie.lireDate("Nouvelle date de début prévue");
-        java.time.LocalDate nouvelleDateFin = saisie.lireDate("Nouvelle date de fin prévue");
-        
-        // Validation des nouvelles dates
-        if (nouvelleDateDebut.isAfter(nouvelleDateFin)) {
-            affichage.afficherErreur("La date de début doit être antérieure à la date de fin.");
+        // Vérification qu'au moins un champ est modifié
+        if (nouveauStatut == null && nouvelleDescription == null && nouvelleDateFin == null) {
+            System.out.println("Aucune modification spécifiée.");
+            pauseAvantContinuer();
             return;
         }
         
         // Récapitulatif des modifications
-        affichage.afficherSousTitre("Récapitulatif des modifications");
-        affichage.afficherMessage("Nouvelle description : " + nouvelleDescription);
-        affichage.afficherMessage("Nouveau coût : " + nouveauCout + " $");
+        System.out.println("\n=== MODIFICATIONS À APPLIQUER ===");
+        if (nouveauStatut != null) System.out.println("Statut : " + nouveauStatut);
+        if (nouvelleDescription != null) System.out.println("Description : " + nouvelleDescription);
+        if (nouvelleDateFin != null) System.out.println("Date fin : " + nouvelleDateFin);
         
-        java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        affichage.afficherMessage("Nouvelle date début : " + nouvelleDateDebut.format(dateFormatter));
-        affichage.afficherMessage("Nouvelle date fin : " + nouvelleDateFin.format(dateFormatter));
+        System.out.println("\nMise à jour via API REST...");
         
-        // Confirmation et application
-        if (saisie.confirmer("Confirmer les modifications ?")) {
-            if (gestionnaireProjets.modifierCandidature(id, nouvelleDescription, nouveauCout, nouvelleDateDebut, nouvelleDateFin)) {
-                affichage.afficherSucces("Candidature modifiée avec succès !");
-            } else {
-                affichage.afficherErreur("Impossible de modifier cette candidature.");
-            }
+        // APPEL REST pour mettre à jour le projet
+        String resultat = httpClient.mettreAJourProjet(
+            projetId, nouveauStatut, nouvelleDescription, nouvelleDateFin
+        );
+        
+        // Affichage du résultat
+        System.out.println(resultat);
+        
+        pauseAvantContinuer();
+    }
+    
+    /**
+     * Consulter les projets du prestataire
+     */
+    private void consulterMesProjets() {
+        System.out.println("\n=== MES PROJETS ===");
+        
+        String prestataireId = saisie.lireChaine("Votre ID prestataire (NEQ) : ");
+        
+        System.out.println("Fonctionnalités disponibles :");
+        System.out.println("- Projets en cours");
+        System.out.println("- Candidatures en attente");
+        System.out.println("- Historique des projets terminés");
+        System.out.println("- Statistiques de performance");
+        
+        System.out.println("\nNote : Cette fonctionnalité sera implémentée");
+        System.out.println("avec un endpoint REST /prestataires/" + prestataireId + "/projets");
+        
+        pauseAvantContinuer();
+    }
+    
+    /**
+     * Choisir un type de travaux avec descriptions
+     */
+    private String choisirTypeTravaux() {
+        System.out.println("\n=== TYPES DE TRAVAUX ===");
+        String[] types = {
+            "TRAVAUX_ROUTIERS",
+            "TRAVAUX_GAZ_ELECTRICITE", 
+            "CONSTRUCTION_RENOVATION",
+            "ENTRETIEN_PAYSAGER",
+            "TRAVAUX_TRANSPORTS_COMMUN",
+            "TRAVAUX_SIGNALISATION_ECLAIRAGE",
+            "TRAVAUX_SOUTERRAINS",
+            "TRAVAUX_RESIDENTIEL",
+            "ENTRETIEN_URBAIN",
+            "ENTRETIEN_RESEAUX_TELECOM"
+        };
+        
+        String[] descriptions = {
+            "Travaux routiers (nids de poule, pavage, etc.)",
+            "Travaux de gaz ou électricité",
+            "Construction ou rénovation",
+            "Entretien paysager (parcs, arbres, etc.)",
+            "Travaux liés aux transports en commun",
+            "Travaux de signalisation et éclairage (feux, panneaux)",
+            "Travaux souterrains (égouts, aqueduc)",
+            "Travaux résidentiel",
+            "Entretien urbain général",
+            "Entretien des réseaux de télécommunication"
+        };
+        
+        for (int i = 0; i < types.length; i++) {
+            System.out.println((i + 1) + ". " + descriptions[i]);
+        }
+        
+        int choix = saisie.lireEntier("\nChoisir un type (1-10) : ");
+        
+        if (choix >= 1 && choix <= types.length) {
+            System.out.println("Type sélectionné : " + descriptions[choix - 1]);
+            return types[choix - 1];
         } else {
-            affichage.afficherMessage("Modifications annulées.");
+            System.out.println("Choix invalide, type par défaut sélectionné");
+            return "ENTRETIEN_URBAIN";
         }
     }
-
-    /*
-        Permet d'annuler une candidature existante
+    
+    /**
+     * Pause avant de continuer - améliore l'expérience utilisateur
      */
-    private void annulerCandidature(List<Candidature> candidatures) {
-        // Filtrer les candidatures annulables
-        List<Candidature> candidaturesAnnulables = new ArrayList<>();
-        for (Candidature c : candidatures) {
-            if (c.peutEtreAnnulee()) { // Vérifie qu'elle n'est pas encore approuvée
-                candidaturesAnnulables.add(c);
-            }
-        }
+    private void pauseAvantContinuer() {
+        System.out.println("\nAppuyez sur Entrée pour continuer...");
+        saisie.lireChaine("");
+    }
+    
+    /**
+     * Démonstration des avantages REST pour les prestataires
+     */
+    public void demonstrationRestPrestataire() {
+        System.out.println("\n=== AVANTAGES REST POUR PRESTATAIRES ===");
+        System.out.println("Nouvelles capacités:");
+        System.out.println(" Recherche avancée de problèmes par quartier/type");
+        System.out.println(" Soumission de candidatures en temps réel");
+        System.out.println(" Mise à jour instantanée des projets");
+        System.out.println(" Suivi en temps réel des candidatures");
+        System.out.println(" Notifications automatiques des validations");
+        System.out.println(" API standardisée pour intégrations futures");
         
-        if (candidaturesAnnulables.isEmpty()) {
-            affichage.afficherMessage("Aucune candidature annulable.");
-            affichage.afficherMessage("Les candidatures ne peuvent être annulées que tant qu'elles");
-            affichage.afficherMessage("n'ont pas été approuvées par un agent STPM.");
-            return;
-        }
-        
-        // Affichage des candidatures annulables
-        affichage.afficherMessage("Candidatures annulables (statut: " + StatutCandidature.SOUMISE + ") :");
-        affichage.afficherListeCandidatures(candidaturesAnnulables);
-        
-        int id = saisie.lireEntier("ID de la candidature à annuler : ");
-        
-        // Validation de l'ID
-        Candidature candidature = null;
-        for (Candidature c : candidaturesAnnulables) {
-            if (c.getId() == id) {
-                candidature = c;
-                break;
-            }
-        }
-        
-        if (candidature == null) {
-            affichage.afficherErreur("Candidature introuvable ou non annulable.");
-            return;
-        }
-        
-        // Affichage de la candidature à annuler
-        affichage.afficherSousTitre("Annulation de la candidature #" + candidature.getId());
-        affichage.afficherMessage("Candidature à annuler :");
-        affichage.afficherCandidature(candidature);
-        affichage.afficherMessage("");
-        
-        // Confirmation o/n
-        if (saisie.confirmer("Êtes-vous sûr de vouloir annuler cette candidature ?")) {
-            if (gestionnaireProjets.annulerCandidature(id)) {
-                affichage.afficherSucces("Candidature annulée avec succès !");
-                affichage.afficherMessage("La candidature a été marquée comme annulée.");
-            } else {
-                affichage.afficherErreur("Impossible d'annuler cette candidature.");
-            }
-        } else {
-            affichage.afficherMessage("Annulation annulée.");
-        }
+        pauseAvantContinuer();
     }
 }

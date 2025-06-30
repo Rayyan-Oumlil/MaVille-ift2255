@@ -1,5 +1,7 @@
 package ca.udem.maville.modele;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /*
     Représente un résident qui signale des problèmes.
     Contient les coordonnées nécessaires pour le suivi.
@@ -10,6 +12,11 @@ public class Resident {
     private String telephone;
     private String email;    // Utilisé comme identifiant pour retrouver ses signalements
     private String adresse;
+
+    // Constructeur par défaut NÉCESSAIRE pour Jackson
+    public Resident() {
+        // Constructeur vide pour la désérialisation JSON
+    }
 
     public Resident(String nom, String prenom, String telephone, String email, String adresse) {
         this.nom = nom;
@@ -37,7 +44,9 @@ public class Resident {
 
     /*
         Méthode utilitaire pour avoir le nom complet
+        @JsonIgnore pour que Jackson ne tente pas de la sérialiser/désérialiser
      */
+    @JsonIgnore
     public String getNomComplet() {
         return prenom + " " + nom;
     }
@@ -56,11 +65,11 @@ public class Resident {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Resident resident = (Resident) obj;
-        return email.equals(resident.email);
+        return email != null && email.equals(resident.email);
     }
 
     @Override
     public int hashCode() {
-        return email.hashCode();
+        return email != null ? email.hashCode() : 0;
     }
 }
