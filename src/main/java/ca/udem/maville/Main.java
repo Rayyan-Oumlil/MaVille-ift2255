@@ -1,112 +1,137 @@
 package ca.udem.maville;
 
-import ca.udem.maville.api.ApiServer;
+import ca.udem.maville.api.ApiServer;          // Serveur REST API
+import ca.udem.maville.ui.MenuPrincipal;       // Menu principal console (UI)
+import ca.udem.maville.ui.client.HttpClient;   // Client HTTP REST
 
 /**
- * Point d'entrée principal - MaVille avec architecture REST
- * Version progressive : commence simple, évolue vers complet
+ * Démarrage de l'application MaVille en mode REST
+ * Lance le serveur API et propose le menu principal (console)
  */
 public class Main {
     private static ApiServer apiServer;
-    
-    public static void main(String[] args) {
-        System.out.println("=== MaVille - Architecture REST ===");
-        System.out.println("Démarrage du système...\n");
-        
-        // Pour l'instant, juste le serveur API
-        demarrerServeurSeul();
-        
-        // TODO: Ajouter le client CLI quand HttpClient sera prêt
-        // demarrerArchitectureComplete();
-    }
-    
-    /**
-     * Version actuelle : serveur seul pour tests
-     */
-    private static void demarrerServeurSeul() {
-        System.out.println("BACKEND: Démarrage du serveur API REST...");
-        
+    private static HttpClient httpClient;
+    private static String[] args; // pour détecter les options comme --test
+
+    public static void main(String[] arguments) {
+        args = arguments;
+        System.out.println("=== MaVille - Architecture REST ===\n");
+
         try {
-            apiServer = new ApiServer();
-            apiServer.start(); // Lance sur port 7000
-            
-            System.out.println("\n=== Serveur API prêt ! ===");
-            System.out.println("Testez dans votre navigateur :");
-            System.out.println("- http://localhost:7000/api/health");
-            System.out.println("- http://localhost:7000/api/residents/travaux");
-            System.out.println("- http://localhost:7000/api/prestataires/problemes");
-            System.out.println("\nAppuyez sur Ctrl+C pour arrêter le serveur");
-            
-            // Garder le serveur en vie
-            Thread.currentThread().join();
-            
-        } catch (InterruptedException e) {
-            System.out.println("\nArrêt demandé...");
-        } catch (Exception e) {
-            System.err.println("Erreur démarrage serveur: " + e.getMessage());
-        } finally {
-            if (apiServer != null) {
-                apiServer.stop();
-                System.out.println("Serveur arrêté proprement");
+            // 1. Démarrer le serveur API dans un thread séparé
+            demarrerServeur();
+
+            // 2. Attendre que le serveur soit prêt (30 secondes max)
+            if (!attendreServeurPret()) {
+                System.err.println(" Impossible de démarrer le serveur API");
+                System.exit(1);
             }
+
+            // 3. Créer un seul client HTTP partagé par toute l'application
+            httpClient = new HttpClient();
+
+            // 4. Vérifier que le client peut se connecter
+            if (!httpClient.testerConnexion()) {
+                System.err.println(" Impossible de se connecter à l'API");
+                System.exit(1);
+            }
+
+            System.out.println(" Serveur API opérationnel sur http://localhost:7000/api\n");
+
+            // 5. Lancer le menu principal, en passant l'instance du HttpClient unique
+            lancerMenuPrincipal();
+
+        } catch (Exception e) {
+            System.err.println(" Erreur : " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // 6. Arrêter proprement le client et le serveur API
+            arreterServeur();
         }
     }
-    
+
     /**
-     * Version future : architecture complète avec client CLI
-     * À utiliser quand HttpClient sera créé
+     * Démarre le serveur API dans un thread séparé
      */
-    private static void demarrerArchitectureComplete() {
-        System.out.println("=== Architecture REST complète ===");
-        
-        // Thread serveur
+    private static void demarrerServeur() {
+        System.out.println("1. Démarrage du serveur API...");
         Thread serverThread = new Thread(() -> {
-            System.out.println("BACKEND: Démarrage serveur...");
-            apiServer = new ApiServer();
-            apiServer.start();
+            try {
+                apiServer = new ApiServer();
+                apiServer.start();
+            } catch (Exception e) {
+                System.err.println(" Erreur démarrage serveur: " + e.getMessage());
+            }
         });
         serverThread.setDaemon(true);
         serverThread.start();
-        
-        // Attendre démarrage serveur
-        waitForServer();
-        
-        // TODO: Lancer client CLI
-        System.out.println("FRONTEND: Client CLI à implémenter");
-        
-        // Nettoyage
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (apiServer != null) {
-                apiServer.stop();
-            }
-        }));
     }
-    
+
     /**
-     * Attendre que le serveur soit prêt
+     * Attend jusqu'à 30 secondes que le serveur REST soit prêt à accepter des connexions
      */
-    private static void waitForServer() {
-        System.out.print("Attente serveur");
-        for (int i = 0; i < 10; i++) {
+    private static boolean attendreServeurPret() {
+        System.out.print("2. Attente du serveur");
+
+        // Attendre jusqu'à 30 secondes que le serveur démarre
+        for (int i = 0; i < 30; i++) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
                 System.out.print(".");
+
+                // Essayer de se connecter à partir de 3 secondes
+                if (i > 2) {
+                    HttpClient testClient = new HttpClient();
+                    if (testClient.testerConnexion()) {
+                        System.out.println(" OK");
+                        testClient.fermer();
+                        return true;
+                    }
+                }
             } catch (InterruptedException e) {
-                break;
+                Thread.currentThread().interrupt();
+                return false;
             }
         }
-        System.out.println(" OK");
+        System.out.println(" TIMEOUT");
+        return false;
     }
-    
+
     /**
-     * Test rapide des endpoints
+     * Lance le menu principal (console)
      */
-    public static void testerEndpoints() {
-        System.out.println("=== Test des endpoints ===");
-        System.out.println("Lancez ces URLs dans votre navigateur :");
-        System.out.println("GET  http://localhost:7000/api/health");
-        System.out.println("GET  http://localhost:7000/api/residents/travaux");
-        System.out.println("GET  http://localhost:7000/api/prestataires/problemes");
-        System.out.println("GET  http://localhost:7000/api/montreal/travaux");
+    private static void lancerMenuPrincipal() {
+        System.out.println("3. Lancement de l'interface utilisateur\n");
+
+        // Mode test pour vérifier tous les endpoints REST
+        if (args.length > 0 && args[0].equals("--test")) {
+            System.out.println("Mode test activé - Test de tous les endpoints:");
+            httpClient.testerTousLesEndpoints();
+            System.out.println();
+        }
+
+        // Lancer le menu principal en passant le même httpClient (partagé partout)
+        MenuPrincipal menuPrincipal = new MenuPrincipal(httpClient);
+        menuPrincipal.demarrer();
+    }
+
+    /**
+     * Arrête le serveur et ferme le client HTTP
+     */
+    private static void arreterServeur() {
+        System.out.println("\n=== Arrêt du système ===");
+
+        if (httpClient != null) {
+            System.out.println("- Fermeture du client HTTP...");
+            httpClient.fermer();
+        }
+
+        if (apiServer != null && apiServer.isRunning()) {
+            System.out.println("- Arrêt du serveur API...");
+            apiServer.stop();
+        }
+
+        System.out.println(" Système arrêté proprement");
+        System.out.println("=== Merci d'avoir utilisé MaVille ===");
     }
 }

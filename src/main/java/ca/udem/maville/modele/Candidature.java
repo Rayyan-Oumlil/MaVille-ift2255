@@ -25,6 +25,12 @@ public class Candidature {
     private StatutCandidature statut;
     private String commentaireRejet; // Si la candidature est rejetée
 
+    // Constructeur par défaut NÉCESSAIRE pour Jackson
+    public Candidature() {
+        // Constructeur vide pour la désérialisation JSON
+        this.problemesVises = new ArrayList<>(); // Initialiser la liste pour éviter NPE
+    }
+
     /*
         Constructeur - crée une nouvelle candidature avec statut SOUMISE par défaut
      */
@@ -44,14 +50,17 @@ public class Candidature {
 
     // Getters et Setters
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     
     public Prestataire getPrestataire() { return prestataire; }
     public void setPrestataire(Prestataire prestataire) { this.prestataire = prestataire; }
     
     // Retourne une copie pour protéger la liste interne
-    public List<Integer> getProblemesVises() { return new ArrayList<>(problemesVises); }
+    public List<Integer> getProblemesVises() { 
+        return problemesVises != null ? new ArrayList<>(problemesVises) : new ArrayList<>(); 
+    }
     public void setProblemesVises(List<Integer> problemesVises) { 
-        this.problemesVises = new ArrayList<>(problemesVises); 
+        this.problemesVises = problemesVises != null ? new ArrayList<>(problemesVises) : new ArrayList<>(); 
     }
     
     public String getDescriptionProjet() { return descriptionProjet; }
@@ -73,6 +82,7 @@ public class Candidature {
     }
     
     public LocalDateTime getDateDepot() { return dateDepot; }
+    public void setDateDepot(LocalDateTime dateDepot) { this.dateDepot = dateDepot; }
     
     public StatutCandidature getStatut() { return statut; }
     public void setStatut(StatutCandidature statut) { this.statut = statut; }
@@ -101,7 +111,9 @@ public class Candidature {
     // Affichage simple pour les listes
     @Override
     public String toString() {
-        return "Candidature #" + id + " par " + prestataire.getNomEntreprise() + 
-               " - " + coutEstime + "$ (" + statut + ")";
+        return "Candidature #" + id + " par " + 
+               (prestataire != null ? prestataire.getNomEntreprise() : "N/A") + 
+               " - " + coutEstime + "$ (" + 
+               (statut != null ? statut : "N/A") + ")";
     }
 }

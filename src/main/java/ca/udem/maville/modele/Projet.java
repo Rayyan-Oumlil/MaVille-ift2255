@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 /*
     Représente un projet de travaux créé à partir d'une candidature approuvée.
     Combine les infos de la candidature avec les détails des problèmes à traiter.
  */
-
 public class Projet {
     private static final AtomicInteger compteurId = new AtomicInteger(1);
     
@@ -32,11 +30,16 @@ public class Projet {
     private LocalDateTime derniereMiseAJour;
     private int nombreRapports;
 
-/*
-        Constructeur - crée un projet à partir d'une candidature approuvée
-        Récupère automatiquement les infos des problèmes (localisation, type, priorité )
-*/
+    // Constructeur par défaut NÉCESSAIRE pour Jackson
+    public Projet() {
+        // Constructeur vide pour la désérialisation JSON
+        this.problemesVises = new ArrayList<>();
+    }
 
+    /*
+        Constructeur - crée un projet à partir d'une candidature approuvée
+        Récupère automatiquement les infos des problèmes (localisation, type, priorité)
+    */
     public Projet(Candidature candidature, List<Probleme> problemes) {
         this.id = compteurId.getAndIncrement();
         // Copier les infos de la candidature
@@ -64,8 +67,12 @@ public class Projet {
 
     // Getters et Setters
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     
     public List<Integer> getProblemesVises() { return new ArrayList<>(problemesVises); }
+    public void setProblemesVises(List<Integer> problemesVises) { 
+        this.problemesVises = new ArrayList<>(problemesVises); 
+    }
     
     public String getLocalisation() { return localisation; }
     public void setLocalisation(String localisation) { this.localisation = localisation; }
@@ -116,14 +123,18 @@ public class Projet {
     public void setCout(double cout) { this.cout = cout; }
     
     public LocalDateTime getDateCreation() { return dateCreation; }
+    public void setDateCreation(LocalDateTime dateCreation) { this.dateCreation = dateCreation; }
     
     public LocalDateTime getDerniereMiseAJour() { return derniereMiseAJour; }
+    public void setDerniereMiseAJour(LocalDateTime derniereMiseAJour) { 
+        this.derniereMiseAJour = derniereMiseAJour; 
+    }
     
     public int getNombreRapports() { return nombreRapports; }
     public void setNombreRapports(int nombreRapports) { this.nombreRapports = nombreRapports; }
 
     /*
-        Démarre le projet - passe de APROUVE à EN COURS
+        Démarre le projet - passe de APPROUVE à EN_COURS
      */
     public void demarrer() {
         if (statut == StatutProjet.APPROUVE) {
@@ -142,9 +153,10 @@ public class Projet {
             this.derniereMiseAJour = LocalDateTime.now();
         }
     }
-/*
+
+    /*
         Reprend un projet suspendu
-*/
+    */
     public void reprendre() {
         if (statut == StatutProjet.SUSPENDU) {
             this.statut = StatutProjet.EN_COURS;
@@ -152,9 +164,9 @@ public class Projet {
         }
     }
 
-/*
+    /*
         Termine le projet
-*/
+    */
     public void terminer() {
         if (statut == StatutProjet.EN_COURS) {
             this.statut = StatutProjet.TERMINE;

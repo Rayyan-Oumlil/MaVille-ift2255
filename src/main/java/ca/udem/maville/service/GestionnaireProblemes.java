@@ -1,20 +1,43 @@
 package ca.udem.maville.service;
 
 import ca.udem.maville.modele.*;
+import ca.udem.maville.storage.JsonStorage;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 /*
     Service qui gère tous les problèmes signalés par les résidents.
-    Stocke les problèmes en mémoire et offre les opérations de base.
+    Version corrigée qui charge les données depuis le storage.
  */
 public class GestionnaireProblemes {
-    // Liste de tous les problèmes signalés (stockage en mémoire pour le prototype)
+    // Liste de tous les problèmes signalés
     private List<Probleme> problemes;
+    private JsonStorage storage;
 
+    // Constructeur par défaut pour compatibilité
     public GestionnaireProblemes() {
         this.problemes = new ArrayList<>();
+    }
+    
+    // Nouveau constructeur avec storage
+    public GestionnaireProblemes(JsonStorage storage) {
+        this.storage = storage;
+        this.problemes = new ArrayList<>();
+        chargerProblemes();
+    }
+    
+    /*
+        Charge les problèmes existants depuis le storage
+     */
+    private void chargerProblemes() {
+        if (storage != null) {
+            List<Probleme> problemesExistants = storage.loadProblemes();
+            if (problemesExistants != null && !problemesExistants.isEmpty()) {
+                this.problemes.addAll(problemesExistants);
+                System.out.println("GestionnaireProblemes: " + problemes.size() + " problèmes chargés");
+            }
+        }
     }
 
     /*
@@ -26,6 +49,12 @@ public class GestionnaireProblemes {
         // Attribution automatique de priorité MOYENNE
         probleme.setPriorite(Priorite.MOYENNE);
         problemes.add(probleme);
+        
+        // Sauvegarder si storage disponible
+        if (storage != null) {
+            storage.saveProblemes(problemes);
+        }
+        
         return probleme;
     }
 
@@ -68,5 +97,15 @@ public class GestionnaireProblemes {
                 .map(this::trouverProblemeParId)  // Cherche chaque ID
                 .filter(p -> p != null)          // Enlève les nulls
                 .collect(Collectors.toList());
+    }
+    
+    /*
+        Méthode pour synchroniser avec le storage
+        Utile pour recharger les données
+     */
+    public void synchroniserAvecStorage(JsonStorage storage) {
+        this.storage = storage;
+        this.problemes.clear();
+        chargerProblemes();
     }
 }
