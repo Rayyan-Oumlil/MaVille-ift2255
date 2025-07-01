@@ -35,10 +35,10 @@ public class MenuResident {
                     rechercherTravaux();
                     break;
                 case 3:
-                    gererNotificationsPersonnalisees();
+                    signalerProblemeRoutier();
                     break;
                 case 4:
-                    signalerProblemeRoutier();
+                    gererNotificationsPersonnalisees();
                     break;
                 case 0:
                     continuer = false;
@@ -53,8 +53,8 @@ public class MenuResident {
         System.out.println("\n=== MENU RÉSIDENT ===");
         System.out.println("1. Consulter les travaux en cours ou à venir (3 prochains mois)");
         System.out.println("2. Rechercher des travaux");
-        System.out.println("3. Recevoir des notifications personnalisées");
-        System.out.println("4. Signaler un problème routier à la ville");
+        System.out.println("3. Signaler un problème routier à la ville");
+        System.out.println("4. Recevoir des notifications personnalisées");
         System.out.println("0. Retour au menu principal");
     }
     

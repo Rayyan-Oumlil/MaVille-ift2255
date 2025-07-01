@@ -47,6 +47,19 @@ public class Candidature {
         this.dateDepot = LocalDateTime.now(); // Date actuelle
         this.statut = StatutCandidature.SOUMISE; // Statut initial
     }
+    /**
+ * Synchronise le compteur d'ID avec l'ID maximum existant
+ * Appelé après le chargement depuis JSON pour éviter les doublons d'ID
+ */
+public static void synchroniserCompteurId(List<Candidature> candidaturesExistantes) {
+    if (candidaturesExistantes != null && !candidaturesExistantes.isEmpty()) {
+        int maxId = candidaturesExistantes.stream()
+            .mapToInt(Candidature::getId)
+            .max()
+            .orElse(0);
+        compteurId.set(maxId + 1);
+    }
+}
 
     // Getters et Setters
     public int getId() { return id; }

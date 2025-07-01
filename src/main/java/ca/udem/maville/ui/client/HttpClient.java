@@ -121,48 +121,72 @@ public class HttpClient {
         }
     }
     
-    /**
-     * Soumettre une candidature pour un projet
-     */
-    public String soumettreCandiature(String prestataireId, String titre, 
-                                     String description, String typeTravaux,
-                                     String dateDebut, String dateFin, double cout) {
-        try {
-            // Regroupement de toutes les données de la candidature
-            Map<String, Object> data = new HashMap<>();
-            data.put("prestataireId", prestataireId);
-            data.put("titre", titre);
-            data.put("description", description);
-            data.put("typeTravaux", typeTravaux);
-            data.put("dateDebut", dateDebut);
-            data.put("dateFin", dateFin);
-            data.put("cout", cout);
-            
-            String response = post("/prestataires/candidatures", data);
-            return "Candidature soumise avec succès";
-        } catch (Exception e) {
-            return "Erreur soumission candidature: " + e.getMessage();
+
+/**
+ * Soumettre une candidature pour un projet
+ */
+public String soumettreCandiature(String prestataireId, String titre, 
+                                 String description, String typeTravaux,
+                                 String dateDebut, String dateFin, double cout) {
+    try {
+        // Regroupement de toutes les données de la candidature
+        Map<String, Object> data = new HashMap<>();
+        data.put("prestataireId", prestataireId);
+        data.put("titre", titre);
+        data.put("description", description);
+        data.put("typeTravaux", typeTravaux);
+        data.put("dateDebut", dateDebut);
+        data.put("dateFin", dateFin);
+        data.put("cout", cout);
+        
+        System.out.println("\nDEBUG HttpClient - Envoi des données : " + data);
+        
+        String response = post("/prestataires/candidatures", data);
+        
+        System.out.println("DEBUG HttpClient - Réponse reçue : " + response);
+        
+        // Parser la réponse pour vérifier le succès
+        Map<String, Object> responseData = objectMapper.readValue(response, Map.class);
+        if (responseData.containsKey("success") && (Boolean) responseData.get("success")) {
+            return "Candidature soumise avec succès - ID: " + responseData.get("candidatureId");
+        } else {
+            return "Erreur : " + responseData.get("error");
         }
+    } catch (Exception e) {
+        return "Erreur soumission candidature: " + e.getMessage();
     }
+}
     
-    /**
-     * Mettre à jour un des projets en cours
-     */
-    public String mettreAJourProjet(String projetId, String nouveauStatut, 
-                                   String nouvelleDescription, String nouvelleDateFin) {
-        try {
-            // Envoi seulement des champs à modifier (les autres restent null)
-            Map<String, Object> data = new HashMap<>();
-            if (nouveauStatut != null) data.put("statut", nouveauStatut);
-            if (nouvelleDescription != null) data.put("description", nouvelleDescription);
-            if (nouvelleDateFin != null) data.put("dateFin", nouvelleDateFin);
-            
-            String response = put("/prestataires/projets/" + projetId, data);
-            return "Projet mis à jour avec succès";
-        } catch (Exception e) {
-            return "Erreur mise à jour projet: " + e.getMessage();
-        }
+
+
+/**
+ * Mettre à jour un des projets en cours
+ * Version améliorée avec NEQ pour identifier le bon projet
+ */
+public String mettreAJourProjet(String projetId, String nouveauStatut, 
+                               String nouvelleDescription, String nouvelleDateFin, String neq) {
+    try {
+        // Envoi seulement des champs à modifier (les autres restent null)
+        Map<String, Object> data = new HashMap<>();
+        if (nouveauStatut != null) data.put("statut", nouveauStatut);
+        if (nouvelleDescription != null) data.put("description", nouvelleDescription);
+        if (nouvelleDateFin != null) data.put("dateFin", nouvelleDateFin);
+        if (neq != null) data.put("neq", neq); // Ajouter le NEQ pour identifier le prestataire
+        
+        System.out.println("DEBUG HttpClient - Envoi mise à jour projet #" + projetId + " avec NEQ: " + neq);
+        
+        String response = put("/prestataires/projets/" + projetId, data);
+        return "Projet mis à jour avec succès";
+    } catch (Exception e) {
+        return "Erreur mise à jour projet: " + e.getMessage();
     }
+}
+
+// Surcharge pour compatibilité avec l'ancienne signature
+public String mettreAJourProjet(String projetId, String nouveauStatut, 
+                               String nouvelleDescription, String nouvelleDateFin) {
+    return mettreAJourProjet(projetId, nouveauStatut, nouvelleDescription, nouvelleDateFin, null);
+}
     
     // ================================================================
     // MÉTHODES POUR L'INTERFACE STPM
@@ -583,4 +607,45 @@ private String formatDate(Object dateObj) {
         
         System.out.println("=== Fin des tests de l'architecture ===");
     }
+    /**
+ * Consulter les projets d'un prestataire spécifique
+ */
+public String consulterProjetsDuPrestataire(String neq) {
+    try {
+        String response = get("/prestataires/" + neq + "/projets");
+        
+        // Parser le JSON pour un meilleur formatage
+        Map<String, Object> data = objectMapper.readValue(response, Map.class);
+        List<Map<String, Object>> projets = (List<Map<String, Object>>) data.get("projets");
+        Integer total = (Integer) data.get("total");
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nombre de projets trouvés : ").append(total).append("\n");
+        
+        if (projets != null && !projets.isEmpty()) {
+            sb.append("\n=== VOS PROJETS ===\n");
+            
+            for (int i = 0; i < projets.size(); i++) {
+                Map<String, Object> projet = projets.get(i);
+                sb.append("\n").append(i + 1).append(". ");
+                sb.append("PROJET #").append(projet.get("id")).append("\n");
+                sb.append("   - Description : ").append(projet.get("description")).append("\n");
+                sb.append("   - Localisation : ").append(projet.get("localisation")).append("\n");
+                sb.append("   - Type : ").append(projet.get("type")).append("\n");
+                sb.append("   - Statut : ").append(projet.get("statut")).append("\n");
+                sb.append("   - Dates : du ").append(projet.get("dateDebut"))
+                  .append(" au ").append(projet.get("dateFin")).append("\n");
+                sb.append("   - Coût : ").append(projet.get("cout")).append("$\n");
+            }
+        } else {
+            sb.append("\nAucun projet trouvé pour ce numéro d'entreprise.\n");
+            sb.append("Vérifiez votre NEQ ou soumettez d'abord des candidatures.\n");
+        }
+        
+        return sb.toString();
+        
+    } catch (Exception e) {
+        return "Erreur consultation projets: " + e.getMessage();
+    }
+}
 }

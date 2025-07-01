@@ -132,18 +132,25 @@ public class JsonStorage {
         }
     }
     
-    public List<Candidature> loadCandidatures() {
-        try {
-            File file = new File(CANDIDATURES_FILE);
-            if (file.exists()) {
-                Candidature[] array = mapper.readValue(file, Candidature[].class);
-                return new ArrayList<>(Arrays.asList(array));
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur chargement candidatures: " + e.getMessage());
+
+
+public List<Candidature> loadCandidatures() {
+    try {
+        File file = new File(CANDIDATURES_FILE);
+        if (file.exists()) {
+            Candidature[] array = mapper.readValue(file, Candidature[].class);
+            List<Candidature> candidatures = new ArrayList<>(Arrays.asList(array));
+            
+            // IMPORTANT : Synchroniser le compteur d'ID pour éviter les doublons
+            Candidature.synchroniserCompteurId(candidatures);
+            
+            return candidatures;
         }
-        return new ArrayList<>();
+    } catch (IOException e) {
+        System.err.println("Erreur chargement candidatures: " + e.getMessage());
     }
+    return new ArrayList<>();
+}
     
     // === MÉTHODES UTILITAIRES ===
     public void initializeWithSampleData() {
@@ -273,7 +280,7 @@ private List<Probleme> createSampleProblemes() {
         prestataires = createSamplePrestataires();
         savePrestataires(prestataires);
     }
-        
+
     // Candidature 1 : Pavage Pro pour le nid de poule
     Candidature c1 = new Candidature(
         prestataires.get(1), // Pavage Pro

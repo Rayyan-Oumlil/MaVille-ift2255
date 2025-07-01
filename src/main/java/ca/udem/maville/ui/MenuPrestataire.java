@@ -9,12 +9,12 @@ import ca.udem.maville.ui.client.HttpClient;
 public class MenuPrestataire {
     // Remplacement des gestionnaires par le client HTTP
     private HttpClient httpClient;
-    private SaisieConsole saisie; // AJOUT DE L'ATTRIBUT MANQUANT
+    private SaisieConsole saisie;
     
     // Constructeur adapté pour recevoir HttpClient
     public MenuPrestataire(HttpClient httpClient) {
         this.httpClient = httpClient;
-        this.saisie = new SaisieConsole(); // INITIALISATION
+        this.saisie = new SaisieConsole();
     }
     
     public void afficher() {
@@ -37,10 +37,7 @@ public class MenuPrestataire {
                     soumettreCandiature();
                     break;
                 case 4:
-                    mettreAJourProjet();
-                    break;
-                case 5:
-                    consulterMesProjets();
+                    mettreAJourMesProjets();
                     break;
                 case 0:
                     continuer = false;
@@ -56,8 +53,7 @@ public class MenuPrestataire {
         System.out.println("1. Consulter tous les problèmes disponibles");
         System.out.println("2. Rechercher problèmes (avec filtres)");
         System.out.println("3. Soumettre une candidature");
-        System.out.println("4. Mettre à jour un projet");
-        System.out.println("5. Consulter mes projets");
+        System.out.println("4. Mettre à jour mes projets");
         System.out.println("0. Retour menu principal");
     }
     
@@ -161,16 +157,64 @@ public class MenuPrestataire {
         System.out.println("\nType de travaux :");
         String typeTravaux = choisirTypeTravaux();
         
-        String dateDebut = saisie.lireChaine("Date de début (YYYY-MM-DD) : ");
-        String dateFin = saisie.lireChaine("Date de fin (YYYY-MM-DD) : ");
+        // AMÉLIORATION : Validation des dates avec exemples clairs
+        String dateDebut = "";
+        String dateFin = "";
+        boolean datesValides = false;
+        
+        while (!datesValides) {
+            System.out.println(" IMPORTANT : Les dates doivent être au format AAAA-MM-JJ");
+            System.out.println("Exemple : 2025-07-15 pour le 15 juillet 2025");
+            
+            dateDebut = saisie.lireChaine("Date de début (AAAA-MM-JJ) : ");
+            
+            // Vérifier le format de la date de début
+            if (!dateDebut.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                System.out.println(" Format incorrect ! Utilisez AAAA-MM-JJ (ex: 2025-07-15)");
+                continue;
+            }
+            
+            dateFin = saisie.lireChaine("Date de fin (AAAA-MM-JJ) : ");
+            
+            // Vérifier le format de la date de fin
+            if (!dateFin.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                System.out.println(" Format incorrect ! Utilisez AAAA-MM-JJ (ex: 2025-07-20)");
+                continue;
+            }
+            
+            // Vérifier que la date de fin est après la date de début
+            try {
+                java.time.LocalDate debut = java.time.LocalDate.parse(dateDebut);
+                java.time.LocalDate fin = java.time.LocalDate.parse(dateFin);
+                
+                if (fin.isBefore(debut)) {
+                    System.out.println(" La date de fin doit être après la date de début !");
+                    continue;
+                }
+                
+                datesValides = true;
+                System.out.println(" Dates valides !");
+                
+            } catch (Exception e) {
+                System.out.println(" Dates invalides : " + e.getMessage());
+            }
+        }
         
         // Gestion du coût avec validation
         double cout = 0;
-        try {
-            cout = saisie.lireDouble("Coût estimé ($) : ");
-        } catch (Exception e) {
-            System.out.println("Coût invalide, défini à 0");
-            cout = 0;
+        boolean coutValide = false;
+        
+        while (!coutValide) {
+            try {
+                cout = saisie.lireDouble("Coût estimé ($) : ");
+                if (cout <= 0) {
+                    System.out.println(" Le coût doit être supérieur à 0");
+                    continue;
+                }
+                coutValide = true;
+            } catch (Exception e) {
+                System.out.println(" Montant invalide, veuillez entrer un nombre");
+            }
         }
         
         // Récapitulatif de la candidature
@@ -185,7 +229,7 @@ public class MenuPrestataire {
         String confirmation = saisie.lireChaine("\nConfirmer la soumission? (oui/non) : ");
         
         if (confirmation.toLowerCase().startsWith("o")) {
-            System.out.println("Soumission de la candidature via API REST...");
+            System.out.println("\nSoumission de la candidature via API REST...");
             
             // APPEL REST pour soumettre la candidature
             String resultat = httpClient.soumettreCandiature(
@@ -194,8 +238,14 @@ public class MenuPrestataire {
             );
             
             // Affichage du résultat
+            System.out.println("\n=== RÉSULTAT ===");
             System.out.println(resultat);
-            System.out.println("Votre candidature sera évaluée par le STPM.");
+            
+            // Message de confirmation
+            if (resultat.contains("succès")) {
+                System.out.println(" Votre candidature a été enregistrée avec succès !");
+                System.out.println("Elle sera évaluée par le STPM dans les plus brefs délais.");
+            }
         } else {
             System.out.println("Candidature annulée.");
         }
@@ -204,70 +254,239 @@ public class MenuPrestataire {
     }
     
     /**
-     * Mettre à jour un projet en cours via API REST
+     * Nouvelle méthode pour mettre à jour les projets du prestataire
      */
-    private void mettreAJourProjet() {
-        System.out.println("\n=== METTRE A JOUR UN PROJET ===");
-        
-        String projetId = saisie.lireChaine("ID du projet à modifier : ");
-        
-        System.out.println("\nQue voulez-vous modifier? (laissez vide pour ignorer)");
-        
-        // Collecte des modifications
-        String nouveauStatut = saisie.lireChaine("Nouveau statut (EN_COURS/SUSPENDU/TERMINE) : ");
-        String nouvelleDescription = saisie.lireChaine("Nouvelle description : ");
-        String nouvelleDateFin = saisie.lireChaine("Nouvelle date de fin (YYYY-MM-DD) : ");
-        
-        // Nettoyage des champs vides
-        if (nouveauStatut.trim().isEmpty()) nouveauStatut = null;
-        if (nouvelleDescription.trim().isEmpty()) nouvelleDescription = null;
-        if (nouvelleDateFin.trim().isEmpty()) nouvelleDateFin = null;
-        
-        // Vérification qu'au moins un champ est modifié
-        if (nouveauStatut == null && nouvelleDescription == null && nouvelleDateFin == null) {
-            System.out.println("Aucune modification spécifiée.");
-            pauseAvantContinuer();
-            return;
-        }
-        
-        // Récapitulatif des modifications
-        System.out.println("\n=== MODIFICATIONS À APPLIQUER ===");
-        if (nouveauStatut != null) System.out.println("Statut : " + nouveauStatut);
-        if (nouvelleDescription != null) System.out.println("Description : " + nouvelleDescription);
-        if (nouvelleDateFin != null) System.out.println("Date fin : " + nouvelleDateFin);
-        
-        System.out.println("\nMise à jour via API REST...");
-        
-        // APPEL REST pour mettre à jour le projet
-        String resultat = httpClient.mettreAJourProjet(
-            projetId, nouveauStatut, nouvelleDescription, nouvelleDateFin
-        );
-        
-        // Affichage du résultat
-        System.out.println(resultat);
-        
+   // Dans MenuPrestataire.java, remplacez toute la méthode mettreAJourMesProjets :
+
+// Dans MenuPrestataire.java, remplacez toute la méthode mettreAJourMesProjets :
+
+private void mettreAJourMesProjets() {
+    System.out.println("\n=== METTRE À JOUR MES PROJETS ===");
+    
+    // Demander le NEQ du prestataire
+    String prestataireId = saisie.lireChaine("Votre numéro d'entreprise (NEQ) : ");
+    
+    System.out.println("\nRecherche de vos projets en cours...");
+    
+    // Appeler le nouvel endpoint pour récupérer les projets du prestataire
+    String resultats = httpClient.consulterProjetsDuPrestataire(prestataireId);
+    
+    // Afficher les résultats
+    System.out.println(resultats);
+    
+    // Vérifier s'il y a des projets
+    if (resultats.contains("Aucun projet trouvé")) {
+        System.out.println(" Conseil : Soumettez d'abord des candidatures (option 3)");
+        System.out.println("   et attendez qu'elles soient acceptées par le STPM.");
         pauseAvantContinuer();
+        return;
     }
     
-    /**
-     * Consulter les projets du prestataire
-     */
-    private void consulterMesProjets() {
-        System.out.println("\n=== MES PROJETS ===");
-        
-        String prestataireId = saisie.lireChaine("Votre ID prestataire (NEQ) : ");
-        
-        System.out.println("Fonctionnalités disponibles :");
-        System.out.println("- Projets en cours");
-        System.out.println("- Candidatures en attente");
-        System.out.println("- Historique des projets terminés");
-        System.out.println("- Statistiques de performance");
-        
-        System.out.println("\nNote : Cette fonctionnalité sera implémentée");
-        System.out.println("avec un endpoint REST /prestataires/" + prestataireId + "/projets");
-        
-        pauseAvantContinuer();
+    // Parser les projets depuis les résultats pour obtenir les IDs valides
+    java.util.List<String> projectIds = new java.util.ArrayList<>();
+    String[] lines = resultats.split("\n");
+    for (String line : lines) {
+        if (line.contains("PROJET #")) {
+            String id = line.substring(line.indexOf("#") + 1).trim();
+            if (id.matches("\\d+")) {
+                projectIds.add(id);
+            }
+        }
     }
+    
+    if (projectIds.isEmpty()) {
+        System.out.println("Aucun projet trouvé pour modification.");
+        pauseAvantContinuer();
+        return;
+    }
+    
+    // Sélection du projet à modifier
+    System.out.println("\n─────────────────────────────────────");
+    System.out.println("Actions disponibles :");
+    System.out.println("- Entrez l'ID du projet à modifier (IDs disponibles : " + String.join(", ", projectIds) + ")");
+    System.out.println("- Tapez 'Q' pour quitter");
+    System.out.print("\nVotre choix : ");
+    
+    String choix = saisie.lireChaine("");
+    
+    if (choix.equalsIgnoreCase("Q")) {
+        return;
+    }
+    
+    // Vérifier que l'ID choisi est valide
+    if (!projectIds.contains(choix)) {
+        System.out.println(" ID invalide. Ce projet ne vous appartient pas ou n'existe pas.");
+        pauseAvantContinuer();
+        return;
+    }
+    
+    // RECHARGER les données du projet sélectionné pour avoir l'état actuel
+    System.out.println("\n Récupération de l'état actuel du projet #" + choix + "...");
+    String etatActuel = httpClient.consulterProjetsDuPrestataire(prestataireId);
+    
+    // Extraire les infos actuelles du projet sélectionné
+    String statutActuel = "INCONNU";
+    String descriptionActuelle = "";
+    String dateFinActuelle = "";
+    
+    boolean projetTrouve = false;
+    String[] lignes = etatActuel.split("\n");
+    for (int i = 0; i < lignes.length; i++) {
+        if (lignes[i].contains("PROJET #" + choix)) {
+            projetTrouve = true;
+            // Chercher les infos dans les lignes suivantes
+            for (int j = i + 1; j < lignes.length && j < i + 10; j++) {
+                if (lignes[j].contains("- Description :")) {
+                    descriptionActuelle = lignes[j].substring(lignes[j].indexOf(":") + 1).trim();
+                } else if (lignes[j].contains("- Statut :")) {
+                    statutActuel = lignes[j].substring(lignes[j].indexOf(":") + 1).trim();
+                } else if (lignes[j].contains(" au ")) {
+                    String dates = lignes[j];
+                    dateFinActuelle = dates.substring(dates.lastIndexOf(" ") + 1).trim();
+                }
+            }
+            break;
+        }
+    }
+    
+    if (!projetTrouve) {
+        System.out.println(" Erreur lors de la récupération du projet.");
+        pauseAvantContinuer();
+        return;
+    }
+    
+    // Afficher l'état actuel
+    System.out.println("\n ÉTAT ACTUEL DU PROJET #" + choix);
+    System.out.println("════════════════════════════════════");
+    System.out.println("Statut actuel : " + statutActuel);
+    System.out.println("Description : " + descriptionActuelle);
+    System.out.println("Date fin prévue : " + dateFinActuelle);
+    System.out.println("════════════════════════════════════");
+    
+    // Modification du projet sélectionné
+    System.out.println("\n=== MODIFICATION DU PROJET #" + choix + " ===");
+    System.out.println("\nQue voulez-vous modifier ?");
+    System.out.println("1. Statut du projet");
+    System.out.println("2. Description");
+    System.out.println("3. Date de fin prévue");
+    System.out.println("4. Tout modifier");
+    System.out.println("0. Annuler");
+    
+    int typeModif = saisie.lireEntier("Votre choix : ");
+    
+    String nouveauStatut = null;
+    String nouvelleDescription = null;
+    String nouvelleDateFin = null;
+    
+    switch (typeModif) {
+        case 1:
+            System.out.println("\nStatuts disponibles :");
+            System.out.println("1. EN_COURS");
+            System.out.println("2. SUSPENDU");
+            System.out.println("3. TERMINE");
+            System.out.println("Statut actuel : " + statutActuel);
+            int statut = saisie.lireEntier("Nouveau statut : ");
+            switch (statut) {
+                case 1: nouveauStatut = "EN_COURS"; break;
+                case 2: nouveauStatut = "SUSPENDU"; break;
+                case 3: nouveauStatut = "TERMINE"; break;
+            }
+            break;
+            
+        case 2:
+            System.out.println("Description actuelle : " + descriptionActuelle);
+            nouvelleDescription = saisie.lireChaine("Nouvelle description : ");
+            break;
+            
+        case 3:
+            System.out.println("Date fin actuelle : " + dateFinActuelle);
+            nouvelleDateFin = saisie.lireChaine("Nouvelle date de fin (AAAA-MM-JJ) : ");
+            while (!nouvelleDateFin.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                System.out.println(" Format incorrect !");
+                nouvelleDateFin = saisie.lireChaine("Nouvelle date de fin (AAAA-MM-JJ) : ");
+            }
+            break;
+            
+        case 4:
+            // Tout modifier
+            System.out.println("\nStatuts : 1=EN_COURS, 2=SUSPENDU, 3=TERMINE");
+            System.out.println("Statut actuel : " + statutActuel);
+            int st = saisie.lireEntier("Nouveau statut : ");
+            switch (st) {
+                case 1: nouveauStatut = "EN_COURS"; break;
+                case 2: nouveauStatut = "SUSPENDU"; break;
+                case 3: nouveauStatut = "TERMINE"; break;
+            }
+            
+            System.out.println("Description actuelle : " + descriptionActuelle);
+            nouvelleDescription = saisie.lireChaine("Nouvelle description : ");
+            
+            System.out.println("Date fin actuelle : " + dateFinActuelle);
+            nouvelleDateFin = saisie.lireChaine("Nouvelle date de fin (AAAA-MM-JJ) : ");
+            while (!nouvelleDateFin.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                System.out.println(" Format incorrect !");
+                nouvelleDateFin = saisie.lireChaine("Nouvelle date de fin (AAAA-MM-JJ) : ");
+            }
+            break;
+            
+        case 0:
+            System.out.println("Modification annulée.");
+            pauseAvantContinuer();
+            return;
+    }
+    
+    // Récapitulatif des modifications
+    System.out.println("\n=== RÉCAPITULATIF DES MODIFICATIONS ===");
+    if (nouveauStatut != null) System.out.println("Nouveau statut : " + nouveauStatut);
+    if (nouvelleDescription != null && !nouvelleDescription.trim().isEmpty()) 
+        System.out.println("Nouvelle description : " + nouvelleDescription);
+    if (nouvelleDateFin != null) System.out.println("Nouvelle date fin : " + nouvelleDateFin);
+    
+    String confirm = saisie.lireChaine("\nConfirmer les modifications ? (oui/non) : ");
+    
+    if (confirm.toLowerCase().startsWith("o")) {
+        System.out.println("\nMise à jour en cours...");
+        
+        // APPEL REST pour mettre à jour le projet AVEC LE NEQ
+        String resultat = httpClient.mettreAJourProjet(
+            choix, nouveauStatut, nouvelleDescription, nouvelleDateFin, prestataireId
+        );
+        
+        System.out.println(resultat);
+        
+        if (resultat.contains("succès")) {
+            System.out.println(" Projet mis à jour avec succès !");
+            
+            // Afficher immédiatement le nouvel état
+            System.out.println("\n Récupération du nouvel état...");
+            String nouvelEtat = httpClient.consulterProjetsDuPrestataire(prestataireId);
+            
+            // Extraire et afficher uniquement le projet modifié
+            String[] lignesNouvelEtat = nouvelEtat.split("\n");
+            boolean affichageCommence = false;
+            System.out.println("\n NOUVEL ÉTAT DU PROJET #" + choix);
+            System.out.println("════════════════════════════════════");
+            for (String ligne : lignesNouvelEtat) {
+                if (ligne.contains("PROJET #" + choix)) {
+                    affichageCommence = true;
+                }
+                if (affichageCommence && (ligne.trim().isEmpty() || ligne.contains("PROJET #"))) {
+                    if (!ligne.contains("PROJET #" + choix)) {
+                        break; // Arrêter à la fin du projet
+                    }
+                }
+                if (affichageCommence) {
+                    System.out.println(ligne);
+                }
+            }
+            System.out.println("════════════════════════════════════");
+        }
+    } else {
+        System.out.println("Modifications annulées.");
+    }
+    
+    pauseAvantContinuer();
+}
     
     /**
      * Choisir un type de travaux avec descriptions
@@ -321,21 +540,5 @@ public class MenuPrestataire {
     private void pauseAvantContinuer() {
         System.out.println("\nAppuyez sur Entrée pour continuer...");
         saisie.lireChaine("");
-    }
-    
-    /**
-     * Démonstration des avantages REST pour les prestataires
-     */
-    public void demonstrationRestPrestataire() {
-        System.out.println("\n=== AVANTAGES REST POUR PRESTATAIRES ===");
-        System.out.println("Nouvelles capacités:");
-        System.out.println(" Recherche avancée de problèmes par quartier/type");
-        System.out.println(" Soumission de candidatures en temps réel");
-        System.out.println(" Mise à jour instantanée des projets");
-        System.out.println(" Suivi en temps réel des candidatures");
-        System.out.println(" Notifications automatiques des validations");
-        System.out.println(" API standardisée pour intégrations futures");
-        
-        pauseAvantContinuer();
     }
 }
