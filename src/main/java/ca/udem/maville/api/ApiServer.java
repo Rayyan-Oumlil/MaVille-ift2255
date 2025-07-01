@@ -377,6 +377,8 @@ private void consulterProblemes(Context ctx) {
         String quartier = ctx.queryParam("quartier");
         String type = ctx.queryParam("type");
         
+        gestionnaireProblemes.synchroniserAvecStorage(storage);
+
         // TOUJOURS charger depuis le storage pour avoir les données à jour
         List<Probleme> problemes = storage.loadProblemes();
         
