@@ -115,7 +115,7 @@ maville/
 ```bash
 # Télécharger le JAR depuis la section Releases
 # Puis exécuter :
-java -jar target/maville-1.0-SNAPSHOT.jar
+java -jar target/maville-2.0-SNAPSHOT.jar
 ```
 
 ### Option 2 : Compiler depuis les sources
@@ -128,7 +128,7 @@ cd maville
 mvn clean package
 
 # Exécuter
-java -jar target/maville-1.0-SNAPSHOT.jar
+java -jar target/maville-2.0-SNAPSHOT.jar
 ```
 
 ### Démarrage de l'application
