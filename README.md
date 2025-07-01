@@ -252,7 +252,7 @@ mvn test -X
 
 ## Équipe
 - Younes Lagha
-- Rayyan oumlil
+- Rayyan Oumlil
 - Karim Omairi
 
 ---
