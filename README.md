@@ -115,13 +115,13 @@ maville/
 ```bash
 # Télécharger le JAR depuis la section Releases
 # Puis exécuter :
-java -jar MaVille.jar
+java -jar target/maville-1.0-SNAPSHOT.jar
 ```
 
 ### Option 2 : Compiler depuis les sources
 ```bash
 # Cloner le repository
-git clone 
+git clone https://github.com/IFT-2255/ift2255-ma-ville-team9.git
 cd maville
 
 # Compiler et créer le JAR
