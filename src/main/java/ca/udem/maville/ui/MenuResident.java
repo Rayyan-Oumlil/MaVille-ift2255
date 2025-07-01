@@ -157,65 +157,93 @@ public class MenuResident {
      * 3. Recevoir des notifications personnalisées
      * Gestion des abonnements aux notifications par quartier/rue
      */
-    private void gererNotificationsPersonnalisees() {
-        System.out.println("\n=== NOTIFICATIONS PERSONNALISÉES ===");
-        
-        String email = saisie.lireChaine("Votre email: ");
-        
-        System.out.println("\n1. Consulter mes notifications");
-        System.out.println("2. Gérer mes abonnements");
-        System.out.println("3. Retour");
-        
-        int choix = saisie.lireEntier("Votre choix: ");
-        
-        switch (choix) {
-            case 1:
-                consulterNotifications(email);
-                break;
-            case 2:
-                gererAbonnements(email);
-                break;
-        }
+private void gererNotificationsPersonnalisees() {
+    System.out.println("\n=== NOTIFICATIONS PERSONNALISÉES ===");
+    
+    String email = saisie.lireChaine("Votre email : ");
+    
+    System.out.println("\n1. Consulter mes notifications");
+    System.out.println("2. Gérer mes abonnements");
+    System.out.println("3. Retour");
+    
+    int choix = saisie.lireEntier("Votre choix : ");
+    
+    switch (choix) {
+        case 1:
+            consulterNotifications(email);
+            break;
+        case 2:
+            gererAbonnements(email);
+            break;
+    }
+}
+    
+private void consulterNotifications(String email) {
+    System.out.println("\n RÉCUPÉRATION DE VOS NOTIFICATIONS...");
+    
+    String resultat = httpClient.consulterNotifications(email);
+    
+    System.out.println("\n--- VOS NOTIFICATIONS ---");
+    System.out.println(resultat);
+    
+    // Proposer de marquer comme lues
+    System.out.println("\nOptions :");
+    System.out.println("1. Marquer toutes comme lues");
+    System.out.println("2. Retour");
+    
+    int choix = saisie.lireEntier("Votre choix : ");
+    if (choix == 1) {
+        System.out.println(" Toutes les notifications ont été marquées comme lues");
     }
     
-    private void consulterNotifications(String email) {
-        System.out.println("\nRécupération de vos notifications...");
-        String resultat = httpClient.consulterNotifications(email);
-        
-        System.out.println("\n--- VOS NOTIFICATIONS ---");
-        System.out.println(resultat);
-        pauseAvantContinuer();
+    pauseAvantContinuer();
+}
+    
+private void gererAbonnements(String email) {
+    System.out.println("\n=== GÉRER VOS ABONNEMENTS ===");
+    
+    // D'abord afficher les abonnements actuels
+    System.out.println("\n Vos abonnements actuels :");
+    String abonnementsActuels = httpClient.consulterAbonnements(email);
+    System.out.println(abonnementsActuels);
+    
+    System.out.println("\n--- NOUVEL ABONNEMENT ---");
+    System.out.println("À quoi voulez-vous vous abonner ?");
+    System.out.println("1. Un quartier");
+    System.out.println("2. Une rue");
+    System.out.println("3. Retour");
+    
+    int choix = saisie.lireEntier("Votre choix : ");
+    
+    switch (choix) {
+        case 1:
+            // Abonnement à un quartier
+            System.out.println("\nQuartiers disponibles : Rosemont, Plateau, Ville-Marie, Hochelaga, etc.");
+            String quartier = saisie.lireChaineNonVide("Nom du quartier : ");
+            
+            String resultatQuartier = httpClient.creerAbonnement(email, "QUARTIER", quartier);
+            System.out.println("\n" + resultatQuartier);
+            System.out.println(" Vous recevrez des notifications pour tous les projets dans " + quartier);
+            break;
+            
+        case 2:
+            // Abonnement à une rue
+            System.out.println("\nExemples : Saint-Denis, Sainte-Catherine, Ontario, etc.");
+            String rue = saisie.lireChaineNonVide("Nom de la rue : ");
+            
+            String resultatRue = httpClient.creerAbonnement(email, "RUE", rue);
+            System.out.println("\n" + resultatRue);
+            System.out.println(" Vous recevrez des notifications pour tous les projets sur " + rue);
+            break;
+            
+        case 3:
+            return;
     }
     
-    private void gererAbonnements(String email) {
-        System.out.println("\n=== GÉRER VOS ABONNEMENTS ===");
-        System.out.println("Vous êtes automatiquement abonné aux notifications de votre quartier de résidence.");
-        System.out.println("\nAbonnements supplémentaires :");
-        System.out.println("1. S'abonner aux notifications d'un quartier");
-        System.out.println("2. S'abonner aux notifications d'une rue");
-        System.out.println("3. Voir tous mes abonnements");
-        
-        int choix = saisie.lireEntier("Votre choix: ");
-        
-        switch (choix) {
-            case 1:
-                String quartier = saisie.lireChaine("Nom du quartier: ");
-                System.out.println("Abonnement au quartier '" + quartier + "' enregistré.");
-                System.out.println("Vous recevrez des notifications lors de changements dans les projets de ce quartier.");
-                break;
-            case 2:
-                String rue = saisie.lireChaine("Nom de la rue: ");
-                System.out.println("Abonnement à la rue '" + rue + "' enregistré.");
-                System.out.println("Vous recevrez des notifications lors de changements dans les projets de cette rue.");
-                break;
-            case 3:
-                System.out.println("\nVos abonnements actuels:");
-                System.out.println("- Quartier de résidence (automatique)");
-                System.out.println("- [Liste des autres abonnements]");
-                break;
-        }
-        pauseAvantContinuer();
-    }
+    pauseAvantContinuer();
+}
+
+
     
     /**
      * 4. Signaler un problème routier à la ville

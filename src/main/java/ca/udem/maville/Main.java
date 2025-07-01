@@ -110,7 +110,7 @@ public class Main {
             System.out.println();
         }
 
-        // Lancer le menu principal en passant le même httpClient (partagé partout)
+        // Lancer le menu principal en passant le même httpClient 
         MenuPrincipal menuPrincipal = new MenuPrincipal(httpClient);
         menuPrincipal.demarrer();
     }

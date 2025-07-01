@@ -332,4 +332,62 @@ private List<Probleme> createSampleProblemes() {
             }
         }
     }
+    // Ajoutez ces méthodes dans JsonStorage.java :
+
+// Constantes pour les nouveaux fichiers
+private static final String NOTIFICATIONS_FILE = DATA_DIR + "/notifications.json";
+private static final String ABONNEMENTS_FILE = DATA_DIR + "/abonnements.json";
+
+// === NOTIFICATIONS ===
+public void saveNotifications(List<Notification> notifications) {
+    try {
+        mapper.writeValue(new File(NOTIFICATIONS_FILE), notifications);
+    } catch (IOException e) {
+        System.err.println("Erreur sauvegarde notifications: " + e.getMessage());
+    }
+}
+
+public List<Notification> loadNotifications() {
+    try {
+        File file = new File(NOTIFICATIONS_FILE);
+        if (file.exists()) {
+            Notification[] array = mapper.readValue(file, Notification[].class);
+            return new ArrayList<>(Arrays.asList(array));
+        }
+    } catch (IOException e) {
+        System.err.println("Erreur chargement notifications: " + e.getMessage());
+    }
+    return new ArrayList<>();
+}
+
+// === ABONNEMENTS ===
+public void saveAbonnements(List<Abonnement> abonnements) {
+    try {
+        mapper.writeValue(new File(ABONNEMENTS_FILE), abonnements);
+    } catch (IOException e) {
+        System.err.println("Erreur sauvegarde abonnements: " + e.getMessage());
+    }
+}
+
+public List<Abonnement> loadAbonnements() {
+    try {
+        File file = new File(ABONNEMENTS_FILE);
+        if (file.exists()) {
+            Abonnement[] array = mapper.readValue(file, Abonnement[].class);
+            return new ArrayList<>(Arrays.asList(array));
+        }
+    } catch (IOException e) {
+        System.err.println("Erreur chargement abonnements: " + e.getMessage());
+    }
+    return new ArrayList<>();
+}
+
+// Méthode helper pour créer une notification
+public void creerNotification(String residentEmail, String message, String typeChangement, 
+                            int projetId, String quartier) {
+    List<Notification> notifications = loadNotifications();
+    Notification nouvelle = new Notification(residentEmail, message, typeChangement, projetId, quartier);
+    notifications.add(nouvelle);
+    saveNotifications(notifications);
+}
 }

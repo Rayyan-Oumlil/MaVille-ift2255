@@ -92,6 +92,44 @@ public class HttpClient {
         }
     }
     
+    public String creerAbonnement(String email, String type, String valeur) {
+    try {
+        Map<String, String> data = new HashMap<>();
+        data.put("type", type);
+        data.put("valeur", valeur);
+        
+        String response = post("/residents/" + email + "/abonnements", data);
+        return "Abonnement créé avec succès";
+    } catch (Exception e) {
+        return "Erreur création abonnement : " + e.getMessage();
+    }
+}
+
+public String consulterAbonnements(String email) {
+    try {
+        String response = get("/residents/" + email + "/abonnements");
+        
+        Map<String, Object> data = objectMapper.readValue(response, Map.class);
+        List<Map<String, Object>> abonnements = (List<Map<String, Object>>) data.get("abonnements");
+        
+        if (abonnements.isEmpty()) {
+            return "Vous n'avez aucun abonnement actif.";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        for (Map<String, Object> abo : abonnements) {
+            String type = (String) abo.get("type");
+            String valeur = (String) abo.get("valeur");
+            sb.append("- ").append(type).append(" : ").append(valeur).append("\n");
+        }
+        
+        return sb.toString();
+        
+    } catch (Exception e) {
+        return "Erreur consultation abonnements : " + e.getMessage();
+    }
+}
+
     // ================================================================
     // MÉTHODES POUR LES MENUS PRESTATAIRES
     // ================================================================

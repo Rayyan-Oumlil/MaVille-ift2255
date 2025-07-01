@@ -8,7 +8,9 @@ import ca.udem.maville.storage.JsonStorage;
 import ca.udem.maville.modele.*;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,33 +38,46 @@ public class ApiServer {
     /**
      * Initialise les services existants
      */
-    private void initializeServices() {
-        System.out.println("Initialisation des services...");
-        
-        // Créer le storage en premier
-        this.storage = new JsonStorage();
-        
-        // Initialiser avec des données de test SI NÉCESSAIRE
-        storage.initializeWithSampleData();
-        
-        // Créer les gestionnaires AVEC le storage pour qu'ils chargent les données
-        this.gestionnaireProblemes = new GestionnaireProblemes(storage);
-        this.gestionnaireProjets = new GestionnaireProjets();
-        
-        // Afficher ce qui a été chargé
-        List<Probleme> problemesCharges = storage.loadProblemes();
-        List<Candidature> candidaturesChargees = storage.loadCandidatures();
-        List<Resident> residentsCharges = storage.loadResidents();
-        List<Prestataire> prestatairesCharges = storage.loadPrestataires();
-        
-        System.out.println("Données chargées :");
-        System.out.println("- " + problemesCharges.size() + " problèmes");
-        System.out.println("- " + candidaturesChargees.size() + " candidatures");
-        System.out.println("- " + residentsCharges.size() + " résidents");
-        System.out.println("- " + prestatairesCharges.size() + " prestataires");
-        
-        System.out.println("Services initialisés avec succès");
+
+private void initializeServices() {
+    System.out.println("Initialisation des services...");
+    
+    // Créer le storage en premier
+    this.storage = new JsonStorage();
+    
+    // Initialiser avec des données de test SI NÉCESSAIRE
+    storage.initializeWithSampleData();
+    
+    // IMPORTANT : Synchroniser les compteurs d'ID
+    List<Probleme> problemesExistants = storage.loadProblemes();
+    if (!problemesExistants.isEmpty()) {
+        Probleme.synchroniserCompteurId(problemesExistants);
+        System.out.println("Compteur ID problèmes synchronisé");
     }
+    
+    List<Candidature> candidaturesExistantes = storage.loadCandidatures();
+    if (!candidaturesExistantes.isEmpty()) {
+        Candidature.synchroniserCompteurId(candidaturesExistantes);
+        System.out.println("Compteur ID candidatures synchronisé");
+    }
+    
+    // Créer les gestionnaires AVEC le storage pour qu'ils chargent les données
+    this.gestionnaireProblemes = new GestionnaireProblemes(storage);
+    this.gestionnaireProjets = new GestionnaireProjets();
+    
+    // Afficher ce qui a été chargé
+    List<Candidature> candidaturesChargees = storage.loadCandidatures();
+    List<Resident> residentsCharges = storage.loadResidents();
+    List<Prestataire> prestatairesCharges = storage.loadPrestataires();
+    
+    System.out.println("Données chargées :");
+    System.out.println("- " + problemesExistants.size() + " problèmes");
+    System.out.println("- " + candidaturesChargees.size() + " candidatures");
+    System.out.println("- " + residentsCharges.size() + " résidents");
+    System.out.println("- " + prestatairesCharges.size() + " prestataires");
+    
+    System.out.println("Services initialisés avec succès");
+}
     
     private void createJavalinApp() {
         this.app = Javalin.create();
@@ -112,6 +127,8 @@ public class ApiServer {
         app.post("/api/residents/problemes", this::signalerProbleme);
         app.get("/api/residents/travaux", this::consulterTravaux);
         app.get("/api/residents/{id}/notifications", this::consulterNotifications);
+        app.post("/api/residents/{email}/abonnements", this::creerAbonnement);
+        app.get("/api/residents/{email}/abonnements", this::consulterAbonnements);
         
         // ENDPOINTS PRESTATAIRES
         app.get("/api/prestataires/problemes", this::consulterProblemes);
@@ -122,7 +139,7 @@ public class ApiServer {
         // ENDPOINTS STPM
         app.put("/api/stpm/candidatures/{id}/valider", this::validerCandiature);
         app.get("/api/stpm/candidatures", this::consulterCandidatures);
-        app.put("/api/stpm/problemes/{id}/priorite", this::modifierPrioriteProbleme); 
+        app.put("/api/stpm/problemes/{id}/priorite", this::modifierPrioriteProbleme);
         
         // ENDPOINTS API EXTERNE MONTRÉAL
         app.get("/api/montreal/travaux", this::getTravauxMontreal);
@@ -134,40 +151,61 @@ public class ApiServer {
     // IMPLÉMENTATION ENDPOINTS RÉSIDENTS
     // ================================================================
     
-    private void signalerProbleme(Context ctx) {
-        try {
-            Map<String, Object> requestData = ctx.bodyAsClass(Map.class);
-            String lieu = (String) requestData.get("lieu");
-            String description = (String) requestData.get("description");
-            String residentEmail = (String) requestData.get("residentId");
-            
-            // Créer un résident temporaire pour la démo
-            Resident declarant = new Resident("Demo", "User", "514-000-0000", residentEmail, lieu);
-            
-            // Créer le problème avec le gestionnaire
-            Probleme nouveauProbleme = gestionnaireProblemes.signalerProbleme(
-                lieu, 
-                TypeTravaux.ENTRETIEN_URBAIN, // Type par défaut pour la démo
-                description, 
-                declarant
-            );
-            
-            // Sauvegarder tous les problèmes
-            List<Probleme> tousLesProblemes = gestionnaireProblemes.listerProblemes();
-            storage.saveProblemes(tousLesProblemes);
-            
-            // Réponse de succès
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Problème #" + nouveauProbleme.getId() + " signalé avec succès");
-            response.put("problemeId", nouveauProbleme.getId());
-            
-            ctx.json(response);
-            
-        } catch (Exception e) {
-            ctx.status(400).json(createErrorResponse("Erreur: " + e.getMessage()));
+private void signalerProbleme(Context ctx) {
+    try {
+        Map<String, Object> requestData = ctx.bodyAsClass(Map.class);
+        String lieu = (String) requestData.get("lieu");
+        String description = (String) requestData.get("description");
+        String residentEmail = (String) requestData.get("residentId");
+        
+        // Extraire le quartier du lieu
+        String quartier = extraireQuartier(lieu);
+        
+        // Créer un résident temporaire pour la démo
+        Resident declarant = new Resident("Demo", "User", "514-000-0000", residentEmail, lieu);
+        
+        // Créer le problème avec le gestionnaire
+        Probleme nouveauProbleme = gestionnaireProblemes.signalerProbleme(
+            lieu, 
+            TypeTravaux.ENTRETIEN_URBAIN,
+            description, 
+            declarant
+        );
+        
+        // Sauvegarder tous les problèmes
+        List<Probleme> tousLesProblemes = gestionnaireProblemes.listerProblemes();
+        storage.saveProblemes(tousLesProblemes);
+        
+        // NOUVEAU : Créer automatiquement un abonnement au quartier
+        List<Abonnement> abonnements = storage.loadAbonnements();
+        Abonnement nouvelAbo = new Abonnement(residentEmail, "QUARTIER", quartier);
+        
+        // Vérifier qu'il n'existe pas déjà
+        boolean existe = abonnements.stream()
+            .anyMatch(a -> a.getResidentEmail().equals(residentEmail) && 
+                          a.getType().equals("QUARTIER") && 
+                          a.getValeur().equals(quartier));
+        
+        if (!existe) {
+            abonnements.add(nouvelAbo);
+            storage.saveAbonnements(abonnements);
+            System.out.println("Abonnement automatique créé pour le quartier : " + quartier);
         }
+        
+        // Réponse de succès
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Problème #" + nouveauProbleme.getId() + " signalé avec succès");
+        response.put("problemeId", nouveauProbleme.getId());
+        response.put("quartierAbonnement", quartier);
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        ctx.status(400).json(createErrorResponse("Erreur: " + e.getMessage()));
     }
+}
+
     
     private void consulterTravaux(Context ctx) {
         try {
@@ -246,117 +284,178 @@ public class ApiServer {
     }
     
     private void consulterNotifications(Context ctx) {
-        try {
-            String residentId = ctx.pathParam("id");
-            
-            // Notifications simulées pour la démo
-            List<Map<String, Object>> notifications = new ArrayList<>();
-            
-            Map<String, Object> notif1 = new HashMap<>();
-            notif1.put("message", "Nouveau projet dans votre quartier");
-            notif1.put("lu", false);
-            notif1.put("date", LocalDate.now().toString());
-            notifications.add(notif1);
-            
-            Map<String, Object> notif2 = new HashMap<>();
-            notif2.put("message", "Travaux terminés rue Sainte-Catherine");
-            notif2.put("lu", true);
-            notif2.put("date", LocalDate.now().minusDays(2).toString());
-            notifications.add(notif2);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("notifications", notifications);
-            response.put("total", notifications.size());
-            response.put("non_lues", 1);
-            
-            ctx.json(response);
-            
-        } catch (Exception e) {
-            ctx.status(500).json(createErrorResponse("Erreur consultation notifications"));
+    try {
+        String residentEmail = ctx.pathParam("id");
+        
+        // Charger les vraies notifications
+        List<Notification> toutesNotifs = storage.loadNotifications();
+        List<Notification> mesNotifs = toutesNotifs.stream()
+            .filter(n -> n.getResidentEmail().equals(residentEmail))
+            .sorted((n1, n2) -> n2.getDateCreation().compareTo(n1.getDateCreation()))
+            .collect(Collectors.toList());
+        
+        // Convertir en format JSON
+        List<Map<String, Object>> notifications = new ArrayList<>();
+        for (Notification n : mesNotifs) {
+            Map<String, Object> notif = new HashMap<>();
+            notif.put("message", n.getMessage());
+            notif.put("lu", n.isLu());
+            notif.put("date", n.getDateCreation().toLocalDate().toString());
+            notif.put("type", n.getTypeChangement());
+            notif.put("projetId", n.getProjetId());
+            notifications.add(notif);
         }
+        
+        long nonLues = mesNotifs.stream().filter(n -> !n.isLu()).count();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("notifications", notifications);
+        response.put("total", notifications.size());
+        response.put("non_lues", nonLues);
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur consultation notifications"));
     }
+}
+
+    private void creerAbonnement(Context ctx) {
+    try {
+        String email = ctx.pathParam("email");
+        Map<String, Object> requestData = ctx.bodyAsClass(Map.class);
+        String type = (String) requestData.get("type"); // QUARTIER ou RUE
+        String valeur = (String) requestData.get("valeur");
+        
+        List<Abonnement> abonnements = storage.loadAbonnements();
+        Abonnement nouvelAbo = new Abonnement(email, type, valeur);
+        
+        // Vérifier qu'il n'existe pas déjà
+        if (!abonnements.contains(nouvelAbo)) {
+            abonnements.add(nouvelAbo);
+            storage.saveAbonnements(abonnements);
+            
+            ctx.json(createSuccessResponse("Abonnement créé pour " + type + " : " + valeur));
+        } else {
+            ctx.json(createSuccessResponse("Vous êtes déjà abonné à " + type + " : " + valeur));
+        }
+        
+    } catch (Exception e) {
+        ctx.status(400).json(createErrorResponse("Erreur création abonnement"));
+    }
+}
+
+private void consulterAbonnements(Context ctx) {
+    try {
+        String email = ctx.pathParam("email");
+        
+        List<Abonnement> tousAbonnements = storage.loadAbonnements();
+        List<Abonnement> mesAbonnements = tousAbonnements.stream()
+            .filter(a -> a.getResidentEmail().equals(email))
+            .collect(Collectors.toList());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("abonnements", mesAbonnements);
+        response.put("total", mesAbonnements.size());
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur consultation abonnements"));
+    }
+}
     
+
     // ================================================================
     // IMPLÉMENTATION ENDPOINTS PRESTATAIRES
     // ================================================================
 
-    private void consulterProblemes(Context ctx) {
-        try {
-            String quartier = ctx.queryParam("quartier");
-            String type = ctx.queryParam("type");
-            
-            // Charger UNIQUEMENT depuis le storage pour avoir toutes les données
-            List<Probleme> problemes = storage.loadProblemes();
-            
-            // Filtrer seulement les non résolus
-            problemes = problemes.stream()
-                .filter(p -> !p.isResolu())
-                .collect(Collectors.toList());
-            
-            System.out.println("Problèmes disponibles avant filtrage : " + problemes.size());
-            
-            // Filtrer par quartier si spécifié
-            if (quartier != null && !quartier.trim().isEmpty()) {
-                final String quartierRecherche = quartier.trim();
-                problemes = problemes.stream()
-                    .filter(p -> {
-                        String lieu = p.getLieu().toLowerCase();
-                        return lieu.contains(quartierRecherche.toLowerCase()) ||
-                               extraireQuartier(lieu).equalsIgnoreCase(quartierRecherche);
-                    })
-                    .collect(Collectors.toList());
-                System.out.println("Après filtre quartier '" + quartier + "' : " + problemes.size() + " problèmes");
-            }
-            
-            // Filtrer par type si spécifié
-            if (type != null && !type.trim().isEmpty()) {
-                final String typeRecherche = type.toUpperCase().trim();
-                problemes = problemes.stream()
-                    .filter(p -> {
-                        String enumName = p.getTypeProbleme().name();
-                        String enumDescription = p.getTypeProbleme().getDescription();
-                        
-                        // Accepter plusieurs formats de recherche
-                        return enumName.equalsIgnoreCase(typeRecherche) || 
-                               enumDescription.equalsIgnoreCase(typeRecherche) ||
-                               enumName.replace("_", " ").equalsIgnoreCase(typeRecherche) ||
-                               enumName.replace("_", "").equalsIgnoreCase(typeRecherche.replace(" ", ""));
-                    })
-                    .collect(Collectors.toList());
-                System.out.println("Après filtre type '" + type + "' : " + problemes.size() + " problèmes");
-            }
-            
-            // Convertir en JSON
-            List<Map<String, Object>> problemesJson = new ArrayList<>();
-            for (Probleme p : problemes) {
-                Map<String, Object> pJson = new HashMap<>();
-                pJson.put("id", p.getId());
-                pJson.put("lieu", p.getLieu());
-                pJson.put("description", p.getDescription());
-                pJson.put("type", p.getTypeProbleme().getDescription());
-                pJson.put("priorite", p.getPriorite().getDescription());
-                pJson.put("declarant", p.getDeclarant().getNomComplet());
-                pJson.put("date", p.getDateSignalement().toString());
-                problemesJson.add(pJson);
-            }
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("problemes", problemesJson);
-            response.put("total", problemesJson.size());
-            
-            if (quartier != null || type != null) {
-                Map<String, String> filtres = new HashMap<>();
-                if (quartier != null) filtres.put("quartier", quartier);
-                if (type != null) filtres.put("type", type);
-                response.put("filtres_appliques", filtres);
-            }
-            
-            ctx.json(response);
-            
-        } catch (Exception e) {
-            ctx.status(500).json(createErrorResponse("Erreur consultation problèmes: " + e.getMessage()));
+   
+
+private void consulterProblemes(Context ctx) {
+    try {
+        String quartier = ctx.queryParam("quartier");
+        String type = ctx.queryParam("type");
+        
+        // TOUJOURS charger depuis le storage pour avoir les données à jour
+        List<Probleme> problemes = storage.loadProblemes();
+        
+        System.out.println("DEBUG - Chargement des problèmes depuis le storage : " + problemes.size() + " problèmes");
+        
+        // Afficher les priorités actuelles pour debug
+        for (Probleme p : problemes) {
+            System.out.println("DEBUG - Problème #" + p.getId() + " : Priorité = " + p.getPriorite());
         }
+        
+        // Filtrer seulement les non résolus
+        problemes = problemes.stream()
+            .filter(p -> !p.isResolu())
+            .collect(Collectors.toList());
+        
+        System.out.println("Problèmes disponibles avant filtrage : " + problemes.size());
+        
+        // Filtrer par quartier si spécifié
+        if (quartier != null && !quartier.trim().isEmpty()) {
+            final String quartierRecherche = quartier.trim();
+            problemes = problemes.stream()
+                .filter(p -> {
+                    String lieu = p.getLieu().toLowerCase();
+                    return lieu.contains(quartierRecherche.toLowerCase()) ||
+                           extraireQuartier(lieu).equalsIgnoreCase(quartierRecherche);
+                })
+                .collect(Collectors.toList());
+            System.out.println("Après filtre quartier '" + quartier + "' : " + problemes.size() + " problèmes");
+        }
+        
+        // Filtrer par type si spécifié
+        if (type != null && !type.trim().isEmpty()) {
+            final String typeRecherche = type.toUpperCase().trim();
+            problemes = problemes.stream()
+                .filter(p -> {
+                    String enumName = p.getTypeProbleme().name();
+                    String enumDescription = p.getTypeProbleme().getDescription();
+                    
+                    // Accepter plusieurs formats de recherche
+                    return enumName.equalsIgnoreCase(typeRecherche) || 
+                           enumDescription.equalsIgnoreCase(typeRecherche) ||
+                           enumName.replace("_", " ").equalsIgnoreCase(typeRecherche) ||
+                           enumName.replace("_", "").equalsIgnoreCase(typeRecherche.replace(" ", ""));
+                })
+                .collect(Collectors.toList());
+            System.out.println("Après filtre type '" + type + "' : " + problemes.size() + " problèmes");
+        }
+        
+        // Convertir en JSON - TOUJOURS utiliser les données actuelles
+        List<Map<String, Object>> problemesJson = new ArrayList<>();
+        for (Probleme p : problemes) {
+            Map<String, Object> pJson = new HashMap<>();
+            pJson.put("id", p.getId());
+            pJson.put("lieu", p.getLieu());
+            pJson.put("description", p.getDescription());
+            pJson.put("type", p.getTypeProbleme().getDescription());
+            pJson.put("priorite", p.getPriorite().getDescription()); // Priorité actuelle
+            pJson.put("declarant", p.getDeclarant().getNomComplet());
+            pJson.put("date", p.getDateSignalement().toString());
+            problemesJson.add(pJson);
+        }
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("problemes", problemesJson);
+        response.put("total", problemesJson.size());
+        
+        if (quartier != null || type != null) {
+            Map<String, String> filtres = new HashMap<>();
+            if (quartier != null) filtres.put("quartier", quartier);
+            if (type != null) filtres.put("type", type);
+            response.put("filtres_appliques", filtres);
+        }
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur consultation problèmes: " + e.getMessage()));
     }
+}
     
     private void soumettreCandiature(Context ctx) {
         try {
@@ -576,10 +675,10 @@ private void mettreAJourProjet(Context ctx) {
                     projetAModifier.setDateFinReelle(LocalDate.now());
                 }
                 
-                System.out.println("✓ Statut modifié : " + statut);
+                System.out.println(" Statut modifié : " + statut);
                 modifie = true;
             } catch (IllegalArgumentException e) {
-                System.err.println("✗ Statut invalide : " + nouveauStatut);
+                System.err.println(" Statut invalide : " + nouveauStatut);
             }
         }
         
@@ -606,10 +705,10 @@ private void mettreAJourProjet(Context ctx) {
                 }
                 
                 projetAModifier.setDateFinPrevue(dateFin);
-                System.out.println("✓ Date de fin modifiée : " + dateFin);
+                System.out.println(" Date de fin modifiée : " + dateFin);
                 modifie = true;
             } catch (Exception e) {
-                System.err.println("✗ Format de date invalide : " + nouvelleDateFin);
+                System.err.println(" Format de date invalide : " + nouvelleDateFin);
             }
         }
         
@@ -620,8 +719,17 @@ private void mettreAJourProjet(Context ctx) {
             
             // IMPORTANT : Sauvegarder TOUS les projets
             storage.saveProjets(projets);
-            System.out.println("\n✓ Projets sauvegardés dans le storage");
-            
+            System.out.println("\n Projets sauvegardés dans le storage");
+
+            // Envoyer des notifications selon le type de modification
+                if (modifications.containsKey("statut")) {
+    envoyerNotificationsChangementProjet(projetAModifier, "STATUT_CHANGE", 
+                            projetAModifier.getStatut().toString());
+}
+                if (modifications.containsKey("dateFin")) {
+    envoyerNotificationsChangementProjet(projetAModifier, "DATE_CHANGE", 
+                                    "Nouvelle date de fin : " + projetAModifier.getDateFinPrevue());
+}
             // Vérifier la sauvegarde
             List<Projet> verification = storage.loadProjets();
             System.out.println("Vérification : " + verification.size() + " projets dans le storage");
@@ -769,6 +877,10 @@ private void validerCandiature(Context ctx) {
             Projet nouveauProjet = new Projet(candidatureAValider, problemesVises);
             nouveauProjet.setStatut(StatutProjet.APPROUVE);
             
+            // Envoyer des notifications pour le nouveau projet
+            envoyerNotificationsChangementProjet(nouveauProjet, "NOUVEAU_PROJET", 
+                                "Projet approuvé et démarré");
+
             // Si pas de problèmes trouvés, utiliser les infos de la candidature
             if (problemesVises.isEmpty()) {
                 nouveauProjet.setTypeTravail(TypeTravaux.ENTRETIEN_URBAIN);
@@ -841,8 +953,12 @@ private void modifierPrioriteProbleme(Context ctx) {
         System.out.println("\n=== MODIFICATION PRIORITÉ PROBLÈME #" + problemeId + " ===");
         System.out.println("Nouvelle priorité demandée : " + nouvellePriorite);
         
-        // 1. Charger tous les problèmes
+        // IMPORTANT : Synchroniser d'abord avec le storage
+        gestionnaireProblemes.synchroniserAvecStorage(storage);
+        
+        // 1. Charger tous les problèmes DEPUIS LE STORAGE
         List<Probleme> problemes = storage.loadProblemes();
+        System.out.println("Nombre de problèmes chargés : " + problemes.size());
         
         // 2. Trouver le problème à modifier
         Probleme problemeAModifier = null;
@@ -868,12 +984,24 @@ private void modifierPrioriteProbleme(Context ctx) {
             Priorite anciennePriorite = problemeAModifier.getPriorite();
             problemeAModifier.setPriorite(priorite);
             
-            // 5. Sauvegarder les changements
+            // 5. IMPORTANT : Sauvegarder les changements
             storage.saveProblemes(problemes);
+            System.out.println(" Problèmes sauvegardés dans le storage");
             
-            System.out.println(" Priorité modifiée : " + anciennePriorite + " --> " + priorite);
+            // 6. Vérifier la sauvegarde
+            List<Probleme> verification = storage.loadProblemes();
+            Probleme pVerif = verification.stream()
+                .filter(p -> p.getId() == Integer.parseInt(problemeId))
+                .findFirst()
+                .orElse(null);
             
-            // 6. Si le problème a un projet associé, mettre à jour sa priorité aussi
+            if (pVerif != null) {
+                System.out.println("Vérification - Nouvelle priorité : " + pVerif.getPriorite());
+            }
+            
+            System.out.println(" Priorité modifiée : " + anciennePriorite + " → " + priorite);
+            
+            // 7. Si le problème a un projet associé, mettre à jour sa priorité aussi
             List<Projet> projets = storage.loadProjets();
             boolean projetModifie = false;
             
@@ -889,7 +1017,10 @@ private void modifierPrioriteProbleme(Context ctx) {
                 storage.saveProjets(projets);
             }
             
-            // 7. Réponse de succès
+            // 8. Resynchroniser le gestionnaire
+            gestionnaireProblemes.synchroniserAvecStorage(storage);
+            
+            // 9. Réponse de succès
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Priorité du problème #" + problemeId + " modifiée avec succès");
@@ -1102,6 +1233,71 @@ private void modifierPrioriteProbleme(Context ctx) {
         
         return projets;
     }
+    private void envoyerNotificationsChangementProjet(Projet projet, String typeChangement, String details) {
+    try {
+        // Extraire le quartier du projet
+        String quartierProjet = extraireQuartier(projet.getLocalisation());
+        
+        // Charger tous les abonnements
+        List<Abonnement> abonnements = storage.loadAbonnements();
+        
+        // Trouver les résidents abonnés à ce quartier ou cette rue
+        Set<String> residentsANotifier = new HashSet<>();
+        
+        for (Abonnement abo : abonnements) {
+            boolean doitNotifier = false;
+            
+            // Abonné au quartier
+            if (abo.getType().equals("QUARTIER") && 
+                abo.getValeur().equalsIgnoreCase(quartierProjet)) {
+                doitNotifier = true;
+            }
+            
+            // Abonné à une rue qui est dans la localisation
+            if (abo.getType().equals("RUE") && 
+                projet.getLocalisation().toLowerCase().contains(abo.getValeur().toLowerCase())) {
+                doitNotifier = true;
+            }
+            
+            if (doitNotifier) {
+                residentsANotifier.add(abo.getResidentEmail());
+            }
+        }
+        
+        
+        // Créer les notifications
+        String message = "";
+        switch (typeChangement) {
+            case "NOUVEAU_PROJET":
+                message = "Nouveau projet dans votre quartier : " + projet.getDescriptionProjet();
+                break;
+            case "STATUT_CHANGE":
+                message = "Le projet '" + projet.getDescriptionProjet() + 
+                         "' a changé de statut : " + details;
+                break;
+            case "PRIORITE_CHANGE":
+                message = "La priorité du projet '" + projet.getDescriptionProjet() + 
+                         "' a été modifiée : " + details;
+                break;
+            case "DATE_CHANGE":
+                message = "Les dates du projet '" + projet.getDescriptionProjet() + 
+                         "' ont été modifiées";
+                break;
+        }
+        
+        // Envoyer les notifications
+        for (String email : residentsANotifier) {
+            storage.creerNotification(email, message, typeChangement, 
+                                    projet.getId(), quartierProjet);
+        }
+        
+        System.out.println("Notifications envoyées à " + residentsANotifier.size() + 
+                          " résidents pour le projet #" + projet.getId());
+        
+    } catch (Exception e) {
+        System.err.println("Erreur envoi notifications : " + e.getMessage());
+    }
+}
     
     // ================================================================
     // CONTRÔLE DU SERVEUR
