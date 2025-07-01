@@ -57,20 +57,23 @@
 
     <h3>2.1 Glossaire</h3>
     <div class="glossaire">
-        <ul>
-            <li><strong>STPM</strong> : Service des Travaux Publics de Montréal, responsable de la gestion des signalements et des projets de travaux.</li>
-            <li><strong>Résident</strong> : Citoyen de Montréal pouvant signaler un problème sur la voie publique.</li>
-            <li><strong>Prestataire</strong> : Entreprise ou organisme proposant des projets pour résoudre des problèmes signalés.</li>
-            <li><strong>Problème</strong> : Incident de voirie signalé par un résident (ex. : nid-de-poule, fissure, etc.).</li>
-            <li><strong>Signalement</strong> : Action de signaler un problème au STPM, accompagnée d'une description et de la localisation.</li>
-            <li><strong>Fiche problème</strong> : Document interne contenant les détails d'un signalement (type, localisation, priorité).</li>
-            <li><strong>Priorité</strong> : Niveau d'urgence du problème : faible, moyenne ou élevée.</li>
-            <li><strong>Candidature</strong> : Proposition d'un prestataire pour prendre en charge un ou plusieurs problèmes.</li>
-            <li><strong>Projet</strong> : Ensemble de travaux validés à réaliser, incluant dates, budget et prestataire attitré.</li>
-            <li><strong>Notification</strong> : Message envoyé automatiquement à un utilisateur concernant un changement de statut d'un projet ou d'un problème.</li>
-            <li><strong>StatutProjet</strong> : État d'un projet (ex. : EN_ATTENTE, EN_COURS, TERMINE).</li>
-            <li><strong>StatutCandidature</strong> : État d'une candidature (EN_ATTENTE, APPROUVEE, REJETEE).</li>
-        </ul>
+    <ul>
+        <li><strong>STPM</strong> : Service des Travaux Publics de Montréal. Il centralise les signalements, attribue les priorités, valide les projets proposés par les prestataires, et gère la coordination générale.</li>
+        <li><strong>Résident</strong> : Personne vivant à Montréal. Il peut signaler un problème routier, s’abonner à des secteurs géographiques, et consulter les travaux en cours.</li>
+        <li><strong>Prestataire</strong> : Entreprise enregistrée pouvant consulter les problèmes signalés, proposer des projets et mettre à jour l’état de leurs interventions.</li>
+        <li><strong>Signalement</strong> : Déclaration formelle faite par un résident pour alerter le STPM d’un problème sur l’espace public. Inclut un lieu, un type, une description, et des coordonnées.</li>
+        <li><strong>Fiche de signalement</strong> : Enregistrement interne d’un signalement dans le système du STPM, contenant des informations enrichies (priorité, statut, affectation…).</li>
+        <li><strong>Priorité</strong> : Importance assignée par le STPM à un signalement. Trois niveaux possibles : faible, moyenne, élevée. Elle influence l’ordre de traitement.</li>
+        <li><strong>Candidature</strong> : Proposition soumise par un prestataire pour prendre en charge un ou plusieurs problèmes. Elle inclut la description des travaux, les dates, les coûts et le type d’intervention.</li>
+        <li><strong>Projet</strong> : Initiative validée par le STPM pour résoudre un ou plusieurs problèmes. Un projet est lié à une candidature acceptée, à un prestataire, à un statut d’avancement, et à des dates planifiées.</li>
+        <li><strong>StatutProjet</strong> : Phase actuelle d’un projet. Peut être : <em>En attente</em>, <em>En cours</em>, <em>Suspendu</em>, ou <em>Terminé</em>.</li>
+        <li><strong>StatutCandidature</strong> : État d’une candidature déposée. Peut être : <em>En attente</em>, <em>Approuvée</em>, ou <em>Rejetée</em>.</li>
+        <li><strong>TypeTravaux</strong> : Catégorie décrivant la nature d’un projet. Exemples : travaux routiers, entretien paysager, gaz/électricité, transports, signalisation, etc.</li>
+        <li><strong>Quartier</strong> : Secteur géographique administratif de Montréal utilisé pour localiser les problèmes et filtrer les projets.</li>
+        <li><strong>Filtre</strong> : Critère appliqué par un utilisateur pour restreindre les résultats visibles dans l’interface (par type, quartier ou date).</li>
+        <li><strong>Abonnement secteur</strong> : Préférence enregistrée par un résident pour être automatiquement informé des projets dans un quartier donné.</li>
+        <li><strong>API Montréal</strong> : Interface fournie par la Ville de Montréal permettant à l’application de récupérer dynamiquement des données sur les travaux publics en cours, via des requêtes HTTP.</li>
+    </ul>
     
     </div>
 
