@@ -15,7 +15,7 @@
     <div class="important">
         <strong>Cours :</strong> IFT2255 - Génie Logiciel<br>
         <strong>Session :</strong> Hiver 2025<br>
-        <strong>Devoir :</strong> Devoir 1 - Modélisation et Prototype
+        <strong>Devoir :</strong> Devoir 2 - Architecture, Prototype et Implémentation REST
     </div>
 
     <div class="toc">
@@ -31,8 +31,7 @@
             <li>2. Modélisation du domaine
                 <ul>
                     <li>2.1 Glossaire</li>
-                    <li>2.2 Diagramme d'activités</li>
-                    <li>2.3 Diagramme de classes</li>
+                    <li>2.2 Diagrammes métier et de domaine</li>
                 </ul>
             </li>
             <li>3. Modélisation des exigences
@@ -42,56 +41,352 @@
                 </ul>
             </li>
             <li>4. Prototype</li>
+            <li>5. Architecture logicielle et évolution du projet</li>
         </ul>
     </div>
 
+    <!-- === 1. Cadre du projet === -->
     <h2>1. Cadre du projet</h2>
-
     <h3>1.1 Description du projet</h3>
+    <p>
+        Le projet MaVille vise à développer une application web permettant aux citoyens de Montréal de signaler des problèmes sur la voie publique (ex. : nid-de-poule, fissures, etc.) et de suivre l'état des travaux effectués par le Service des Travaux Publics de Montréal (STPM). L'application doit être intuitive, accessible et respecter les normes de sécurité et de confidentialité des données.
+    </p>
+    
+    <!-- === 2. Modélisation du domaine === -->
+    <h2>2. Modélisation du domaine</h2>
 
-    <h4>Contexte</h4>
-    <p>À Montréal, la présence fréquente de travaux publics et privés fait partie du quotidien des citoyens. Ces interventions, parfois mal planifiées ou insuffisamment signalées, engendrent régulièrement des désagréments : ralentissements de la circulation, fermetures temporaires de rues, obstacles pour les piétons… Ces perturbations contribuent à un climat d’incertitude et d’insatisfaction parmi les résidents, qui voient leur mobilité et leur routine souvent bouleversées sans préavis.</p>
-
-    <h4>Problèmes à résoudre</h4>
+    <h3>2.1 Glossaire</h3>
+    <div class="glossaire">
     <ul>
-        <li><strong>Communication déficiente :</strong> Les résidents sont souvent surpris par des interventions touchant leur mobilité</li>
-        <li><strong>Processus manuel :</strong> Le STPM utilise actuellement des fichiers Excel et des communications manuelles</li>
-        <li><strong>Manque de coordination :</strong> Les échanges entre résidents, prestataires et STPM sont inefficaces</li>
-        <li><strong>Absence de notifications :</strong> Pas de système automatisé pour informer les parties prenantes</li>
+        <li><strong>STPM</strong> : Service des Travaux Publics de Montréal. Il centralise les signalements, attribue les priorités, valide les projets proposés par les prestataires, et gère la coordination générale.</li>
+        <li><strong>Résident</strong> : Personne vivant à Montréal. Il peut signaler un problème routier, s’abonner à des secteurs géographiques, et consulter les travaux en cours.</li>
+        <li><strong>Prestataire</strong> : Entreprise enregistrée pouvant consulter les problèmes signalés, proposer des projets et mettre à jour l’état de leurs interventions.</li>
+        <li><strong>Signalement</strong> : Déclaration formelle faite par un résident pour alerter le STPM d’un problème sur l’espace public. Inclut un lieu, un type, une description, et des coordonnées.</li>
+        <li><strong>Fiche de signalement</strong> : Enregistrement interne d’un signalement dans le système du STPM, contenant des informations enrichies (priorité, statut, affectation…).</li>
+        <li><strong>Priorité</strong> : Importance assignée par le STPM à un signalement. Trois niveaux possibles : faible, moyenne, élevée. Elle influence l’ordre de traitement.</li>
+        <li><strong>Candidature</strong> : Proposition soumise par un prestataire pour prendre en charge un ou plusieurs problèmes. Elle inclut la description des travaux, les dates, les coûts et le type d’intervention.</li>
+        <li><strong>Projet</strong> : Initiative validée par le STPM pour résoudre un ou plusieurs problèmes. Un projet est lié à une candidature acceptée, à un prestataire, à un statut d’avancement, et à des dates planifiées.</li>
+        <li><strong>StatutProjet</strong> : Phase actuelle d’un projet. Peut être : <em>En attente</em>, <em>En cours</em>, <em>Suspendu</em>, ou <em>Terminé</em>.</li>
+        <li><strong>StatutCandidature</strong> : État d’une candidature déposée. Peut être : <em>En attente</em>, <em>Approuvée</em>, ou <em>Rejetée</em>.</li>
+        <li><strong>TypeTravaux</strong> : Catégorie décrivant la nature d’un projet. Exemples : travaux routiers, entretien paysager, gaz/électricité, transports, signalisation, etc.</li>
+        <li><strong>Quartier</strong> : Secteur géographique administratif de Montréal utilisé pour localiser les problèmes et filtrer les projets.</li>
+        <li><strong>Filtre</strong> : Critère appliqué par un utilisateur pour restreindre les résultats visibles dans l’interface (par type, quartier ou date).</li>
+        <li><strong>Abonnement secteur</strong> : Préférence enregistrée par un résident pour être automatiquement informé des projets dans un quartier donné.</li>
+        <li><strong>API Montréal</strong> : Interface fournie par la Ville de Montréal permettant à l’application de récupérer dynamiquement des données sur les travaux publics en cours, via des requêtes HTTP.</li>
+    </ul>
+    
+    </div>
+
+    <h3>2.2 Diagrammes métier et de domaine et CU </h3>
+
+<h3>2.3 Diagrammes d’activités – Fonctions clés</h3>
+
+<div class="diagram-placeholder">
+    <p><strong>Consulter les entraves</strong></p>
+    <img src="images/ConsulterEntraves.svg" alt="Diagramme activité - Consulter les entraves" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
+
+<div class="diagram-placeholder">
+    <p><strong>Suivi d'une requête</strong></p>
+    <img src="images/suivi_requete.svg" alt="Diagramme activité - Suivi requête" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
+
+<div class="diagram-placeholder">
+    <p><strong>Système de notifications</strong></p>
+    <img src="images/Notifications.svg" alt="Diagramme activité - Notifications" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
+
+<div class="diagram-placeholder">
+    <p><strong>Plannification d'un projet</strong></p>
+    <img src="images/Plannification.svg" alt="Diagramme activité - Plannification" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
+
+<div class="diagram-placeholder">
+    <p><strong>Recherche de travaux</strong></p>
+    <img src="images/recherche_travaux.svg" alt="Diagramme activité - Recherche de travaux" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
+
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de classes </strong></p>
+        <img src="images/diagramme_classe_modif.jpg" alt="Diagramme de classes du domaine" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
+    </div>
+    <!-- Pour chaque diagramme ajouté (ex : diagramme de séquence) : -->
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de séquence (signalement d’un problème)</strong></p>
+        <img src="images/Sequence_Diagram1.jpg" alt="Diagramme de séquence" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
+    </div>
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de cas d'utilisation </strong></p>
+        <img src="images/Diagramme_CU2.jpg" alt="Diagramme de cas d'utilisation" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
+    </div>
+
+<h4>Justification des choix de conception : encapsulation, couplage, cohésion, abstraction</h4>
+<p>
+Le design du diagramme de séquence réalisé applique les principes fondamentaux d’encapsulation, de faible couplage, de forte cohésion et d’abstraction fonctionnelle.
+</p>
+<ul>
+    <li>
+        <strong>Encapsulation :</strong> Chaque objet (par exemple <code>FormulaireSignalement</code>, <code>SignalementService</code>) gère et protège ses propres données et comportements. Cela facilite la maintenance et la lisibilité du code, chaque entité étant responsable de ses états internes.
+    </li>
+    <li>
+        <strong>Faible couplage :</strong> Le système limite les dépendances entre les composants : les objets communiquent uniquement via leurs interfaces publiques (ex : <code>InterfaceApp</code> utilise des méthodes sans connaître l’implémentation). Les composants peuvent ainsi évoluer indépendamment.
+    </li>
+    <li>
+        <strong>Forte cohésion :</strong> Chaque classe a une responsabilité unique et claire. Par exemple, <code>SignalementService</code> ne gère que les signalements, ce qui améliore la clarté et la robustesse du système.
+    </li>
+    <li>
+        <strong>Abstraction :</strong> Les utilisateurs interagissent à un niveau abstrait, les détails d’implémentation étant masqués derrière des appels de méthode. Cela favorise la modularité et l’évolutivité du code.
+    </li>
+</ul>
+
+
+    <!-- === 3. Modélisation des exigences === -->
+    <h2>3. Modélisation des exigences</h2>
+<h3>3.1 Besoins non-fonctionnels</h3>
+<ul>
+    <li>
+        <strong>Protection des données confidentielles</strong><br>
+        <em>Description :</em> L’application ne doit pas stocker ou afficher de données sensibles (comme les noms ou adresses complètes des résidents) sans autorisation explicite. Les signalements doivent être anonymisés du côté public.<br>
+        <em>Justification :</em> Le respect de la vie privée est essentiel pour assurer la confiance des usagers, d’autant plus que ces normes reflètent celles de la Ville de Montréal.
+    </li>
+    <li>
+        <strong>Capacité à gérer plusieurs signalements simultanément</strong><br>
+        <em>Description :</em> Le système doit permettre l’enregistrement et la consultation de plusieurs signalements en parallèle sans perte ou écrasement de données.<br>
+        <em>Justification :</em> En période de forte activité (ex. : été), plusieurs résidents peuvent signaler des problèmes en même temps. L’application doit donc rester stable et cohérente.
+    </li>
+    <li>
+        <strong>Bilinguisme (français/anglais)</strong><br>
+        <em>Description :</em> L’application doit être disponible en français et en anglais, avec une option de sélection de langue.<br>
+        <em>Justification :</em> Cela reflète la réalité linguistique de Montréal et peut représenter une obligation légale.
+    </li>
+    <li>
+        <strong>Rapidité de signalement</strong><br>
+        <em>Description :</em> Le parcours utilisateur pour signaler un problème ne doit pas excéder trois étapes, afin de limiter la friction et encourager l’usage.<br>
+        <em>Justification :</em> Cela favorise l’usage de l’application et facilite son adoption par le plus grand nombre de résidents.
+    </li>
+    <li>
+        <strong>Intégration d’une carte de Montréal (version ultérieure)</strong><br>
+        <em>Description :</em> L’application doit être conçue pour pouvoir intégrer une API cartographique (ex. : Google Maps, OpenStreetMap, etc.) pour localiser visuellement les signalements, en tenant compte des permissions d’utilisation et de la granularité des données.<br>
+        <em>Justification :</em> La localisation visuelle améliore la compréhension et le traitement des signalements, ce qui est crucial pour les résidents comme pour la ville.
+    </li>
+</ul>
+
+<h3>3.2 Besoins fonctionnels – Cas d’utilisation et descriptions</h3>
+
+<h4>Acteurs</h4>
+<ul>
+    <li>
+        <strong>Acteur principal</strong> : <br>
+        <strong>Résidents</strong> – habitants de la ville ; utilisateurs principaux du système. Ce rôle inclut aussi l’<strong>AgentSTPM</strong> et le <strong>Prestataire</strong>.
+    </li>
+    <li>
+        <strong>Acteurs secondaires</strong> :
+        <ul>
+            <li>
+                <strong>AgentSTPM</strong> – Reçoit les plaintes/signalements, analyse leur validité, et gère la priorité/acceptation.
+            </li>
+            <li>
+                <strong>Prestataire</strong> – Intervient sur les problèmes approuvés : propose des projets, effectue les réparations, met à jour l’avancement.
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h4>Principaux cas d’utilisation</h4>
+<ul>
+    <li><strong>Rechercher des travaux</strong> : Permet au résident de chercher des travaux spécifiques par quartier ou par type (routier, gaz, signalisation, etc.) pour accéder rapidement à l’information ciblée.</li>
+    <li><strong>Consulter les travaux</strong> : Le résident visualise les projets planifiés ou en cours, filtrables par quartier ou type. Il peut s’informer et anticiper les impacts sur sa mobilité.</li>
+    <li><strong>Signaler un problème routier à la ville</strong> : Le résident utilise l’application pour signaler un problème/anomalie dans sa zone, en remplissant un formulaire détaillé.</li>
+    <li><strong>Affecter une priorité à un problème</strong> : L’AgentSTPM analyse les plaintes soumises et les classe par ordre de priorité.</li>
+    <li><strong>Accepter ou refuser des projets de travaux</strong> : Si la plainte est approuvée par l’AgentSTPM, elle est assignée à un prestataire pour intervention.</li>
+    <li><strong>Mettre à jour les informations d’un projet</strong> : Après acceptation, le prestataire peut modifier la description, la date de fin, ou le statut du projet.</li>
+    <li><strong>Consulter la liste des problèmes routiers</strong> : Permet au prestataire de voir les problèmes à traiter, filtrables par type, quartier ou date de début.</li>
+    <li><strong>Soumettre une candidature à un projet</strong> : Le prestataire propose une solution pour un problème et confirme qu’il prendra en charge l’intervention.</li>
+    <li><strong>Envoyer une notification</strong> : Le résident reçoit une notification à chaque étape importante (prise en compte, modification, résolution…).</li>
+</ul>
+
+<h4>Scénario type</h4>
+<p>
+Le résident ouvre l’application, se dirige vers “signaler un problème routier” et remplit un formulaire (type, localisation, description…). Il envoie le formulaire, qui est analysé par l’AgentSTPM (validation ou refus, affectation d’une priorité). Les projets acceptés sont transmis à un prestataire qui peut consulter, candidater ou mettre à jour les problèmes/projets. À chaque étape clé, le résident est notifié de l’avancement ou de la prise en compte de sa demande.
+</p>
+
+<h4>Extensions (exceptions possibles)</h4>
+<ul>
+    <li>Localisation incorrecte</li>
+    <li>Informations manquantes</li>
+    <li>Photo floue/non lisible</li>
+    <li>Problème déjà attribué</li>
+</ul>
+
+<h4>Préconditions</h4>
+<ul>
+    <li>L’utilisateur a accès à l’application</li>
+    <li>Agent authentifié</li>
+    <li>Une plainte doit avoir été soumise</li>
+    <li>Droit d’accès élevé pour l’Agent</li>
+</ul>
+
+<h4>Postconditions</h4>
+<ul>
+    <li>Les plaintes/signalements sont stockés dans le système</li>
+    <li>Approbation attendue par l’Agent ou le Prestataire</li>
+</ul>
+
+
+    <!-- === 4. Prototype === -->
+    <h2>4. Prototype</h2>
+
+    <!-- === 5. Architecture logicielle et évolution du projet === -->
+    <h2>5. Architecture logicielle et évolution du projet (Devoir 2)</h2>
+    <p>
+    Dans le cadre de cette deuxième itération du projet MaVille, l’équipe a poursuivi le développement en approfondissant l’analyse des exigences, la conception de l’architecture logicielle et la mise en œuvre d’une application fonctionnelle basée sur une API REST. Cette section présente l’ensemble des changements, améliorations et choix techniques réalisés : revue des besoins, justification du style architectural, description des principaux composants, illustration du modèle objet, et organisation du développement collaboratif.
+    </p>
+    <p>
+    L’objectif est de démontrer la capacité du prototype à répondre aux enjeux identifiés (communication, coordination, persistance, notifications) tout en assurant la modularité, la maintenabilité et l’évolutivité du système. La structure du projet est expliquée de façon à préparer une extension future vers des interfaces graphiques ou mobiles.
+    </p>
+
+    <h3>5.1 Révision des exigences et feedback</h3>
+    <p>
+    Suite à la première livraison du projet MaVille, l’équipe a pris en compte l’ensemble des retours du client, des auxiliaires et de l’énoncé révisé pour faire évoluer l’application dans cette seconde itération :
+    </p>
+    <ul>
+        <li>
+            <strong>Clarification des besoins et des acteurs :</strong> Nous avons affiné la définition des rôles (résidents, prestataires, STPM), ainsi que les interactions entre eux, pour que chaque fonctionnalité corresponde précisément aux attentes du client.
+        </li>
+        <li>
+            <strong>Refonte du cycle de vie des entités :</strong> L’ensemble des cas d’utilisation (signalement, validation, candidature, projet, notifications) a été retravaillé pour intégrer les statuts intermédiaires et la validation manuelle par le STPM, conformément à l’énoncé.
+        </li>
+        <li>
+            <strong>Passage à une architecture REST complète :</strong> Toutes les interactions de l’application se font désormais via des endpoints REST (GET, POST, PUT), séparant clairement l’interface (menus CLI) de la logique métier et de la persistance.
+        </li>
+        <li>
+            <strong>Gestion de la persistance par fichiers JSON :</strong> Chaque entité (problème, projet, candidature, résident, prestataire, notification) est désormais stockée dans un fichier dédié, garantissant la conservation des données même après fermeture de l’application.
+        </li>
+        <li>
+            <strong>Amélioration de la navigation CLI et de la validation utilisateur :</strong> Les menus principaux et secondaires ont été simplifiés et sécurisés (validation des entrées, messages d’erreur explicites, retour au menu principal en tout temps).
+        </li>
+        <li>
+            <strong>Prise en charge des notifications :</strong> Un mécanisme de notification simple a été ajouté pour informer les résidents et prestataires des changements de statut de leurs signalements ou projets.
+        </li>
+        <li>
+            <strong>Documentation et tests :</strong> Le README a été mis à jour, des instructions d’utilisation et de tests unitaires ont été ajoutées, et la gestion du projet via GitHub a été renforcée (branches, issues, release).
+        </li>
+        <li>
+            <strong>Intégration des feedbacks client :</strong> Nous avons systématiquement intégré les suggestions, telles que l’automatisation de l’affectation des priorités, l’abonnement automatique aux notifications, et la gestion des statuts des entités.
+        </li>
+    </ul>
+    <p>
+    L’ensemble de ces améliorations garantit une solution robuste, extensible et alignée avec les attentes du client, tout en posant les bases pour une extension future.
+    </p>
+
+    <h3>5.2 Définition et justification de l’architecture logicielle</h3>
+    <ul>
+        <li><strong>Style architectural retenu :</strong>
+            <br>
+            L’architecture retenue pour MaVille est une architecture en couches (n-tiers), enrichie d’une approche REST et d’une inspiration MVC pour l’organisation du code. Le cœur métier est isolé dans des gestionnaires et des modèles, l’interface utilisateur est gérée via une CLI (menus), la communication inter-couche se fait par une API REST, et la persistance se fait par stockage JSON simple (un fichier par entité).
+        </li>
+        <li><strong>Justification :</strong>
+            <ul>
+                <li>Séparation claire des responsabilités pour chaque couche (UI, services métier, stockage, API)</li>
+                <li>Facilité d’évolution et de maintenance : on peut remplacer l’UI ou le backend indépendamment.</li>
+                <li>Interopérabilité : d’autres clients (web, mobile) pourraient réutiliser l’API REST sans changement majeur.</li>
+                <li>Testabilité et réutilisabilité : chaque couche ou composant peut être testé séparément.</li>
+            </ul>
+        </li>
     </ul>
 
-    <h4>Proposition</h4>
-    <p>Le STPM propose la création de l'application <strong>MaVille</strong> pour automatiser et améliorer la communication des activités et travaux. Cette application permettra une collaboration plus étroite entre les résidents, les prestataires et le STPM, réduisant significativement les incompréhensions entre les différents acteurs.</p>
-
-<h3>1.2 Hypothèses</h3>
-
-    <div class="hypothese">
-        <h4>Hypothèse 1 : Portée du prototype</h4>
-        <p>Ce premier devoir se concentre sur la modélisation et un prototype fonctionnel de base. Les aspects de conception détaillée et d'implémentation complète seront abordés dans les devoirs 2 et 3 respectivement.</p>
+    <h3>5.3 Diagramme d’architecture (composants principaux)</h3>
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme d’architecture globale de MaVille (Devoir 2)</strong></p>
+        <img src="images/\Modele_arch.jpeg" alt="Diagramme d'architecture MaVille v2" style="max-width: 100%; border: 1px solid #ccc;">
+        <p style="font-size: 0.9em; color: #888;"></p>
     </div>
 
-    <div class="hypothese">
-        <h4>Hypothèse 2 : Interface simplifiée</h4>
-        <p>Pour ce prototype initial, nous utilisons une interface en ligne de commande qui permet de valider la logique métier sans se préoccuper de l'interface graphique finale.</p>
+    <div class="explanation">
+    <h4>Explication de l’architecture container de MaVille</h4>
+    <p>
+        Ce diagramme représente l’architecture logicielle du projet <strong>MaVille</strong> selon le modèle “container” (niveau C4). 
+        On distingue clairement les différentes couches et composants du système :
+    </p>
+    <ul>
+        <li>
+            <strong>Utilisateurs (Résident, Prestataire, STPM)</strong> : 
+            Interagissent via l’interface en ligne de commande (CLI) pour signaler un problème, consulter ou gérer des travaux.
+        </li>
+        <li>
+            <strong>Interface CLI MaVille</strong> : 
+            Point d’entrée de l’application pour tous les profils, offrant un menu console interactif.
+        </li>
+        <li>
+            <strong>Client REST (HttpClient)</strong> : 
+            Fait le lien entre la CLI et le serveur API MaVille, transmettant les requêtes via HTTP en JSON.
+        </li>
+        <li>
+            <strong>Serveur API MaVille</strong> : 
+            Composant central qui expose les endpoints REST, orchestre la logique métier et assure la cohérence des traitements.
+        </li>
+        <li>
+            <strong>Gestionnaires Métiers</strong> : 
+            Modules spécialisés qui gèrent la logique propre à chaque entité du domaine (problèmes, projets, candidatures, notifications).
+        </li>
+        <li>
+            <strong>Database (Stockage JSON)</strong> : 
+            Système de persistance utilisant des fichiers JSON pour conserver toutes les données du système, assurant ainsi la continuité même après redémarrage.
+        </li>
+        <li>
+            <strong>API Info-Entraves Montréal</strong> : 
+            Service externe consulté par le serveur pour enrichir l’information sur les travaux en cours, assurant une actualisation des données publiques.
+        </li>
+    </ul>
+    <p>
+        Ce découpage favorise la <strong>modularité</strong>, la <strong>séparation des responsabilités</strong> et la <strong>facilité d’évolution</strong> de l’application. 
+        Il permet également d’intégrer de nouveaux clients (ex : application web ou mobile) en réutilisant la même API REST, et garantit la robustesse du système par l’isolation des couches.
+    </p>
+</div>
+
+
+    <h3>5.4 Diagramme de classes orienté objet (version 2)</h3>
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de classes - Modèle orienté objet (v2)</strong></p>
+        <img src="images/Diagramme_classe_OO.jpg" alt="Diagramme de classes MaVille v2" style="max-width: 100%; border: 1px solid #ccc;">
+        <p style="font-size: 0.9em; color: #888;"></p>
     </div>
+    
 
-    <div class="hypothese">
-        <h4>Hypothèse 3 : Stockage temporaire</h4>
-        <p>Les données sont stockées en mémoire pour ce prototype. L'intégration d'une base de données persistante sera considérée lors de la phase d'implémentation (Devoir 3).</p>
-    </div>
+<h3>5.5 Implémentation REST et persistance</h3>
+<p>
+    L’application MaVille s’appuie sur une <strong>architecture RESTful</strong> pour l’intégralité des interactions entre le client (interface CLI) et le serveur. Chaque fonctionnalité métier est exposée via des endpoints HTTP clairs, facilitant à la fois l’utilisation par différents clients (CLI, futur site web ou app mobile) et la maintenance/extensibilité du système.
+</p>
+<ul>
+    <li>
+        <strong>Principaux endpoints REST :</strong>
+        <ul>
+            <li><code>GET /api/problemes</code> – Liste tous les problèmes signalés dans le système.</li>
+            <li><code>POST /api/problemes</code> – Permet à un résident de signaler un nouveau problème.</li>
+            <li><code>PUT /api/problemes/:id</code> – Met à jour les informations ou le statut d’un problème existant (ex. : résolution, changement de priorité).</li>
+            <li><code>GET /api/projets</code> – Récupère la liste complète des projets de travaux validés ou en cours.</li>
+            <li><code>POST /api/projets</code> – Ajoute un nouveau projet (suite à validation d’une candidature ou d’un besoin par le STPM).</li>
+            <li><code>PUT /api/projets/:id</code> – Met à jour un projet (ex. : dates, description, statut).</li>
+            <li><code>GET /api/candidatures</code> – Liste toutes les candidatures déposées par les prestataires.</li>
+            <li><code>POST /api/candidatures</code> – Permet à un prestataire de soumettre une nouvelle candidature à un ou plusieurs problèmes.</li>
+            <li><code>PUT /api/candidatures/:id</code> – Permet la modification ou l’annulation d’une candidature (tant qu’elle n’est pas validée).</li>
+            <li><code>GET /api/notifications</code> – Liste les notifications envoyées aux utilisateurs (ex. : confirmation de prise en charge, changement de statut).</li>
+            <li><code>POST /api/notifications</code> – Ajoute une nouvelle notification ciblée.</li>
+            <li><code>PUT /api/notifications/:id</code> – Marque une notification comme lue ou modifie son contenu en cas d’erreur.</li>
+        </ul>
+        <p style="font-size: 0.95em; color: #666;">
+            Tous les échanges se font en <strong>JSON</strong>, garantissant l’interopérabilité et la simplicité d’intégration avec d’autres systèmes.
+        </p>
+    </li>
+</ul>
+<p>
+    <em>
+        Ce découpage rigoureux entre API REST et couche de persistance positionne MaVille comme une solution moderne, évolutive et conforme aux standards industriels, tout en facilitant la maintenance, les tests et l’ouverture vers d’autres plateformes ou services municipaux à l’avenir.
+    </em>
+</p>
 
-    <div class="hypothese">
-        <h4>Hypothèse 4 : Authentification reportée</h4>
-        <p>L'authentification et la gestion des sessions utilisateurs sont volontairement simplifiées dans ce prototype pour se concentrer sur les fonctionnalités métier essentielles.</p>
-    </div>
 
-    <div class="hypothese">
-        <h4>Hypothèse 5 : Validation de concept</h4>
-        <p>Ce prototype vise principalement à démontrer la faisabilité des cas d'utilisation principaux et à valider notre compréhension du domaine métier avant la conception détaillée.</p>
-    </div>
-
-    <h3>1.3 Équipe</h3>
-
+<h3> Équipe</h3>
     <div class="equipe-member">
         <strong>Nom complet :</strong> Younes Lagha<br>
         <strong>Matricule :</strong> 20256168<br>
@@ -111,161 +406,18 @@
         <strong>Discord :</strong> rayyan20062<br>
         <strong>GitHub :</strong> Rayyan-Oumlil 
     </div>
-        <div class="equipe-member">
-        <strong>Nom complet :</strong> Haipeng Lu <br>
-        <strong>Matricule :</strong> 20180790 <br>
-        <strong>Discord :</strong> ccoldbrew<br>
-        <strong>GitHub :</strong> yiannis0916
-
-    </div>
-    
-
-    <h2>2. Modélisation du domaine</h2>
-
-    <h3>2.1 Glossaire</h3>
-
-    <ul>
-        <li><strong>STPM</strong> : Service des Travaux Publics de Montréal, responsable de la gestion des signalements et des projets de travaux.</li>
-        <li><strong>Résident</strong> : Citoyen de Montréal pouvant signaler un problème sur la voie publique.</li>
-        <li><strong>Prestataire</strong> : Entreprise ou organisme proposant des projets pour résoudre des problèmes signalés.</li>
-        <li><strong>Problème</strong> : Incident de voirie signalé par un résident (ex. : nid-de-poule, fissure, etc.).</li>
-        <li><strong>Signalement</strong> : Action de signaler un problème au STPM, accompagnée d'une description et de la localisation.</li>
-        <li><strong>Fiche problème</strong> : Document interne contenant les détails d'un signalement (type, localisation, priorité).</li>
-        <li><strong>Priorité</strong> : Niveau d'urgence du problème : faible, moyenne ou élevée.</li>
-        <li><strong>Candidature</strong> : Proposition d'un prestataire pour prendre en charge un ou plusieurs problèmes.</li>
-        <li><strong>Projet</strong> : Ensemble de travaux validés à réaliser, incluant dates, budget et prestataire attitré.</li>
-        <li><strong>Notification</strong> : Message envoyé automatiquement à un utilisateur concernant un changement de statut d'un projet ou d'un problème.</li>
-        <li><strong>StatutProjet</strong> : État d'un projet (ex. : EN_ATTENTE, EN_COURS, TERMINE).</li>
-        <li><strong>StatutCandidature</strong> : État d'une candidature (EN_ATTENTE, APPROUVEE, REJETEE).</li>
-    </ul>
-
-    <h3>2.2 Diagramme d'activités du processus métier</h3>
-
-    <div class="diagram-placeholder">
-        <p><strong>Diagramme d'activités - Processus actuel du STPM</strong></p>
-        <ol style="text-align: left; display: inline-block;">
-        </ol>
-          <img src="images/diagramme_activites.jpg" alt="Diagramme d'activités du processus STPM" style="max-width: 100%; height: auto; margin-top: 20px; border: 1px solid #ddd; border-radius: 8px;">
-    </div>
-
-    <h3>2.3 Diagramme de classes du domaine</h3>
-
-    <div class="diagram-placeholder">
-        <p><strong>Diagramme de classes - Modèle du domaine</strong></p>
-        <ul style="text-align: left; display: inline-block;">
-        </ul>
-          <img src="images/diagramme_classes.jpg" alt="Diagramme d'activités du processus STPM" style="max-width: 100%; height: auto; margin-top: 20px; border: 1px solid #ddd; border-radius: 8px;">
-    </div>
-
-    <h2>3. Modélisation des exigences</h2>
-
-    <h3>3.1 Besoins non-fonctionnels</h3>
-    <li><strong>Protection des données confidentielles : </strong>L’application ne doit pas stocker ou afficher de données sensibles (comme les noms ou adresses complètes des résidents) sans autorisation explicite. Les signalements doivent être anonymisés du côté public.</li>
-    <li><strong>Capacité à gérer plusieurs signalements simultanément :</strong> Le système doit permettre l’enregistrement et la consultation de plusieurs signalements en parallèle sans perte ou écrasement de données.</li>
-    <li><strong>Bilinguisme (français/anglais) :</strong> L’application doit être disponible en français et en anglais, avec une option de sélection de langue.</li>
-    <li><strong>Rapidité de signalement :</strong> Le parcours utilisateur pour signaler un problème ne doit pas excéder trois étapes, afin de limiter la friction et encourager l’usage.</li>
-    <li><strong>l'intégration d’une carte de Montréal (si applicable dans une version ultérieure) :</strong> L’application doit être conçue pour pouvoir intégrer une API cartographique (ex. : Google Maps, OpenStreetMap) pour localiser visuellement les signalements, en tenant compte des permissions d’utilisation et de la granularité des données.</li>
-
- <h3>3.2 Diagramme de cas d'utilisation et descriptions</h3>
-
-    <div class="diagram-placeholder">
-        <p><strong>Diagramme de cas d'utilisation </strong></p>
-        <ul style="text-align: left; display: inline-block;">
-        </ul>
-          <img src="images/diagramme_CU.jpg" alt="Diagramme de cas d'utilisation" style="max-width: 100%; height: auto; margin-top: 20px; border: 1px solid #ddd; border-radius: 8px;">
-    </div>
-<h3>Descriptions des cas d'utilisations :</h3>
-
-<ul>
-    <li><strong>Acteur principal : Citoyens</strong> : Résidents/habitants de la ville, majoritairement les utilisateurs, inclus l'Agent STPM et le Prestataire.</li>
-    
-    <li><strong>Acteurs secondaires</strong> : 
-        <ul>
-            <li><strong>Agent STPM</strong> : Il reçoit les plaintes des citoyens et décide si elles sont valides ou non, dépend des formulaires des citoyens.</li>
-            <li><strong>Prestataire</strong> : Il effectue les réparations ou interventions demandées suite à une plainte approuvée.</li>
-        </ul>
-    </li>
-
-    <li><strong>Soumettre une plainte</strong> : Les citoyens ont comme rôle d’utiliser l’application pour signaler un problème ou une anomalie dans la région et remplir un formulaire qui le décrit.</li>
-    
-    <li><strong>Approbation d’une plainte</strong> : L’Agent STPM a comme rôle d’analyser les plaintes soumises par les citoyens et doit les approuver ou rejeter selon plusieurs facteurs.</li>
-    
-    <li><strong>Attribuer la plainte</strong> : Si la plainte est approuvée par l’Agent, elle est assignée à un prestataire responsable des réparations (plus haut niveau).</li>
-    
-    <li><strong>Confirmation des réparations</strong> : Le Prestataire confirme que les réparations vont débuter ou sont prises en compte par la municipalité.</li>
-    
-    <li><strong>Envoyer une notification</strong> : Le citoyen reçoit une notification pour lui confirmer que sa demande a bien été prise en compte.</li>
-    
-    <li><strong>Scénario/Description</strong> : Le citoyen ouvre l’application, se dirige vers "Soumettre une plainte" où il remplit un formulaire contenant toutes les informations nécessaires pour aider à la résolution du problème (type de problème, localisation, etc.). Il clique sur un bouton permettant d’envoyer le formulaire qui sera pris en compte par un Agent ayant comme travail de confirmer la légitimité de la plainte pour ensuite etre affiché au prestataires qui vont proposer un projet ou non, si le budget est respecté,le projet peut debuter. Le citoyen sera notifié.</li>
-    
-    <li><strong>Extension</strong> : Localisation incorrecte, Informations manquantes, Photo floue, Problème déjà attribué.</li>
-    
-    <li><strong>Préconditions</strong> : 
-        <ul>
-            <li>Agent authentifié</li>
-            <li>Une plainte doit avoir été soumise</li>
-            <li>Droit d’accès élevé pour l’Agent</li>
-        </ul>
-    </li>
-    
-    <li><strong>Postconditions</strong> : 
-        <ul>
-            <li>Les plaintes sont stockées dans le système</li>
-            <li>Approbation attendue par l’Agent/Prestataire</li>
-        </ul>
-    </li>
-</ul>
 
 
-    <h2>4. Prototype</h2>
-
-    <h3>4.1 Architecture du prototype</h3>
-
-    <p>Le prototype suit une architecture en couches :</p>
-    <ul>
-        <li><strong>Couche UI (ca.udem.maville.ui) :</strong> Gestion de l'interface utilisateur console</li>
-        <li><strong>Couche Service (ca.udem.maville.service) :</strong> Logique métier et gestionnaires</li>
-        <li><strong>Couche Modèle (ca.udem.maville.modele) :</strong> Entités du domaine</li>
-    </ul>
-    <h3>4.2 Fonctionnalités implémentées</h3>
-
-    <div class="success">
-        <h4> --> Fonctionnalités pour les résidents</h4>
-        <ul>
-            <li>Signalement de problèmes avec toutes les informations requises</li>
-            <li>Consultation de ses signalements par email</li>
-            <li>Consultation des travaux en cours par arrondissement</li>
-        </ul>
-    </div>
-
-    <div class="success">
-        <h4>-->  Fonctionnalités pour les prestataires</h4>
-        <ul>
-            <li>Consultation libre des problèmes en attente</li>
-            <li>Soumission de candidatures avec formulaire complet</li>
-            <li>Gestion des candidatures (consulter, modifier, annuler)</li>
-        </ul>
-    </div>
-
-    <div class="success">
-        <h4>-->  Fonctionnalités techniques</h4>
-        <ul>
-            <li>Menu principal avec choix de profil</li>
-            <li>Validation des saisies utilisateur</li>
-            <li>Gestion des erreurs et messages informatifs</li>
-            <li>Code modulaire et commenté</li>
-        </ul>
-    </div>
-
-    <h3>4.3 Instructions d'utilisation</h3>
+    <hr>
+   <h3>4.3 Instructions d'utilisation</h3>
 
 <div class="code-section">
     <h4>Exécution via le JAR (recommandé)</h4>
     <pre>
- 1. Téléchargez le fichier maVille-1.0-SNAPSHOT.jar depuis la section "Releases" du projet GitHub.
+ 1. Téléchargez le fichier maVille-2.0-SNAPSHOT.jar depuis la section "Releases" du projet GitHub.
  2. Ouvrez un terminal et placez-vous dans le dossier où se trouve le fichier JAR.
  3. Exécutez la commande suivante :
-java -jar maVille-1.0-SNAPSHOT.jar
+java -jar maVille-2.0-SNAPSHOT.jar
     </pre>
     <h4>Alternative : Utilisation avec un IDE (IntelliJ, VSCODE, etc.)</h4>
     <ol>
@@ -277,38 +429,16 @@ java -jar maVille-1.0-SNAPSHOT.jar
 
     <h4>Navigation dans l'application</h4>
     <ol>
-        <li>Au démarrage, choisir le profil (Résident ou Prestataire)</li>
+        <li>Au démarrage, choisir le profil (Résident ou Prestataire ou STPM)</li>
         <li>Naviguer dans les menus avec les numéros</li>
         <li>Utiliser "0" pour revenir au menu précédent</li>
         <li>Suivre les instructions à l'écran pour les saisies</li>
         <li>Choisir "Quitter" dans le menu principal pour terminer</li>
     </ol>
 
-    <h3>4.4 Limitations et améliorations futures</h3>
-
-    <div class="important">
-        <h4>Limitations actuelles</h4>
-        <ul>
-            <li>Données non persistantes (perdues à la fermeture)</li>
-            <li>Interface console uniquement</li>
-            <li>Authentification simplifiée</li>
-            <li>Pas de notifications automatiques</li>
-        </ul>
-    </div>
-
-    <h4>Améliorations futures</h4>
-    <ul>
-        <li>Interface graphique web ou mobile</li>
-        <li>Base de données persistante</li>
-        <li>Système d'authentification complet</li>
-        <li>Intégration avec les systèmes municipaux existants</li>
-    </ul>
-
-    <hr>
-
     <div class="success">
         <h3>Conclusion</h3>
-        <p>Ce prototype démontre la faisabilité de l'application MaVille et implémente les fonctionnalités essentielles demandées. Il constitue une base solide pour le développement d'une solution complète qui automatisera et améliorera significativement la gestion des travaux publics à Montréal.</p>
+        <p>Ce prototype évolué démontre la faisabilité de l’application MaVille, intègre l’architecture REST, et pose les bases d’une application maintenable, modulaire et extensible pour la gestion des travaux publics à Montréal. Les contributions de chaque membre, la rigueur du développement collaboratif, et l’intégration des retours client assurent la qualité de la solution livrée.</p>
     </div>
 
 </div>
