@@ -52,7 +52,8 @@ public class Probleme {
     
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    
+
+
     public Resident getDeclarant() { return declarant; }
     public void setDeclarant(Resident declarant) { this.declarant = declarant; }
     
