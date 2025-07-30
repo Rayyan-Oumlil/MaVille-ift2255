@@ -15,7 +15,7 @@
     <div class="important">
         <strong>Cours :</strong> IFT2255 - Génie Logiciel<br>
         <strong>Session :</strong> Hiver 2025<br>
-        <strong>Devoir :</strong> Devoir 2 - Architecture, Prototype et Implémentation REST
+        <strong>Devoir :</strong> Devoir 3 - Architecture REST Complète et Système de Notifications
     </div>
 
     <div class="toc">
@@ -24,8 +24,9 @@
             <li>1. Cadre du projet
                 <ul>
                     <li>1.1 Description du projet</li>
-                    <li>1.2 Hypothèses</li>
-                    <li>1.3 Équipe</li>
+                    <li>1.2 Évolution depuis les devoirs précédents</li>
+                    <li>1.3 Hypothèses</li>
+                    <li>1.4 Équipe et répartition du travail</li>
                 </ul>
             </li>
             <li>2. Modélisation du domaine
@@ -40,8 +41,15 @@
                     <li>3.2 Besoins fonctionnels</li>
                 </ul>
             </li>
-            <li>4. Prototype</li>
-            <li>5. Architecture logicielle et évolution du projet</li>
+            <li>4. Architecture et conception
+                <ul>
+                    <li>4.1 Architecture REST</li>
+                    <li>4.2 Diagrammes UML mis à jour</li>
+                    <li>4.3 Système de notifications</li>
+                </ul>
+            </li>
+            <li>5. Implémentation et tests</li>
+            <li>6. Documentation technique</li>
         </ul>
     </div>
 
@@ -49,9 +57,314 @@
     <h2>1. Cadre du projet</h2>
     <h3>1.1 Description du projet</h3>
     <p>
-        Le projet MaVille vise à développer une application web permettant aux citoyens de Montréal de signaler des problèmes sur la voie publique (ex. : nid-de-poule, fissures, etc.) et de suivre l'état des travaux effectués par le Service des Travaux Publics de Montréal (STPM). L'application doit être intuitive, accessible et respecter les normes de sécurité et de confidentialité des données.
+        Le projet MaVille vise à développer une application de gestion des travaux publics à Montréal, permettant aux citoyens de signaler des problèmes sur la voie publique et de suivre l'état des travaux effectués par le Service des Travaux Publics de Montréal (STPM). L'application implémente une architecture REST complète avec système de notifications temps réel.
     </p>
+
+    <h4>1.1.1 Contexte et problématique</h4>
+    <p>
+        À Montréal, les travaux publics et privés sont une réalité constante qui affecte le quotidien des résidents. Les chantiers, souvent imprévus ou mal annoncés, entraînent des perturbations importantes, allant des embouteillages aux fermetures de routes et aux entraves piétonnières. Ces situations créent un sentiment de frustration et d'imprévisibilité chez les citoyens, qui se retrouvent souvent surpris par des interventions touchant leur mobilité et leur accès aux services.
+    </p>
+
+    <p>
+        Actuellement, les résidents ont accès à certaines informations liées aux entraves à la circulation grâce au service Info entraves et travaux. Ce service gratuit permet de s'informer sur les entraves causées par les travaux réalisés par la Ville, ses partenaires, les promoteurs immobiliers, les entrepreneurs privés et les particuliers. Cependant, le service présente certaines limites importantes, impactant son efficacité.
+    </p>
+
+    <h4>1.1.2 Proposition et solution</h4>
+    <p>
+        Le STPM (Service des Travaux Publics de Montréal) pense qu'une meilleure communication des activités et travaux prévus et entrepris par les prestataires pourrait réduire significativement les incompréhensions entre les différents acteurs. Une collaboration plus étroite entre les résidents, les prestataires et le STPM pourrait améliorer la coordination des travaux.
+    </p>
+
+    <p>
+        Ainsi, nous proposons la création de l'application <strong>MaVille</strong>, une solution complète qui :
+    </p>
+    <ul>
+        <li><strong>Automatise</strong> le processus de signalement et de gestion des problèmes routiers</li>
+        <li><strong>Facilite</strong> la communication entre résidents, prestataires et agents STPM</li>
+        <li><strong>Améliore</strong> la transparence et le suivi des travaux publics</li>
+        <li><strong>Réduit</strong> les perturbations et améliorations de la qualité de vie des citoyens</li>
+    </ul>
+
+    <h4>1.1.3 Fonctionnement actuel du STPM</h4>
+    <p>
+        Le fonctionnement actuel du STPM présente plusieurs limitations :
+    </p>
+    <ul>
+        <li><strong>Processus manuel</strong> : Utilisation de fichiers Excel et échanges manuels</li>
+        <li><strong>Communication limitée</strong> : Notifications par courriel non systématisées</li>
+        <li><strong>Manque de transparence</strong> : Difficulté pour les résidents de suivre l'état des travaux</li>
+        <li><strong>Coordination complexe</strong> : Gestion difficile entre les différents acteurs</li>
+        <li><strong>Données dispersées</strong> : Informations non centralisées et difficilement accessibles</li>
+    </ul>
+
+    <h4>1.1.4 Objectifs de l'application MaVille</h4>
+    <p>
+        L'application MaVille vise à résoudre ces problèmes en offrant :
+    </p>
+    <ul>
+        <li><strong>Interface unifiée</strong> : Plateforme centralisée pour tous les acteurs</li>
+        <li><strong>Processus automatisé</strong> : Gestion numérique des signalements et projets</li>
+        <li><strong>Système de notifications</strong> : Alertes temps réel pour tous les utilisateurs</li>
+        <li><strong>Transparence totale</strong> : Suivi en temps réel de l'état des travaux</li>
+        <li><strong>Intégration externe</strong> : Données officielles de la ville de Montréal</li>
+        <li><strong>Architecture moderne</strong> : Solution REST scalable et maintenable</li>
+    </ul>
+
+    <h3>1.2 Évolution depuis les devoirs précédents</h3>
+    <div class="evolution">
+        <h4>Devoir 1 → Devoir 2 → Devoir 3</h4>
+        <ul>
+            <li><strong>Devoir 1 :</strong> Modélisation du domaine, diagrammes UML, prototype console basique</li>
+            <li><strong>Devoir 2 :</strong> Architecture REST, implémentation complète, tests unitaires, intégration API externe</li>
+            <li><strong>Devoir 3 :</strong> Architecture REST complète, système de notifications avancé, persistance JSON robuste, interface console interactive</li>
+        </ul>
+        
+        <h4>Nouvelles fonctionnalités du Devoir 3 :</h4>
+        <ul>
+            <li>✅ <strong>Architecture REST complète</strong> : Serveur Javalin + Client HTTP</li>
+            <li>✅ <strong>Système de notifications temps réel</strong> : Abonnements automatiques et manuels</li>
+            <li>✅ <strong>Persistance JSON robuste</strong> : Synchronisation des IDs, sauvegarde automatique</li>
+            <li>✅ <strong>Interface console interactive</strong> : Menus hiérarchiques, navigation intuitive</li>
+            <li>✅ <strong>Gestion complète des projets</strong> : Création, validation, mise à jour de statut</li>
+            <li>✅ <strong>Intégration API externe</strong> : Données ouvertes de Montréal</li>
+            <li>✅ <strong>Filtrage avancé</strong> : Par quartier, type, statut, dates</li>
+        </ul>
+    </div>
+
+    <h3>1.3 Description des rôles et fonctionnalités DM3</h3>
     
+    <h4>1.3.1 Profils utilisateurs</h4>
+    <p>
+        L'application MaVille s'adresse à trois types d'utilisateurs distincts, chacun ayant des rôles et des fonctionnalités spécifiques :
+    </p>
+
+    <div class="user-profiles">
+        <h5>🏠 Résident</h5>
+        <p>
+            <strong>Rôle :</strong> Citoyen de Montréal qui signale des problèmes routiers et suit l'état des travaux dans son quartier.
+        </p>
+        <p>
+            <strong>Fonctionnalités principales :</strong>
+        </p>
+        <ul>
+            <li>Choisir son profil au démarrage de l'application</li>
+            <li>Modifier ses préférences de notification (abonnements par quartier/rue)</li>
+            <li>Voir ses notifications (nombre affiché dans le menu)</li>
+            <li>Consulter les travaux en cours</li>
+            <li>Consulter les travaux à venir (3 prochains mois)</li>
+            <li>Chercher ou filtrer les travaux par quartier</li>
+            <li>Signaler un problème routier (avec envoi automatique de notifications)</li>
+        </ul>
+
+        <h5>🏢 Prestataire</h5>
+        <p>
+            <strong>Rôle :</strong> Entreprise enregistrée qui propose des services de travaux publics et gère ses projets.
+        </p>
+        <p>
+            <strong>Fonctionnalités principales :</strong>
+        </p>
+        <ul>
+            <li>Choisir son profil au démarrage de l'application</li>
+            <li>Modifier ses préférences de notification (abonnements par quartier/type)</li>
+            <li>Voir ses notifications</li>
+            <li>Consulter la liste des problèmes routiers disponibles</li>
+            <li>Soumettre une candidature à un projet (avec envoi de notifications)</li>
+            <li>Mettre à jour les informations d'un projet (avec envoi de notifications)</li>
+        </ul>
+
+        <h5>🏛️ Agent STPM</h5>
+        <p>
+            <strong>Rôle :</strong> Agent du Service des Travaux Publics de Montréal qui coordonne et valide les projets.
+        </p>
+        <p>
+            <strong>Fonctionnalités principales :</strong>
+        </p>
+        <ul>
+            <li>Accéder au profil STPM unique (non nominatif)</li>
+            <li>Recevoir des notifications automatiques pour nouveaux problèmes et projets</li>
+            <li>Affecter une priorité à un problème (avec envoi de notifications)</li>
+            <li>Accepter ou refuser des projets de travaux (avec envoi de notifications)</li>
+            <li>Gérer la coordination générale des travaux</li>
+        </ul>
+    </div>
+
+    <h4>1.3.2 Fonctionnalités communes</h4>
+    <p>
+        Tous les utilisateurs partagent certaines fonctionnalités de base :
+    </p>
+    <ul>
+        <li><strong>Interface console</strong> : Navigation intuitive avec menus hiérarchiques</li>
+        <li><strong>Système de notifications</strong> : Alertes personnalisées selon les préférences</li>
+        <li><strong>Persistance des données</strong> : Sauvegarde automatique des informations</li>
+        <li><strong>Validation des entrées</strong> : Gestion robuste des erreurs de saisie</li>
+    </ul>
+
+    <h4>1.3.3 Flux de travail principal</h4>
+    <p>
+        Le processus de gestion des travaux suit un flux bien défini :
+    </p>
+    <ol>
+        <li><strong>Signalement</strong> : Un résident signale un problème routier</li>
+        <li><strong>Priorisation</strong> : Le STPM affecte une priorité au problème</li>
+        <li><strong>Candidature</strong> : Un prestataire soumet une candidature pour résoudre le problème</li>
+        <li><strong>Validation</strong> : Le STPM accepte ou refuse la candidature</li>
+        <li><strong>Exécution</strong> : Le prestataire exécute les travaux et met à jour le statut</li>
+        <li><strong>Suivi</strong> : Les résidents sont notifiés des changements</li>
+    </ol>
+
+    <h4>1.3.4 Sources de données</h4>
+    <p>
+        L'application utilise deux sources de données pour les travaux :
+    </p>
+    <ul>
+        <li><strong>Travaux MaVille</strong> : Projets créés par les utilisateurs de l'application (modifiables)</li>
+        <li><strong>API de Montréal</strong> : Travaux officiels de la ville (lecture seule)</li>
+    </ul>
+
+    <h3>1.3 Hypothèses et contraintes</h3>
+    
+    <h4>1.3.1 Hypothèses techniques</h4>
+    <ul>
+        <li><strong>Authentification</strong> : L'authentification est gérée par un service central de la ville de Montréal</li>
+        <li><strong>Profil utilisateur</strong> : Les utilisateurs choisissent leur profil au démarrage (Résident, Prestataire, Agent STPM)</li>
+        <li><strong>Architecture</strong> : L'application fonctionne en mode client-serveur avec API REST</li>
+        <li><strong>Persistance</strong> : Les données sont persistées en JSON pour la simplicité et la portabilité</li>
+        <li><strong>Interface</strong> : L'interface utilisateur est en ligne de commande pour ce prototype</li>
+        <li><strong>Connectivité</strong> : L'application nécessite une connexion Internet pour l'API externe de Montréal</li>
+    </ul>
+
+    <h4>1.3.2 Contraintes fonctionnelles</h4>
+    <ul>
+        <li><strong>Données d'initialisation</strong> : L'application doit être initialisée avec 5 résidents, 5 prestataires, 5 problèmes et 5 projets</li>
+        <li><strong>Notifications</strong> : Toutes les actions importantes doivent déclencher des notifications appropriées</li>
+        <li><strong>Validation</strong> : L'application ne doit pas s'arrêter sur une mauvaise entrée utilisateur</li>
+        <li><strong>Persistance</strong> : Les données doivent être préservées au-delà d'une session</li>
+        <li><strong>Filtrage</strong> : Les utilisateurs doivent pouvoir filtrer les données par quartier, type et dates</li>
+    </ul>
+
+    <h4>1.3.3 Contraintes techniques</h4>
+    <ul>
+        <li><strong>Java 17</strong> : L'application nécessite Java 17 ou supérieur</li>
+        <li><strong>Maven</strong> : Utilisation de Maven pour la gestion des dépendances et la compilation</li>
+        <li><strong>Port 7000</strong> : Le serveur API utilise le port 7000 par défaut</li>
+        <li><strong>Fichiers JSON</strong> : Les données sont stockées dans le dossier `data/`</li>
+        <li><strong>Tests unitaires</strong> : Minimum de 3 cas de tests pour 6 fonctionnalités avec JUnit</li>
+    </ul>
+
+    <h3>1.4 Équipe et répartition du travail</h3>
+    <div class="equipe-section">
+        <div class="equipe-member">
+            <strong>Nom complet :</strong> Younes Lagha<br>
+            <strong>Matricule :</strong> 20256168<br>
+            <strong>Discord :</strong> younes_lgha<br>
+            <strong>GitHub :</strong> YounesLagha<br>
+            <strong>Responsabilités :</strong> Architecture REST, API Server, Tests unitaires
+        </div>
+
+        <div class="equipe-member">
+            <strong>Nom complet :</strong> Karim Omairi<br>
+            <strong>Matricule :</strong> 20288301<br>
+            <strong>Discord :</strong> dhxft<br>
+            <strong>GitHub :</strong> dhxft<br>
+            <strong>Responsabilités :</strong> Modèles de données, Services métier, Persistance JSON
+        </div>
+
+        <div class="equipe-member">
+            <strong>Nom complet :</strong> Rayyan Oumlil<br>
+            <strong>Matricule :</strong> 20299978<br>
+            <strong>Discord :</strong> rayyan20062<br>
+            <strong>GitHub :</strong> Rayyan-Oumlil<br>
+            <strong>Responsabilités :</strong> Interface utilisateur, Client HTTP, Documentation
+        </div>
+    </div>
+
+    <h3>1.5 Mise à jour complète de la conception</h3>
+    
+    <h4>1.5.1 Architecture REST complète</h4>
+    <p>
+        L'application MaVille implémente une architecture REST moderne avec séparation claire entre le serveur API et le client. Cette architecture facilite la maintenance, les tests et l'extensibilité du système.
+    </p>
+
+    <div class="architecture-components">
+        <h5>Composants de l'architecture :</h5>
+        <ul>
+            <li><strong>Serveur API (ApiServer.java)</strong> : Serveur Javalin sur le port 7000</li>
+            <li><strong>Client HTTP (HttpClient.java)</strong> : Client OkHttp pour communiquer avec l'API</li>
+            <li><strong>Interface console</strong> : Menus interactifs utilisant le client HTTP</li>
+            <li><strong>Persistance JSON</strong> : Stockage des données dans des fichiers JSON</li>
+        </ul>
+    </div>
+
+    <h4>1.5.2 Système de notifications avancé</h4>
+    <p>
+        Le système de notifications de MaVille offre une gestion intelligente des alertes avec plusieurs types d'abonnements :
+    </p>
+
+    <div class="notification-system">
+        <h5>Types d'abonnements :</h5>
+        <ul>
+            <li><strong>Abonnement automatique</strong> : Lorsqu'un résident signale un problème, il est automatiquement abonné aux notifications de son quartier</li>
+            <li><strong>Abonnement manuel</strong> : Possibilité de s'abonner à d'autres quartiers ou rues spécifiques</li>
+            <li><strong>Abonnement par type</strong> : Les prestataires peuvent s'abonner aux notifications de problèmes par type de travaux</li>
+        </ul>
+
+        <h5>Types de notifications :</h5>
+        <ul>
+            <li>Nouveau projet créé dans le quartier</li>
+            <li>Changement de statut d'un projet</li>
+            <li>Modification des dates de travaux</li>
+            <li>Problème résolu</li>
+            <li>Nouvelle priorité affectée à un problème</li>
+        </ul>
+    </div>
+
+    <h4>1.5.3 Persistance JSON robuste</h4>
+    <p>
+        Le système de persistance JSON offre une solution simple mais robuste pour le stockage des données :
+    </p>
+
+    <div class="persistence-features">
+        <h5>Caractéristiques de la persistance :</h5>
+        <ul>
+            <li><strong>Synchronisation des IDs</strong> : Évite les doublons lors du redémarrage</li>
+            <li><strong>Sauvegarde automatique</strong> : Données persistées après chaque modification</li>
+            <li><strong>Fichiers séparés</strong> : Un fichier JSON par type d'entité</li>
+            <li><strong>Données de test</strong> : Initialisation automatique avec des données d'exemple</li>
+            <li><strong>Gestion des erreurs</strong> : Récupération gracieuse en cas de problème de fichier</li>
+        </ul>
+    </div>
+
+    <h4>1.5.4 Interface console interactive</h4>
+    <p>
+        L'interface console offre une navigation intuitive avec des menus hiérarchiques organisés par profil utilisateur :
+    </p>
+
+    <div class="interface-features">
+        <h5>Caractéristiques de l'interface :</h5>
+        <ul>
+            <li><strong>Menus par profil</strong> : Résident, Prestataire, Agent STPM</li>
+            <li><strong>Navigation hiérarchique</strong> : Maximum 3 niveaux d'imbrication</li>
+            <li><strong>Retour facile</strong> : Option "0" pour revenir au menu précédent</li>
+            <li><strong>Validation des entrées</strong> : Gestion des erreurs de saisie</li>
+            <li><strong>Affichage formaté</strong> : Informations présentées de manière claire</li>
+            <li><strong>Compteurs de notifications</strong> : Affichage du nombre de notifications non lues</li>
+        </ul>
+    </div>
+
+    <h4>1.5.5 Intégration API externe</h4>
+    <p>
+        L'application intègre l'API de données ouvertes de Montréal pour récupérer les travaux officiels de la ville :
+    </p>
+
+    <div class="external-api">
+        <h5>Fonctionnalités de l'intégration :</h5>
+        <ul>
+            <li><strong>Récupération automatique</strong> : Données des travaux en cours de la ville</li>
+            <li><strong>Fusion des données</strong> : Combinaison des travaux MaVille et officiels</li>
+            <li><strong>Filtrage unifié</strong> : Recherche dans toutes les sources de données</li>
+            <li><strong>Gestion des erreurs</strong> : Récupération gracieuse en cas d'indisponibilité de l'API</li>
+        </ul>
+    </div>
+
     <!-- === 2. Modélisation du domaine === -->
     <h2>2. Modélisation du domaine</h2>
 
@@ -345,17 +658,107 @@ Le résident ouvre l’application, se dirige vers “signaler un problème rout
 </div>
 
 
-    <h3>5.4 Diagramme de classes orienté objet (version 2)</h3>
+    <h3>5.4 Diagramme de classes orienté objet (version finale)</h3>
     <div class="diagram-placeholder">
-        <p><strong>Diagramme de classes - Modèle orienté objet (v2)</strong></p>
-        <img src="images/Diagramme_classe_OO.jpg" alt="Diagramme de classes MaVille v2" style="max-width: 100%; border: 1px solid #ccc;">
-        <p style="font-size: 0.9em; color: #888;"></p>
+        <p><strong>Diagramme de classes - Modèle orienté objet (version finale)</strong></p>
+        <img src="images/Diagramme_classe_OO.jpg" alt="Diagramme de classes MaVille version finale" style="max-width: 100%; border: 1px solid #ccc;">
+        <p style="font-size: 0.9em; color: #888;">Diagramme de classes conforme à l'implémentation actuelle avec architecture REST</p>
     </div>
-    
 
-<h3>5.5 Implémentation REST et persistance</h3>
+    <h3>5.5 Architecture REST complète</h3>
+    <p>
+        L'application MaVille implémente une <strong>architecture REST complète</strong> avec séparation claire entre le serveur API et le client. Cette architecture moderne facilite la maintenance, les tests et l'extensibilité du système.
+    </p>
+
+    <h4>5.5.1 Composants de l'architecture</h4>
+    <ul>
+        <li><strong>Serveur API (ApiServer.java)</strong> : Serveur Javalin sur le port 7000</li>
+        <li><strong>Client HTTP (HttpClient.java)</strong> : Client OkHttp pour communiquer avec l'API</li>
+        <li><strong>Interface console</strong> : Menus interactifs utilisant le client HTTP</li>
+        <li><strong>Persistance JSON</strong> : Stockage des données dans des fichiers JSON</li>
+    </ul>
+
+    <h4>5.5.2 Endpoints REST principaux</h4>
+    <div class="api-endpoints">
+        <h5>Gestion des problèmes</h5>
+        <ul>
+            <li><code>GET /api/residents/problemes</code> - Consulter les problèmes signalés</li>
+            <li><code>POST /api/residents/problemes</code> - Signaler un nouveau problème</li>
+            <li><code>PUT /api/stpm/problemes/{id}/priorite</code> - Modifier la priorité d'un problème</li>
+        </ul>
+
+        <h5>Gestion des projets</h5>
+        <ul>
+            <li><code>GET /api/residents/travaux</code> - Consulter les travaux en cours</li>
+            <li><code>GET /api/prestataires/problemes</code> - Problèmes disponibles pour candidature</li>
+            <li><code>POST /api/prestataires/candidatures</code> - Soumettre une candidature</li>
+            <li><code>PUT /api/stpm/candidatures/{id}/valider</code> - Valider une candidature</li>
+            <li><code>PUT /api/prestataires/projets/{id}</code> - Mettre à jour un projet</li>
+        </ul>
+
+        <h5>Système de notifications</h5>
+        <ul>
+            <li><code>GET /api/residents/notifications</code> - Consulter les notifications</li>
+            <li><code>POST /api/residents/abonnements</code> - Créer un abonnement</li>
+            <li><code>GET /api/residents/abonnements</code> - Consulter les abonnements</li>
+        </ul>
+
+        <h5>Intégration externe</h5>
+        <ul>
+            <li><code>GET /api/montreal/travaux</code> - Travaux officiels de la ville de Montréal</li>
+        </ul>
+    </div>
+
+    <h3>5.6 Système de notifications avancé</h3>
+    <p>
+        Le système de notifications de MaVille offre une gestion intelligente des alertes avec abonnements automatiques et manuels.
+    </p>
+
+    <h4>5.6.1 Fonctionnalités du système de notifications</h4>
+    <ul>
+        <li><strong>Abonnement automatique</strong> : Lorsqu'un résident signale un problème, il est automatiquement abonné aux notifications de son quartier</li>
+        <li><strong>Abonnement manuel</strong> : Possibilité de s'abonner à d'autres quartiers ou rues spécifiques</li>
+        <li><strong>Types de notifications</strong> :
+            <ul>
+                <li>Nouveau projet créé dans le quartier</li>
+                <li>Changement de statut d'un projet</li>
+                <li>Modification des dates de travaux</li>
+                <li>Problème résolu</li>
+            </ul>
+        </li>
+        <li><strong>Filtrage intelligent</strong> : Notifications personnalisées selon les préférences de l'utilisateur</li>
+    </ul>
+
+    <h3>5.7 Persistance JSON robuste</h3>
+    <p>
+        Le système de persistance JSON offre une solution simple mais robuste pour le stockage des données.
+    </p>
+
+    <h4>5.7.1 Caractéristiques de la persistance</h4>
+    <ul>
+        <li><strong>Synchronisation des IDs</strong> : Évite les doublons lors du redémarrage</li>
+        <li><strong>Sauvegarde automatique</strong> : Données persistées après chaque modification</li>
+        <li><strong>Fichiers séparés</strong> : Un fichier JSON par type d'entité</li>
+        <li><strong>Données de test</strong> : Initialisation automatique avec des données d'exemple</li>
+    </ul>
+
+    <h3>5.8 Interface console interactive</h3>
+    <p>
+        L'interface console offre une navigation intuitive avec des menus hiérarchiques organisés par profil utilisateur.
+    </p>
+
+    <h4>5.8.1 Caractéristiques de l'interface</h4>
+    <ul>
+        <li><strong>Menus par profil</strong> : Résident, Prestataire, Agent STPM</li>
+        <li><strong>Navigation hiérarchique</strong> : Maximum 3 niveaux d'imbrication</li>
+        <li><strong>Retour facile</strong> : Option "0" pour revenir au menu précédent</li>
+        <li><strong>Validation des entrées</strong> : Gestion des erreurs de saisie</li>
+        <li><strong>Affichage formaté</strong> : Informations présentées de manière claire</li>
+    </ul>
+
+    <h3>5.9 Implémentation REST et persistance</h3>
 <p>
-    L’application MaVille s’appuie sur une <strong>architecture RESTful</strong> pour l’intégralité des interactions entre le client (interface CLI) et le serveur. Chaque fonctionnalité métier est exposée via des endpoints HTTP clairs, facilitant à la fois l’utilisation par différents clients (CLI, futur site web ou app mobile) et la maintenance/extensibilité du système.
+    L'application MaVille s'appuie sur une <strong>architecture RESTful</strong> pour l'intégralité des interactions entre le client (interface CLI) et le serveur. Chaque fonctionnalité métier est exposée via des endpoints HTTP clairs, facilitant à la fois l'utilisation par différents clients (CLI, futur site web ou app mobile) et la maintenance/extensibilité du système.
 </p>
 <ul>
     <li>
@@ -363,50 +766,117 @@ Le résident ouvre l’application, se dirige vers “signaler un problème rout
         <ul>
             <li><code>GET /api/problemes</code> – Liste tous les problèmes signalés dans le système.</li>
             <li><code>POST /api/problemes</code> – Permet à un résident de signaler un nouveau problème.</li>
-            <li><code>PUT /api/problemes/:id</code> – Met à jour les informations ou le statut d’un problème existant (ex. : résolution, changement de priorité).</li>
+            <li><code>PUT /api/problemes/:id</code> – Met à jour les informations ou le statut d'un problème existant (ex. : résolution, changement de priorité).</li>
             <li><code>GET /api/projets</code> – Récupère la liste complète des projets de travaux validés ou en cours.</li>
-            <li><code>POST /api/projets</code> – Ajoute un nouveau projet (suite à validation d’une candidature ou d’un besoin par le STPM).</li>
-            <li><code>PUT /api/projets/:id</code> – Met à jour un projet (ex. : dates, description, statut).</li>
+            <li><code>POST /api/projets</code> – Ajoute un nouveau projet (suite à validation d'une candidature ou d'un besoin par le STPM).</li>
+            <li><code>PUT /api/projets/:id</code> – Met à jour un projet (ex. : dates, description, statut).</li>
             <li><code>GET /api/candidatures</code> – Liste toutes les candidatures déposées par les prestataires.</li>
             <li><code>POST /api/candidatures</code> – Permet à un prestataire de soumettre une nouvelle candidature à un ou plusieurs problèmes.</li>
-            <li><code>PUT /api/candidatures/:id</code> – Permet la modification ou l’annulation d’une candidature (tant qu’elle n’est pas validée).</li>
-            <li><code>GET /api/notifications</code> – Liste les notifications envoyées aux utilisateurs (ex. : confirmation de prise en charge, changement de statut).</li>
+            <li><code>PUT /api/candidatures/:id</code> – Permet la modification ou l'annulation d'une candidature (tant qu'elle n'est pas validée).</li>
+            <li><code>GET /api/notifications</code> – Liste les notifications envoyées aux utilisateurs (ex. : confirmation de prise en charge, changement de statut).</li>
             <li><code>POST /api/notifications</code> – Ajoute une nouvelle notification ciblée.</li>
-            <li><code>PUT /api/notifications/:id</code> – Marque une notification comme lue ou modifie son contenu en cas d’erreur.</li>
+            <li><code>PUT /api/notifications/:id</code> – Marque une notification comme lue ou modifie son contenu en cas d'erreur.</li>
         </ul>
         <p style="font-size: 0.95em; color: #666;">
-            Tous les échanges se font en <strong>JSON</strong>, garantissant l’interopérabilité et la simplicité d’intégration avec d’autres systèmes.
+            Tous les échanges se font en <strong>JSON</strong>, garantissant l'interopérabilité et la simplicité d'intégration avec d'autres systèmes.
         </p>
     </li>
 </ul>
 <p>
     <em>
-        Ce découpage rigoureux entre API REST et couche de persistance positionne MaVille comme une solution moderne, évolutive et conforme aux standards industriels, tout en facilitant la maintenance, les tests et l’ouverture vers d’autres plateformes ou services municipaux à l’avenir.
+        Ce découpage rigoureux entre API REST et couche de persistance positionne MaVille comme une solution moderne, évolutive et conforme aux standards industriels, tout en facilitant la maintenance, les tests et l'ouverture vers d'autres plateformes ou services municipaux à l'avenir.
     </em>
 </p>
 
+    <h2>6. Implémentation et tests</h2>
+    
+    <h3>6.1 Tests unitaires</h3>
+    <p>
+        L'application MaVille inclut une suite de tests unitaires complète pour valider le bon fonctionnement des classes principales.
+    </p>
 
-<h3> Équipe</h3>
+    <h4>6.1.1 Classes testées</h4>
+    <ul>
+        <li><strong>ProblemeTest.java</strong> : Tests de création, validation et synchronisation des IDs</li>
+        <li><strong>CandidatureTest.java</strong> : Tests de soumission, validation et modification</li>
+        <li><strong>ResidentTest.java</strong> : Tests de gestion des résidents et abonnements</li>
+    </ul>
+
+    <h4>6.1.2 Exécution des tests</h4>
+    <div class="code-section">
+        <pre>
+# Exécuter tous les tests
+mvn test
+
+# Tests avec rapport détaillé
+mvn test -X
+
+# Tests d'une classe spécifique
+mvn test -Dtest=ProblemeTest
+        </pre>
+    </div>
+
+    <h3>6.2 Documentation technique</h3>
+    <p>
+        La documentation technique complète est générée automatiquement à partir du code source.
+    </p>
+
+    <h4>6.2.1 Documentation des classes</h4>
+    <p>
+        Chaque classe du modèle inclut une documentation JavaDoc complète décrivant :
+    </p>
+    <ul>
+        <li>Rôle et responsabilité de la classe</li>
+        <li>Paramètres des constructeurs</li>
+        <li>Fonctionnalités des méthodes publiques</li>
+        <li>Exemples d'utilisation</li>
+    </ul>
+
+    <h4>6.2.2 Génération de la documentation</h4>
+    <div class="code-section">
+        <pre>
+# Générer la documentation JavaDoc
+mvn javadoc:javadoc
+
+# Documentation disponible dans target/site/apidocs/
+        </pre>
+    </div>
+
+    <h3>6.3 Données de test</h3>
+    <p>
+        L'application est initialisée automatiquement avec des données de test :
+    </p>
+    <ul>
+        <li><strong>4 résidents</strong> : Marie, Jean, Sophie, Pierre</li>
+        <li><strong>4 prestataires</strong> : ABC Construction, XYZ Services, DEF Travaux, GHI Maintenance</li>
+        <li><strong>4 problèmes</strong> : Dans différents quartiers avec diverses priorités</li>
+        <li><strong>3 candidatures</strong> : En attente de validation par le STPM</li>
+    </ul>
+
+    <h2>7. Équipe et répartition du travail</h2>
     <div class="equipe-member">
         <strong>Nom complet :</strong> Younes Lagha<br>
         <strong>Matricule :</strong> 20256168<br>
         <strong>Discord :</strong> younes_lgha<br>
-        <strong>GitHub :</strong> YounesLagha
+        <strong>GitHub :</strong> YounesLagha<br>
+        <strong>Responsabilités :</strong> Architecture REST, API Server, Tests unitaires
     </div>
 
     <div class="equipe-member">
         <strong>Nom complet :</strong> Karim Omairi<br>
-        <strong>Matricule :</strong> 20288301 <br>
+        <strong>Matricule :</strong> 20288301<br>
         <strong>Discord :</strong> dhxft<br>
-        <strong>GitHub :</strong> dhxft
-    </div>
-        <div class="equipe-member">
-        <strong>Nom complet :</strong> Rayyan Oumlil <br>
-        <strong>Matricule :</strong> 20299978 <br>
-        <strong>Discord :</strong> rayyan20062<br>
-        <strong>GitHub :</strong> Rayyan-Oumlil 
+        <strong>GitHub :</strong> dhxft<br>
+        <strong>Responsabilités :</strong> Modèles de données, Services métier, Persistance JSON
     </div>
 
+    <div class="equipe-member">
+        <strong>Nom complet :</strong> Rayyan Oumlil<br>
+        <strong>Matricule :</strong> 20299978<br>
+        <strong>Discord :</strong> rayyan20062<br>
+        <strong>GitHub :</strong> Rayyan-Oumlil<br>
+        <strong>Responsabilités :</strong> Interface utilisateur, Client HTTP, Documentation
+    </div>
 
     <hr>
    <h3>4.3 Instructions d'utilisation</h3>
@@ -414,10 +884,10 @@ Le résident ouvre l’application, se dirige vers “signaler un problème rout
 <div class="code-section">
     <h4>Exécution via le JAR (recommandé)</h4>
     <pre>
- 1. Téléchargez le fichier maVille-2.0-SNAPSHOT.jar depuis la section "Releases" du projet GitHub.
+ 1. Téléchargez le fichier maville-1.0-SNAPSHOT.jar depuis la section "Releases" du projet GitHub.
  2. Ouvrez un terminal et placez-vous dans le dossier où se trouve le fichier JAR.
  3. Exécutez la commande suivante :
-java -jar maVille-2.0-SNAPSHOT.jar
+java -jar maville-1.0-SNAPSHOT.jar
     </pre>
     <h4>Alternative : Utilisation avec un IDE (IntelliJ, VSCODE, etc.)</h4>
     <ol>
@@ -438,7 +908,7 @@ java -jar maVille-2.0-SNAPSHOT.jar
 
     <div class="success">
         <h3>Conclusion</h3>
-        <p>Ce prototype évolué démontre la faisabilité de l’application MaVille, intègre l’architecture REST, et pose les bases d’une application maintenable, modulaire et extensible pour la gestion des travaux publics à Montréal. Les contributions de chaque membre, la rigueur du développement collaboratif, et l’intégration des retours client assurent la qualité de la solution livrée.</p>
+        <p>Ce prototype évolué démontre la faisabilité de l'application MaVille, intègre l'architecture REST, et pose les bases d'une application maintenable, modulaire et extensible pour la gestion des travaux publics à Montréal. Les contributions de chaque membre, la rigueur du développement collaboratif, et l'intégration des retours client assurent la qualité de la solution livrée.</p>
     </div>
 
 </div>
