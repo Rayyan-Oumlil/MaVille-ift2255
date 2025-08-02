@@ -108,7 +108,7 @@ maville/
 │       │   ├── CandidatureTest.java
 │       │   ├── ProblemeTest.java
 │       │   └── ResidentTest.java
-│
+│       │   └── etc...
 ├── visual_paradigm/                     # Fichiers Visual Paradigm
 └── .gitignore                          # Fichiers ignorés par Git
 ```
