@@ -859,6 +859,15 @@ mvn javadoc:javadoc
 # Documentation disponible dans target/site/apidocs/index.html
         </pre>
     </div>
+<h3>Intégration continue avec GitHub Actions</h3>
+<p>
+Un workflow CI a été configuré pour ce projet avec GitHub Actions. Il est défini dans le fichier <code>.github/workflows/ci.yml</code>.
+À chaque <strong>push</strong> ou <strong>pull request</strong> sur la branche <code>main</code>, les tests JUnit sont automatiquement exécutés via Maven, garantissant que seul du code fonctionnel est intégré à la branche principale.
+</p>
+<p>
+Lien vers les workflows : 
+<a href="https://github.com/IFT-2255/ift2255-ma-ville-team9/actions/runs/16689290497">https://github.com/IFT-2255/ift2255-ma-ville-team9/actions/runs/16689290497</a>
+</p>
 
 <h3>6.3 Données de test</h3>
 <p>
