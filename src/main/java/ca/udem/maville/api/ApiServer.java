@@ -129,6 +129,7 @@ private void initializeServices() {
         app.get("/api/residents/{id}/notifications", this::consulterNotifications);
         app.post("/api/residents/{email}/abonnements", this::creerAbonnement);
         app.get("/api/residents/{email}/abonnements", this::consulterAbonnements);
+        app.put("/api/residents/{email}/preferences", this::modifierPreferencesResident);
         
         // ENDPOINTS PRESTATAIRES
         app.get("/api/prestataires/problemes", this::consulterProblemes);
@@ -144,9 +145,15 @@ private void initializeServices() {
         // ENDPOINTS API EXTERNE MONTRÉAL
         app.get("/api/montreal/travaux", this::getTravauxMontreal);
         
+        app.get("/api/prestataires/{neq}/preferences", this::consulterPreferencesPrestataire);
+        app.post("/api/prestataires/{neq}/abonnements", this::creerAbonnementPrestataire);
+        app.get("/api/prestataires/{neq}/notifications", this::consulterNotificationsPrestataire);
+        app.put("/api/residents/{email}/notifications/marquer-lu", this::marquerNotificationsLues);
+app.put("/api/prestataires/{neq}/notifications/marquer-lu", this::marquerNotificationsLuesPrestataire);
+
         System.out.println("Routes configurées");
     }
-    
+
     // ================================================================
     // IMPLÉMENTATION ENDPOINTS RÉSIDENTS
     // ================================================================
@@ -199,6 +206,23 @@ private void signalerProbleme(Context ctx) {
         response.put("problemeId", nouveauProbleme.getId());
         response.put("quartierAbonnement", quartier);
         
+        // NOUVEAU : Notifier le STPM du nouveau problème
+storage.creerNotificationStmp(
+    "Nouveau problème #" + nouveauProbleme.getId() + " signalé dans " + quartier + 
+    " (" + nouveauProbleme.getTypeProbleme().getDescription() + ")",
+    "NOUVEAU_PROBLEME", 
+    nouveauProbleme.getId(), 
+    quartier
+);
+// Notifier le STPM du nouveau problème
+storage.creerNotificationStmp(
+    "Nouveau problème #" + nouveauProbleme.getId() + " signalé dans " + quartier + 
+    " (" + nouveauProbleme.getTypeProbleme().getDescription() + ")",
+    "NOUVEAU_PROBLEME", 
+    nouveauProbleme.getId(), 
+    quartier
+);
+System.out.println(" Notification STPM créée pour le nouveau problème #" + nouveauProbleme.getId());
         ctx.json(response);
         
     } catch (Exception e) {
@@ -207,106 +231,195 @@ private void signalerProbleme(Context ctx) {
 }
 
     
-    private void consulterTravaux(Context ctx) {
-        try {
-            String quartier = ctx.queryParam("quartier");
-            String type = ctx.queryParam("type");
-            
-            // Charger les projets
-            List<Projet> projets = storage.loadProjets();
-            
-            // Si aucun projet OU trop de projets, recréer exactement 3
-            if (projets.isEmpty() || projets.size() > 3) {
-                System.out.println("Réinitialisation avec exactement 3 projets...");
-                projets = creerExactement3Projets();
-                storage.saveProjets(projets);
-            }
-            
-            // Filtrer pour la période de 3 mois
-            LocalDate aujourd = LocalDate.now();
-            LocalDate dans3Mois = aujourd.plusMonths(3);
+
+
+private void consulterTravaux(Context ctx) {
+    try {
+        String quartier = ctx.queryParam("quartier");
+        String type = ctx.queryParam("type");
+        
+        // 1. CHARGER LES PROJETS MAVILLE
+        List<Projet> projetsMaVille = storage.loadProjets();
+        
+        // 2. CHARGER LES TRAVAUX OFFICIELS MONTRÉAL
+        MontrealApiService montrealApi = new MontrealApiService();
+        List<Map<String, Object>> travauxMontreal = montrealApi.getTravauxEnCours(50);
+        
+        // 3. COMBINER LES DEUX SOURCES
+        List<Map<String, Object>> travaux = new ArrayList<>();
+        
+        // Ajouter les projets MaVille (modifiables) avec filtrage
+        for (Projet p : projetsMaVille) {
+            boolean inclure = true;
             
             // Filtrer par quartier si spécifié
             if (quartier != null && !quartier.trim().isEmpty()) {
-                projets = projets.stream()
-                    .filter(p -> p.getLocalisation() != null && 
-                                p.getLocalisation().toLowerCase().contains(quartier.toLowerCase()))
-                    .collect(Collectors.toList());
-            }
-            
-            // Filtrer par type si spécifié  
-            if (type != null && !type.trim().isEmpty()) {
-                final String typeRecherche = type.toUpperCase().trim();
+                String quartierRecherche = quartier.trim().toLowerCase();
+                String localisation = p.getLocalisation().toLowerCase();
+                String quartierProjet = extraireQuartier(p.getLocalisation()).toLowerCase();
                 
-                projets = projets.stream()
-                    .filter(p -> {
-                        if (p.getTypeTravail() == null) return false;
-                        
-                        // Comparer avec le nom de l'enum ET la description
-                        String enumName = p.getTypeTravail().name();
-                        String enumDescription = p.getTypeTravail().getDescription();
-                        
-                        return enumName.equalsIgnoreCase(typeRecherche) || 
-                               enumDescription.equalsIgnoreCase(typeRecherche) ||
-                               enumName.replace("_", " ").equalsIgnoreCase(typeRecherche);
-                    })
-                    .collect(Collectors.toList());
+                if (!localisation.contains(quartierRecherche) && 
+                    !quartierProjet.contains(quartierRecherche) &&
+                    !quartierRecherche.contains(quartierProjet)) {
+                    inclure = false;
+                }
             }
             
-            // Convertir en JSON
-            List<Map<String, Object>> projetsJson = new ArrayList<>();
-            for (Projet p : projets) {
-                Map<String, Object> pJson = new HashMap<>();
-                pJson.put("id", p.getId());
-                pJson.put("titre", p.getDescriptionProjet());
-                pJson.put("localisation", p.getLocalisation());
-                pJson.put("quartier", extraireQuartier(p.getLocalisation()));
-                pJson.put("type", p.getTypeTravail().getDescription());
-                pJson.put("statut", p.getStatut().getDescription());
-                pJson.put("priorite", p.getPriorite().getDescription());
-                pJson.put("prestataire", p.getPrestataire().getNomEntreprise());
-                pJson.put("dateDebut", p.getDateDebutPrevue().toString());
-                pJson.put("dateFin", p.getDateFinPrevue().toString());
-                pJson.put("cout", p.getCout());
-                projetsJson.add(pJson);
+            // Filtrer par type si spécifié
+            if (inclure && type != null && !type.trim().isEmpty()) {
+                String typeRecherche = type.trim().toUpperCase();
+                String typeProjet = p.getTypeTravail().name();
+                String descriptionProjet = p.getTypeTravail().getDescription();
+                
+                if (!typeProjet.equals(typeRecherche) && 
+                    !typeProjet.contains(typeRecherche) &&
+                    !descriptionProjet.toLowerCase().contains(typeRecherche.toLowerCase()) &&
+                    !typeRecherche.contains(typeProjet)) {
+                    inclure = false;
+                }
             }
             
-            Map<String, Object> response = new HashMap<>();
-            response.put("travaux", projetsJson);
-            response.put("total", projetsJson.size());
-            response.put("periode", "Projets actifs et prévus jusqu'au " + dans3Mois.toString());
-            
-            ctx.json(response);
-            
-        } catch (Exception e) {
-            ctx.status(500).json(createErrorResponse("Erreur: " + e.getMessage()));
+            if (inclure) {
+                Map<String, Object> travail = new HashMap<>();
+                travail.put("id", "MAVILLE-" + p.getId());
+                travail.put("titre", p.getDescriptionProjet());
+                travail.put("localisation", p.getLocalisation());
+                travail.put("quartier", extraireQuartier(p.getLocalisation()));
+                travail.put("type", p.getTypeTravail().getDescription());
+                travail.put("statut", p.getStatut().getDescription());
+                travail.put("priorite", p.getPriorite().getDescription());
+                travail.put("prestataire", p.getPrestataire().getNomEntreprise());
+                travail.put("dateDebut", p.getDateDebutPrevue().toString());
+                travail.put("dateFin", p.getDateFinPrevue().toString());
+                travail.put("cout", p.getCout());
+                travail.put("source", "MaVille");
+                travail.put("modifiable", true);
+                travaux.add(travail);
+            }
         }
+        
+        // Ajouter les travaux officiels Montréal (lecture seule) avec filtrage
+        for (Map<String, Object> travailMtl : travauxMontreal) {
+            boolean inclure = true;
+            
+            // Filtrer par quartier si spécifié
+            if (quartier != null && !quartier.trim().isEmpty()) {
+                String quartierRecherche = quartier.trim().toLowerCase();
+                String arrondissement = (String) travailMtl.get("arrondissement");
+                
+                if (arrondissement == null || 
+                    (!arrondissement.toLowerCase().contains(quartierRecherche) &&
+                     !quartierRecherche.contains(arrondissement.toLowerCase()))) {
+                    inclure = false;
+                }
+            }
+            
+            // Filtrer par type si spécifié
+            if (inclure && type != null && !type.trim().isEmpty()) {
+                String typeRecherche = type.trim().toLowerCase();
+                String motif = (String) travailMtl.get("motif");
+                
+                if (motif == null || 
+                    (!motif.toLowerCase().contains(typeRecherche) &&
+                     !typeRecherche.contains(motif.toLowerCase()))) {
+                    inclure = false;
+                }
+            }
+            
+            if (inclure) {
+                Map<String, Object> travail = new HashMap<>();
+                travail.put("id", "MTL-" + travailMtl.get("id"));
+                travail.put("titre", "Travaux officiels - " + travailMtl.get("motif"));
+                travail.put("localisation", travailMtl.get("arrondissement"));
+                travail.put("quartier", travailMtl.get("arrondissement"));
+                travail.put("type", travailMtl.get("motif"));
+                travail.put("statut", travailMtl.get("statut"));
+                travail.put("priorite", "N/A");
+                travail.put("prestataire", travailMtl.get("organisation"));
+                travail.put("dateDebut", "N/A");
+                travail.put("dateFin", "N/A");
+                travail.put("cout", "N/A");
+                travail.put("source", "Ville de Montréal");
+                travail.put("modifiable", false);
+                travaux.add(travail);
+            }
+        }
+        
+        // 4. RÉPONSE COMBINÉE
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("travaux", travaux);
+        response.put("total", travaux.size());
+        response.put("sources", Map.of(
+            "maville", (int) travaux.stream().filter(t -> "MaVille".equals(t.get("source"))).count(),
+            "montreal_officiel", (int) travaux.stream().filter(t -> "Ville de Montréal".equals(t.get("source"))).count()
+        ));
+        response.put("periode", "Projets MaVille + Travaux officiels Montréal");
+        
+        // Ajouter info sur les filtres appliqués
+        if (quartier != null || type != null) {
+            Map<String, String> filtres = new HashMap<>();
+            if (quartier != null) filtres.put("quartier", quartier);
+            if (type != null) filtres.put("type", type);
+            response.put("filtres_appliques", filtres);
+        }
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        System.err.println("ERREUR dans consulterTravaux : " + e.getMessage());
+        e.printStackTrace();
+        ctx.status(500).json(createErrorResponse("Erreur: " + e.getMessage()));
     }
+}
     
     private void consulterNotifications(Context ctx) {
     try {
         String residentEmail = ctx.pathParam("id");
+        System.out.println("DEBUG - Recherche notifications pour : " + residentEmail);
         
         // Charger les vraies notifications
         List<Notification> toutesNotifs = storage.loadNotifications();
+        System.out.println("DEBUG - Total notifications chargées : " + toutesNotifs.size());
+        
         List<Notification> mesNotifs = toutesNotifs.stream()
-            .filter(n -> n.getResidentEmail().equals(residentEmail))
-            .sorted((n1, n2) -> n2.getDateCreation().compareTo(n1.getDateCreation()))
+            .filter(n -> {
+                String email = n.getResidentEmail(); // Peut retourner null !
+                return email != null && email.equals(residentEmail);
+            })
+            .sorted((n1, n2) -> {
+                // Vérifier que les dates ne sont pas null
+                if (n1.getDateCreation() == null || n2.getDateCreation() == null) {
+                    return 0;
+                }
+                return n2.getDateCreation().compareTo(n1.getDateCreation());
+            })
             .collect(Collectors.toList());
         
-        // Convertir en format JSON
+        System.out.println("DEBUG - Notifications trouvées : " + mesNotifs.size());
+        
+        // Convertir en format JSON avec vérifications
         List<Map<String, Object>> notifications = new ArrayList<>();
         for (Notification n : mesNotifs) {
             Map<String, Object> notif = new HashMap<>();
-            notif.put("message", n.getMessage());
+            notif.put("message", n.getMessage() != null ? n.getMessage() : "Message manquant");
             notif.put("lu", n.isLu());
-            notif.put("date", n.getDateCreation().toLocalDate().toString());
-            notif.put("type", n.getTypeChangement());
+            
+            // Vérification sécurisée pour la date
+            if (n.getDateCreation() != null) {
+                notif.put("date", n.getDateCreation().toLocalDate().toString());
+            } else {
+                notif.put("date", "Date inconnue");
+            }
+            
+            notif.put("type", n.getTypeChangement() != null ? n.getTypeChangement() : "Type inconnu");
             notif.put("projetId", n.getProjetId());
             notifications.add(notif);
         }
         
-        long nonLues = mesNotifs.stream().filter(n -> !n.isLu()).count();
+        long nonLues = mesNotifs.stream()
+            .filter(n -> !n.isLu())
+            .count();
         
         Map<String, Object> response = new HashMap<>();
         response.put("notifications", notifications);
@@ -316,7 +429,9 @@ private void signalerProbleme(Context ctx) {
         ctx.json(response);
         
     } catch (Exception e) {
-        ctx.status(500).json(createErrorResponse("Erreur consultation notifications"));
+        System.err.println("ERREUR dans consulterNotifications : " + e.getMessage());
+        e.printStackTrace(); // Afficher la stack trace complète
+        ctx.status(500).json(createErrorResponse("Erreur consultation notifications : " + e.getMessage()));
     }
 }
 
@@ -689,7 +804,7 @@ private void mettreAJourProjet(Context ctx) {
             String nouvelleDescription = (String) modifications.get("description");
             if (!nouvelleDescription.trim().isEmpty()) {
                 projetAModifier.setDescriptionProjet(nouvelleDescription);
-                System.out.println("✓ Description modifiée : " + nouvelleDescription);
+                System.out.println(" Description modifiée : " + nouvelleDescription);
                 modifie = true;
             }
         }
@@ -1003,6 +1118,8 @@ private void modifierPrioriteProbleme(Context ctx) {
             
             System.out.println(" Priorité modifiée : " + anciennePriorite + " → " + priorite);
             
+            // NOUVEAU : Notifier les prestataires de la priorité affectée
+envoyerNotificationsPrioriteAffectee(problemeAModifier, priorite);
             // 7. Si le problème a un projet associé, mettre à jour sa priorité aussi
             List<Projet> projets = storage.loadProjets();
             boolean projetModifie = false;
@@ -1104,7 +1221,111 @@ private void modifierPrioriteProbleme(Context ctx) {
             ctx.status(500).json(createErrorResponse("Erreur consultation candidatures: " + e.getMessage()));
         }
     }
-    
+    // ================================================================
+    // Notifications
+    // ================================================================
+    private void consulterPreferencesPrestataire(Context ctx) {
+    try {
+        String neq = ctx.pathParam("neq");
+        
+        List<AbonnementPrestataire> abonnements = storage.loadAbonnementsPrestataires();
+        List<AbonnementPrestataire> mesAbonnements = abonnements.stream()
+            .filter(a -> a.getNeq().equals(neq))
+            .collect(Collectors.toList());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("abonnements", mesAbonnements);
+        response.put("total", mesAbonnements.size());
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur consultation préférences"));
+    }
+}
+
+private void creerAbonnementPrestataire(Context ctx) {
+    try {
+        String neq = ctx.pathParam("neq");
+        Map<String, Object> requestData = ctx.bodyAsClass(Map.class);
+        String type = (String) requestData.get("type"); // "QUARTIER" ou "TYPE_TRAVAUX"
+        String valeur = (String) requestData.get("valeur");
+        
+        List<AbonnementPrestataire> abonnements = storage.loadAbonnementsPrestataires();
+        AbonnementPrestataire nouvelAbo = new AbonnementPrestataire(neq, type, valeur);
+        
+        if (!abonnements.contains(nouvelAbo)) {
+            abonnements.add(nouvelAbo);
+            storage.saveAbonnementsPrestataires(abonnements);
+            
+            ctx.json(createSuccessResponse("Abonnement créé pour " + type + " : " + valeur));
+        } else {
+            ctx.json(createSuccessResponse("Vous êtes déjà abonné à " + type + " : " + valeur));
+        }
+        
+    } catch (Exception e) {
+        ctx.status(400).json(createErrorResponse("Erreur création abonnement"));
+    }
+}
+
+private void consulterNotificationsPrestataire(Context ctx) {
+    try {
+        String neq = ctx.pathParam("neq");
+        
+        // Charger toutes les notifications
+        List<Notification> toutesNotifs = storage.loadNotifications();
+        // Filtrage simple et direct
+        List<Map<String, Object>> notifications = new ArrayList<>();
+        int totalNotifs = 0;
+        int nonLues = 0;
+        
+        for (Notification n : toutesNotifs) {
+            // Vérifier si c'est pour ce prestataire
+            if (neq.equals(n.getDestinataire()) && "PRESTATAIRE".equals(n.getTypeDestinataire())) {
+                Map<String, Object> notif = new HashMap<>();
+                notif.put("message", n.getMessage());
+                notif.put("lu", n.isLu());
+                notif.put("type", n.getTypeChangement());
+                notif.put("problemeId", n.getProblemeId());
+                
+                // Formater la date simplement
+                if (n.getDateCreation() != null) {
+                    notif.put("date", n.getDateCreation().toLocalDate().toString());
+                } else {
+                    notif.put("date", "2025-08-01");
+                }
+                
+                notifications.add(notif);
+                totalNotifs++;
+                
+                if (!n.isLu()) {
+                    nonLues++;
+                }
+            }
+        }
+        
+        // Trier par date (plus récent en premier) - simple
+        notifications.sort((n1, n2) -> {
+            String date1 = (String) n1.get("date");
+            String date2 = (String) n2.get("date");
+            return date2.compareTo(date1);
+        });
+        
+        // Réponse finale
+        Map<String, Object> response = new HashMap<>();
+        response.put("notifications", notifications);
+        response.put("total", totalNotifs);
+        response.put("non_lues", nonLues);
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        System.err.println("ERREUR dans consulterNotificationsPrestataire : " + e.getMessage());
+        e.printStackTrace();
+        ctx.status(500).json(Map.of("error", e.getMessage()));
+    }
+}
+
     // ================================================================
     // API MONTRÉAL
     // ================================================================
@@ -1338,4 +1559,132 @@ private void modifierPrioriteProbleme(Context ctx) {
     public int getPort() {
         return this.port;
     }
+    /**
+ * Marquer toutes les notifications d'un résident comme lues
+ */
+private void marquerNotificationsLues(Context ctx) {
+    try {
+        String email = ctx.pathParam("email");
+        
+        List<Notification> notifications = storage.loadNotifications();
+        boolean modifie = false;
+        
+        for (Notification n : notifications) {
+            if (email.equals(n.getResidentEmail()) && !n.isLu()) {
+                n.setLu(true);
+                modifie = true;
+            }
+        }
+        
+        if (modifie) {
+            storage.saveNotifications(notifications);
+        }
+        
+        ctx.json(createSuccessResponse("Notifications marquées comme lues"));
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur : " + e.getMessage()));
+    }
+}
+
+/**
+ * Marquer toutes les notifications d'un prestataire comme lues
+ */
+private void marquerNotificationsLuesPrestataire(Context ctx) {
+    try {
+        String neq = ctx.pathParam("neq");
+        
+        List<Notification> notifications = storage.loadNotifications();
+        boolean modifie = false;
+        
+        for (Notification n : notifications) {
+            if (neq.equals(n.getDestinataire()) && 
+                "PRESTATAIRE".equals(n.getTypeDestinataire()) && 
+                !n.isLu()) {
+                n.setLu(true);
+                modifie = true;
+            }
+        }
+        
+        if (modifie) {
+            storage.saveNotifications(notifications);
+        }
+        
+        ctx.json(createSuccessResponse("Notifications marquées comme lues"));
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur : " + e.getMessage()));
+    }
+}
+
+/**
+ * Envoie des notifications aux prestataires quand une priorité est affectée à un problème
+ */
+private void envoyerNotificationsPrioriteAffectee(Probleme probleme, Priorite nouvellePriorite) {
+    try {
+        String quartierProbleme = extraireQuartier(probleme.getLieu());
+        
+        List<AbonnementPrestataire> abonnements = storage.loadAbonnementsPrestataires();
+        
+        Set<String> prestatairesANotifier = new HashSet<>();
+        
+        for (AbonnementPrestataire abo : abonnements) {
+            boolean doitNotifier = false;
+            
+            if (abo.getType().equals("QUARTIER") && 
+                abo.getValeur().equalsIgnoreCase(quartierProbleme)) {
+                doitNotifier = true;
+            }
+            
+            if (abo.getType().equals("TYPE_TRAVAUX") && 
+                abo.getValeur().equals(probleme.getTypeProbleme().name())) {
+                doitNotifier = true;
+            }
+            
+            if (doitNotifier) {
+                prestatairesANotifier.add(abo.getNeq());
+            }
+        }
+        
+        String message = String.format("Priorité %s affectée au problème #%d (%s à %s)", 
+                                      nouvellePriorite.getDescription(),
+                                      probleme.getId(),
+                                      probleme.getTypeProbleme().getDescription(),
+                                      probleme.getLieu());
+        
+        for (String neq : prestatairesANotifier) {
+            storage.creerNotificationPrestataire(neq, message, "PRIORITE_AFFECTEE", 
+                                                probleme.getId(), quartierProbleme, 
+                                                nouvellePriorite.toString());
+        }
+        
+        System.out.println("Notifications priorité envoyées à " + prestatairesANotifier.size() + 
+                          " prestataires pour le problème #" + probleme.getId());
+        
+    } catch (Exception e) {
+        System.err.println("Erreur envoi notifications priorité : " + e.getMessage());
+    }
+}
+/**
+ * Modifier les préférences de notification d'un résident
+ */
+private void modifierPreferencesResident(Context ctx) {
+    try {
+        String email = ctx.pathParam("email");
+        Map<String, Object> preferences = ctx.bodyAsClass(Map.class);
+        
+        // Sauvegarder les préférences (méthode simplifiée)
+        storage.savePreferencesNotification(email, preferences);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Préférences mises à jour avec succès");
+        response.put("preferences", preferences);
+        
+        ctx.json(response);
+        
+    } catch (Exception e) {
+        ctx.status(500).json(createErrorResponse("Erreur préférences : " + e.getMessage()));
+    }
+}
 }

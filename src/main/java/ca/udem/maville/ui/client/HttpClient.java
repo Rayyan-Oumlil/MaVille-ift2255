@@ -245,6 +245,17 @@ public String mettreAJourProjet(String projetId, String nouveauStatut,
             return "Erreur validation candidature: " + e.getMessage();
         }
     }
+    /**
+    * Consulter les notifications STPM
+    */
+public String consulterNotificationsStpm() {
+    try {
+        String response = get("/stmp/notifications");
+        return formatJsonResponse(response);
+    } catch (Exception e) {
+        return "Erreur notifications STMP: " + e.getMessage();
+    }
+}
     
     // ================================================================
     // INTÉGRATION API MONTRÉAL
@@ -684,6 +695,92 @@ public String consulterProjetsDuPrestataire(String neq) {
         
     } catch (Exception e) {
         return "Erreur consultation projets: " + e.getMessage();
+    }
+}
+/**
+ * Consulter les notifications d'un prestataire
+ */
+public String consulterNotificationsPrestataire(String neq) {
+    try {
+        String response = get("/prestataires/" + neq + "/notifications");
+        return formatJsonResponse(response);
+    } catch (Exception e) {
+        return "Erreur notifications prestataire: " + e.getMessage();
+    }
+}
+
+/**
+ * Créer un abonnement pour prestataire
+ */
+public String creerAbonnementPrestataire(String neq, String type, String valeur) {
+    try {
+        Map<String, String> data = new HashMap<>();
+        data.put("type", type);
+        data.put("valeur", valeur);
+        
+        String response = post("/prestataires/" + neq + "/abonnements", data);
+        return "Abonnement créé avec succès";
+    } catch (Exception e) {
+        return "Erreur création abonnement : " + e.getMessage();
+    }
+}
+
+/**
+ * Consulter les abonnements d'un prestataire
+ */
+public String consulterAbonnementsPrestataire(String neq) {
+    try {
+        String response = get("/prestataires/" + neq + "/preferences");
+        
+        Map<String, Object> data = objectMapper.readValue(response, Map.class);
+        List<Map<String, Object>> abonnements = (List<Map<String, Object>>) data.get("abonnements");
+        
+        if (abonnements.isEmpty()) {
+            return "Aucun abonnement actif.";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        for (Map<String, Object> abo : abonnements) {
+            String type = (String) abo.get("type");
+            String valeur = (String) abo.get("valeur");
+            sb.append("- ").append(type).append(" : ").append(valeur).append("\n");
+        }
+        
+        return sb.toString();
+        
+    } catch (Exception e) {
+        return "Erreur : " + e.getMessage();
+    }
+}
+/**
+ * Marquer les notifications comme lues
+ */
+public String marquerNotificationsLues(String emailOuNeq) {
+    try {
+        Map<String, Object> data = new HashMap<>();
+        String endpoint;
+        
+        if (emailOuNeq.startsWith("NEQ")) {
+            endpoint = "/prestataires/" + emailOuNeq + "/notifications/marquer-lu";
+        } else {
+            endpoint = "/residents/" + emailOuNeq + "/notifications/marquer-lu";
+        }
+        
+        String response = put(endpoint, data);
+        return "Notifications marquées comme lues";
+    } catch (Exception e) {
+        return "Erreur : " + e.getMessage();
+    }
+}
+/**
+ * Mettre à jour les préférences de notification
+ */
+public String modifierPreferences(String email, Map<String, Object> preferences) {
+    try {
+        String response = put("/residents/" + email + "/preferences", preferences);
+        return "Préférences mises à jour avec succès !";
+    } catch (Exception e) {
+        return "Erreur : " + e.getMessage();
     }
 }
 }

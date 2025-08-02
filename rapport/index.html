@@ -419,6 +419,15 @@
     <img src="images/recherche_travaux.svg" alt="Diagramme activité - Recherche de travaux" style="max-width: 100%; border: 1px solid #ccc;">
 </div>
 
+<div class="diagram-placeholder"> 
+    <p><strong>Suivi d'une requête</strong></p>
+    <img src="images/suivi_requete.svg" alt="Diagramme activité - Suivi requête" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
+
+<div class="diagram-placeholder">
+    <p><strong>Système/Citoyen</p> 
+    <img src="images/Act.png "alt="Diagramme activité - Système" style="max-width: 100%; border: 1px solid #ccc;">
+</div>
     <div class="diagram-placeholder">
         <p><strong>Diagramme de classes </strong></p>
         <img src="images/diagramme_classe_modif.jpg" alt="Diagramme de classes du domaine" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
@@ -432,7 +441,10 @@
         <p><strong>Diagramme de cas d'utilisation </strong></p>
         <img src="images/Diagramme_CU2.jpg" alt="Diagramme de cas d'utilisation" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
     </div>
-
+    <div class="diagram-placeholder">
+        <p><strong>Diagramme de cas d'utilisation (Devoir 3) </strong></p>
+        <img src="images/CU.png" alt="Diagramme de cas d'utilisation" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px;">
+    </div>
 <h4>Justification des choix de conception : encapsulation, couplage, cohésion, abstraction</h4>
 <p>
 Le design du diagramme de séquence réalisé applique les principes fondamentaux d’encapsulation, de faible couplage, de forte cohésion et d’abstraction fonctionnelle.
@@ -815,6 +827,12 @@ mvn test -X
 mvn test -Dtest=ProblemeTest
         </pre>
     </div>
+<h2>Couverture de tests – JaCoCo</h2>
+
+<p>
+  Nous avons utilisé <strong>JaCoCo</strong> pour évaluer la couverture des tests unitaires. Le rapport est accessible dans le dossier <code>raport/jacoco/index.html</code>. 
+
+</p>
 
     <h3>6.2 Documentation technique</h3>
     <p>
@@ -842,16 +860,16 @@ mvn javadoc:javadoc
         </pre>
     </div>
 
-    <h3>6.3 Données de test</h3>
-    <p>
-        L'application est initialisée automatiquement avec des données de test :
-    </p>
-    <ul>
-        <li><strong>4 résidents</strong> : Marie, Jean, Sophie, Pierre</li>
-        <li><strong>4 prestataires</strong> : ABC Construction, XYZ Services, DEF Travaux, GHI Maintenance</li>
-        <li><strong>4 problèmes</strong> : Dans différents quartiers avec diverses priorités</li>
-        <li><strong>3 candidatures</strong> : En attente de validation par le STPM</li>
-    </ul>
+<h3>6.3 Données de test</h3>
+<p>
+    L'application est initialisée automatiquement avec des données de test :
+</p>
+<ul>
+    <li><strong>5 résidents</strong> : Marie, Jean, Sophie, Pierre, Marc</li>
+    <li><strong>5 prestataires</strong> : Construction ABC Inc., Pavage Pro Ltée, Électricité Montréal, Paysagement Vert, TechnoVert Solutions</li>
+    <li><strong>5 problèmes</strong> : Dans différents quartiers avec diverses priorités</li>
+    <li><strong>5 candidatures</strong> : En attente de validation par le STPM</li>
+</ul>
 
     <h2>7. Équipe et répartition du travail</h2>
     <div class="equipe-member">
