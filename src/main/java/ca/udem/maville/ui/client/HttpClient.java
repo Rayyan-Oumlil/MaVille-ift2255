@@ -46,7 +46,7 @@ public class HttpClient {
             data.put("residentId", residentId);
             
             // Envoi d'une requête POST à l'API
-            String response = post("/residents/problemes", data);
+            post("/residents/problemes", data);
             return "Problème signalé avec succès via REST API";
         } catch (Exception e) {
             return "Erreur lors du signalement: " + e.getMessage();
@@ -98,7 +98,7 @@ public class HttpClient {
         data.put("type", type);
         data.put("valeur", valeur);
         
-        String response = post("/residents/" + email + "/abonnements", data);
+        post("/residents/" + email + "/abonnements", data);
         return "Abonnement créé avec succès";
     } catch (Exception e) {
         return "Erreur création abonnement : " + e.getMessage();
@@ -213,7 +213,7 @@ public String mettreAJourProjet(String projetId, String nouveauStatut,
         
         System.out.println("DEBUG HttpClient - Envoi mise à jour projet #" + projetId + " avec NEQ: " + neq);
         
-        String response = put("/prestataires/projets/" + projetId, data);
+        put("/prestataires/projets/" + projetId, data);
         return "Projet mis à jour avec succès";
     } catch (Exception e) {
         return "Erreur mise à jour projet: " + e.getMessage();
@@ -238,7 +238,7 @@ public String mettreAJourProjet(String projetId, String nouveauStatut,
             Map<String, Object> data = new HashMap<>();
             data.put("accepter", accepter);
             
-            String response = put("/stpm/candidatures/" + candidatureId + "/valider", data);
+            put("/stpm/candidatures/" + candidatureId + "/valider", data);
             String action = accepter ? "acceptée" : "refusée";
             return "Candidature " + action + " avec succès";
         } catch (Exception e) {
@@ -593,7 +593,7 @@ private String formatDate(Object dateObj) {
             if (quartier != null) data.put("quartier", quartier);
             if (rue != null) data.put("rue", rue);
             
-            String response = post("/residents/" + residentId + "/notifications/abonnements", data);
+            post("/residents/" + residentId + "/notifications/abonnements", data);
             return "Abonnement créé avec succès";
         } catch (Exception e) {
             return "Erreur abonnement: " + e.getMessage();

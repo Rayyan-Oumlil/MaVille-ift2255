@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: maville-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: maville
+      POSTGRES_USER: maville_user
+      POSTGRES_PASSWORD: maville_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U maville_user -d maville"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - maville-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  maville-network:
+    driver: bridge
