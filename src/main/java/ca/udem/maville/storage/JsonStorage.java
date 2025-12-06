@@ -6,7 +6,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -752,7 +751,9 @@ private Map<String, Map<String, Object>> loadToutesPreferencesNotification() {
     try {
         File file = new File(PREFERENCES_NOTIFICATIONS_FILE);
         if (file.exists()) {
-            return mapper.readValue(file, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Map<String, Object>> prefs = mapper.readValue(file, Map.class);
+            return prefs;
         }
     } catch (IOException e) {
         System.err.println("Erreur chargement préférences: " + e.getMessage());

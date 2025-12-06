@@ -92,6 +92,7 @@ public class GestionnaireProblemes {
         Filtre automatiquement les IDs qui n'existent pas.
         Utilisé pour créer des projets à partir des candidatures.
      */
+    @SuppressWarnings("null")
     public List<Probleme> trouverProblemesParIds(List<Integer> ids) {
         return ids.stream()
                 .map(this::trouverProblemeParId)  // Cherche chaque ID

@@ -1,7 +1,6 @@
 package ca.udem.maville.ui;
 
 import ca.udem.maville.ui.client.HttpClient;
-import ca.udem.maville.modele.TypeTravaux;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -137,6 +136,7 @@ public class MenuResident {
         // Si le format est différent, essayer avec JSON
         ObjectMapper mapper = new ObjectMapper();
         try {
+            @SuppressWarnings("unchecked")
             Map<String, Object> data = mapper.readValue(response, Map.class);
             Object nonLues = data.get("non_lues");
             if (nonLues instanceof Integer) {
@@ -412,7 +412,7 @@ if (choix == 1) {
         
         // Envoyer via HTTP
         try {
-            String response = httpClient.modifierPreferences(emailConnecte, preferences);
+            httpClient.modifierPreferences(emailConnecte, preferences);
             System.out.println("\n Préférences mises à jour avec succès !");
             System.out.println("- Fréquence : " + frequence);
             System.out.println("- Types d'intérêt : " + choixTypes);

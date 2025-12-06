@@ -148,6 +148,7 @@ public class MenuPrestataire {
         // Si le format est différent, essayer avec JSON
         ObjectMapper mapper = new ObjectMapper();
         try {
+            @SuppressWarnings("unchecked")
             Map<String, Object> data = mapper.readValue(response, Map.class);
             Object nonLues = data.get("non_lues");
             if (nonLues instanceof Integer) {
