@@ -46,7 +46,7 @@ public class HttpClient {
             data.put("residentId", residentId);
             
             // Envoi d'une requête POST à l'API
-            String response = post("/residents/problemes", data);
+            post("/residents/problemes", data);
             return "Problème signalé avec succès via REST API";
         } catch (Exception e) {
             return "Erreur lors du signalement: " + e.getMessage();
@@ -98,7 +98,7 @@ public class HttpClient {
         data.put("type", type);
         data.put("valeur", valeur);
         
-        String response = post("/residents/" + email + "/abonnements", data);
+        post("/residents/" + email + "/abonnements", data);
         return "Abonnement créé avec succès";
     } catch (Exception e) {
         return "Erreur création abonnement : " + e.getMessage();
@@ -109,7 +109,9 @@ public String consulterAbonnements(String email) {
     try {
         String response = get("/residents/" + email + "/abonnements");
         
+        @SuppressWarnings("unchecked")
         Map<String, Object> data = objectMapper.readValue(response, Map.class);
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> abonnements = (List<Map<String, Object>>) data.get("abonnements");
         
         if (abonnements.isEmpty()) {
@@ -184,6 +186,7 @@ public String soumettreCandiature(String prestataireId, String titre,
         System.out.println("DEBUG HttpClient - Réponse reçue : " + response);
         
         // Parser la réponse pour vérifier le succès
+        @SuppressWarnings("unchecked")
         Map<String, Object> responseData = objectMapper.readValue(response, Map.class);
         if (responseData.containsKey("success") && (Boolean) responseData.get("success")) {
             return "Candidature soumise avec succès - ID: " + responseData.get("candidatureId");
@@ -213,7 +216,7 @@ public String mettreAJourProjet(String projetId, String nouveauStatut,
         
         System.out.println("DEBUG HttpClient - Envoi mise à jour projet #" + projetId + " avec NEQ: " + neq);
         
-        String response = put("/prestataires/projets/" + projetId, data);
+        put("/prestataires/projets/" + projetId, data);
         return "Projet mis à jour avec succès";
     } catch (Exception e) {
         return "Erreur mise à jour projet: " + e.getMessage();
@@ -238,7 +241,7 @@ public String mettreAJourProjet(String projetId, String nouveauStatut,
             Map<String, Object> data = new HashMap<>();
             data.put("accepter", accepter);
             
-            String response = put("/stpm/candidatures/" + candidatureId + "/valider", data);
+            put("/stpm/candidatures/" + candidatureId + "/valider", data);
             String action = accepter ? "acceptée" : "refusée";
             return "Candidature " + action + " avec succès";
         } catch (Exception e) {
@@ -355,6 +358,7 @@ public String consulterNotificationsStpm() {
     
     try {
         // Parser le JSON pour un meilleur formatage
+        @SuppressWarnings("unchecked")
         Map<String, Object> data = objectMapper.readValue(jsonResponse, Map.class);
         
         // Cas spécial pour les travaux
@@ -393,6 +397,7 @@ public String consulterNotificationsStpm() {
     private String formatTravaux(Map<String, Object> data) {
         StringBuilder sb = new StringBuilder();
         
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> travaux = (List<Map<String, Object>>) data.get("travaux");
         Integer total = (Integer) data.get("total");
         
@@ -431,6 +436,7 @@ public String consulterNotificationsStpm() {
 private String formatProblemes(Map<String, Object> data) {
     StringBuilder sb = new StringBuilder();
     
+    @SuppressWarnings("unchecked")
     List<Map<String, Object>> problemes = (List<Map<String, Object>>) data.get("problemes");
     Integer total = (Integer) data.get("total");
     
@@ -438,6 +444,7 @@ private String formatProblemes(Map<String, Object> data) {
     
     // Afficher les filtres appliqués si présents
     if (data.containsKey("filtres_appliques")) {
+        @SuppressWarnings("unchecked")
         Map<String, String> filtres = (Map<String, String>) data.get("filtres_appliques");
         sb.append("Filtres appliqués : ");
         filtres.forEach((k, v) -> sb.append(k).append("=").append(v).append(" "));
@@ -502,6 +509,7 @@ private String formatProblemes(Map<String, Object> data) {
     private String formatNotifications(Map<String, Object> data) {
         StringBuilder sb = new StringBuilder();
         
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> notifications = (List<Map<String, Object>>) data.get("notifications");
         Integer nonLues = (Integer) data.get("non_lues");
         
@@ -525,6 +533,7 @@ private String formatProblemes(Map<String, Object> data) {
 private String formatCandidatures(Map<String, Object> data) {
     StringBuilder sb = new StringBuilder();
     
+    @SuppressWarnings("unchecked")
     List<Map<String, Object>> candidatures = (List<Map<String, Object>>) data.get("candidatures");
     Integer total = (Integer) data.get("total");
     
@@ -593,7 +602,7 @@ private String formatDate(Object dateObj) {
             if (quartier != null) data.put("quartier", quartier);
             if (rue != null) data.put("rue", rue);
             
-            String response = post("/residents/" + residentId + "/notifications/abonnements", data);
+            post("/residents/" + residentId + "/notifications/abonnements", data);
             return "Abonnement créé avec succès";
         } catch (Exception e) {
             return "Erreur abonnement: " + e.getMessage();
@@ -632,6 +641,7 @@ private String formatDate(Object dateObj) {
         
         // Test consultation travaux
         try {
+            @SuppressWarnings("unused")
             String travaux = consulterTravaux(null, null);
             System.out.println("2. Test consultation travaux: OK");
         } catch (Exception e) {
@@ -640,6 +650,7 @@ private String formatDate(Object dateObj) {
         
         // Test consultation problèmes
         try {
+            @SuppressWarnings("unused")
             String problemes = consulterProblemes(null, null);
             System.out.println("3. Test consultation problèmes: OK");
         } catch (Exception e) {
@@ -648,6 +659,7 @@ private String formatDate(Object dateObj) {
         
         // Test API Montréal
         try {
+            @SuppressWarnings("unused")
             String montreal = consulterTravauxMontreal();
             System.out.println("4. Test API Montréal: OK");
         } catch (Exception e) {
@@ -664,7 +676,9 @@ public String consulterProjetsDuPrestataire(String neq) {
         String response = get("/prestataires/" + neq + "/projets");
         
         // Parser le JSON pour un meilleur formatage
+        @SuppressWarnings("unchecked")
         Map<String, Object> data = objectMapper.readValue(response, Map.class);
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> projets = (List<Map<String, Object>>) data.get("projets");
         Integer total = (Integer) data.get("total");
         
@@ -718,7 +732,7 @@ public String creerAbonnementPrestataire(String neq, String type, String valeur)
         data.put("type", type);
         data.put("valeur", valeur);
         
-        String response = post("/prestataires/" + neq + "/abonnements", data);
+        post("/prestataires/" + neq + "/abonnements", data);
         return "Abonnement créé avec succès";
     } catch (Exception e) {
         return "Erreur création abonnement : " + e.getMessage();
@@ -732,7 +746,9 @@ public String consulterAbonnementsPrestataire(String neq) {
     try {
         String response = get("/prestataires/" + neq + "/preferences");
         
+        @SuppressWarnings("unchecked")
         Map<String, Object> data = objectMapper.readValue(response, Map.class);
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> abonnements = (List<Map<String, Object>>) data.get("abonnements");
         
         if (abonnements.isEmpty()) {
@@ -766,7 +782,7 @@ public String marquerNotificationsLues(String emailOuNeq) {
             endpoint = "/residents/" + emailOuNeq + "/notifications/marquer-lu";
         }
         
-        String response = put(endpoint, data);
+        put(endpoint, data);
         return "Notifications marquées comme lues";
     } catch (Exception e) {
         return "Erreur : " + e.getMessage();
@@ -777,7 +793,7 @@ public String marquerNotificationsLues(String emailOuNeq) {
  */
 public String modifierPreferences(String email, Map<String, Object> preferences) {
     try {
-        String response = put("/residents/" + email + "/preferences", preferences);
+        put("/residents/" + email + "/preferences", preferences);
         return "Préférences mises à jour avec succès !";
     } catch (Exception e) {
         return "Erreur : " + e.getMessage();

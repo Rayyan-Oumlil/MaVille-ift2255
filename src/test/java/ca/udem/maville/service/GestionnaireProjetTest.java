@@ -124,10 +124,12 @@ class GestionnaireProjetTest {
             prestataireTest, Arrays.asList(1), "Projet 1", 5000.0, 
             LocalDate.now(), LocalDate.now().plusDays(7));
         
+        @SuppressWarnings("unused")
         Candidature candidature2 = gestionnaire.soumettreCandidat(
             prestataireTest, Arrays.asList(2), "Projet 2", 3000.0, 
             LocalDate.now().plusDays(1), LocalDate.now().plusDays(5));
         
+        @SuppressWarnings("unused")
         Candidature candidature3 = gestionnaire.soumettreCandidat(
             prestataireTest, Arrays.asList(3), "Projet 3", 8000.0, 
             LocalDate.now().plusDays(2), LocalDate.now().plusDays(10));

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Menu STPM pour les agents du Service des Travaux Publics
@@ -68,7 +67,9 @@ public class MenuStpm {
         try {
             // 1. Récupérer et afficher toutes les candidatures
             String response = httpClient.get("/stpm/candidatures");
+            @SuppressWarnings("unchecked")
             Map<String, Object> data = objectMapper.readValue(response, Map.class);
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> candidatures = (List<Map<String, Object>>) data.get("candidatures");
             Integer total = (Integer) data.get("total");
             
@@ -91,6 +92,7 @@ public class MenuStpm {
                 
                 // Afficher les problèmes visés
                 if (candidature.containsKey("detailsProblemes")) {
+                    @SuppressWarnings("unchecked")
                     List<String> details = (List<String>) candidature.get("detailsProblemes");
                     System.out.println("Problèmes visés:");
                     for (String detail : details) {
@@ -306,7 +308,7 @@ public class MenuStpm {
                     Map<String, Object> data = new HashMap<>();
                     data.put("priorite", priorite);
                     
-                    String result = httpClient.put("/stpm/problemes/" + problemeId + "/priorite", data);
+                    httpClient.put("/stpm/problemes/" + problemeId + "/priorite", data);
                     
                     String not = priorite.equals("FAIBLE") ? "FB" : 
                                   priorite.equals("MOYENNE") ? "MY" : "EL";

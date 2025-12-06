@@ -1,0 +1,540 @@
+/* Custom Styles for MaVille */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Amélioration de la navigation */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Hero Section - Design amélioré */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title {
+    color: #000000 !important;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+}
+
+.hero-subtitle {
+    color: #000000 !important;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+.hero-title i,
+.hero-subtitle {
+    color: #000000 !important;
+}
+
+/* Forcer le texte en noir dans hero */
+.hero-section h1,
+.hero-section .lead,
+.hero-section p.lead {
+    color: #000000 !important;
+}
+
+/* User Cards - Design moderne pour les 3 boutons */
+.user-buttons-section {
+    margin-top: 3rem;
+}
+
+.user-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.user-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid transparent;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.user-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, currentColor, transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.user-card:hover::before {
+    opacity: 1;
+}
+
+.user-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.user-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.user-card:hover .user-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.user-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.user-description {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.user-arrow {
+    display: inline-block;
+    font-size: 1.5rem;
+    transition: transform 0.3s;
+    color: #667eea;
+}
+
+.user-card:hover .user-arrow {
+    transform: translateX(10px);
+}
+
+/* Couleurs spécifiques pour chaque carte */
+.card-resident {
+    color: #198754;
+}
+
+.card-resident:hover {
+    border-color: #198754;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%);
+}
+
+.card-prestataire {
+    color: #0d6efd;
+}
+
+.card-prestataire:hover {
+    border-color: #0d6efd;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+}
+
+.card-stpm {
+    color: #dc3545;
+}
+
+.card-stpm:hover {
+    border-color: #dc3545;
+    background: linear-gradient(135deg, #ffffff 0%, #fff0f0 100%);
+}
+
+/* Feature Cards améliorées */
+.features-section {
+    background: #ffffff;
+}
+
+.feature-card {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+}
+
+.feature-icon {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.feature-card:nth-child(1) .feature-icon {
+    color: #ffc107;
+}
+
+.feature-card:nth-child(2) .feature-icon {
+    color: #0d6efd;
+}
+
+.feature-card:nth-child(3) .feature-icon {
+    color: #0dcaf0;
+}
+
+/* Stats Section améliorée */
+.stats-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.stat-card {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+}
+
+.stat-icon {
+    font-size: 3rem;
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.user-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.user-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.user-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.user-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+/* Cards */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Buttons */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+/* Stats */
+#stats-container h3 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Tables */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-size: 0.875em;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Map Container */
+#map {
+    height: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Notification Badge */
+.notification-badge {
+    position: relative;
+}
+
+.notification-badge .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}
+
+/* Cards améliorées */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+}
+
+/* Stats cards */
+.card.text-white h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+/* Tables améliorées */
+.table {
+    background-color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Buttons améliorés */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+}
+
+/* Forms améliorés */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Modals améliorés */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 2px solid #f8f9fa;
+}
+
+/* Tabs améliorés */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: transparent;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 500px;
+        padding: 2rem 0;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    .user-card {
+        padding: 2rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .user-icon {
+        font-size: 3rem;
+    }
+    
+    .user-title {
+        font-size: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+    
+    .card.text-white h2 {
+        font-size: 2rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Priority Colors */
+.priority-faible {
+    color: #6c757d;
+}
+
+.priority-moyenne {
+    color: #ffc107;
+}
+
+.priority-elevee {
+    color: #fd7e14;
+}
+
+.priority-urgente {
+    color: #dc3545;
+}
+
+/* Status Colors */
+.status-en-attente {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-en-cours {
+    background-color: #0dcaf0;
+    color: white;
+}
+
+.status-termine {
+    background-color: #198754;
+    color: white;
+}
+
+.status-suspendu {
+    background-color: #dc3545;
+    color: white;
+}
+
+

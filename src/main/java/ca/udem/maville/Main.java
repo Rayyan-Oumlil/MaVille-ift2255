@@ -1,36 +1,39 @@
 package ca.udem.maville;
 
-import ca.udem.maville.api.ApiServer;          // Serveur REST API
-import ca.udem.maville.ui.MenuPrincipal;       // Menu principal console (UI)
-import ca.udem.maville.ui.client.HttpClient;   // Client HTTP REST
+import ca.udem.maville.ui.MenuPrincipal;
+import ca.udem.maville.ui.client.HttpClient;
+import org.springframework.boot.SpringApplication;
 
 /**
- * Démarrage de l'application MaVille en mode REST
- * Lance le serveur API et propose le menu principal (console)
+ * Point d'entrée pour l'interface console
+ * Spring Boot démarre automatiquement via MaVilleApplication
  */
 public class Main {
-    private static ApiServer apiServer;
     private static HttpClient httpClient;
-    private static String[] args; // pour détecter les options comme --test
+    private static String[] args;
 
     public static void main(String[] arguments) {
         args = arguments;
-        System.out.println("=== MaVille - Architecture REST ===\n");
+        System.out.println("=== MaVille - Architecture Spring Boot ===\n");
 
         try {
-            // 1. Démarrer le serveur API dans un thread séparé
-            demarrerServeur();
+            // 1. Démarrer Spring Boot dans un thread séparé
+            Thread springThread = new Thread(() -> {
+                SpringApplication.run(MaVilleApplication.class);
+            });
+            springThread.setDaemon(true);
+            springThread.start();
 
-            // 2. Attendre que le serveur soit prêt (30 secondes max)
+            // 2. Attendre que le serveur soit prêt
             if (!attendreServeurPret()) {
                 System.err.println(" Impossible de démarrer le serveur API");
                 System.exit(1);
             }
 
-            // 3. Créer un seul client HTTP partagé par toute l'application
+            // 3. Créer un client HTTP
             httpClient = new HttpClient();
 
-            // 4. Vérifier que le client peut se connecter
+            // 4. Vérifier la connexion
             if (!httpClient.testerConnexion()) {
                 System.err.println(" Impossible de se connecter à l'API");
                 System.exit(1);
@@ -38,34 +41,18 @@ public class Main {
 
             System.out.println(" Serveur API opérationnel sur http://localhost:7000/api\n");
 
-            // 5. Lancer le menu principal, en passant l'instance du HttpClient unique
+            // 5. Lancer le menu principal
             lancerMenuPrincipal();
 
         } catch (Exception e) {
             System.err.println(" Erreur : " + e.getMessage());
             e.printStackTrace();
         } finally {
-            // 6. Arrêter proprement le client et le serveur API
+            // 6. Arrêter proprement
             arreterServeur();
         }
     }
 
-    /**
-     * Démarre le serveur API dans un thread séparé
-     */
-    private static void demarrerServeur() {
-        System.out.println("1. Démarrage du serveur API...");
-        Thread serverThread = new Thread(() -> {
-            try {
-                apiServer = new ApiServer();
-                apiServer.start();
-            } catch (Exception e) {
-                System.err.println(" Erreur démarrage serveur: " + e.getMessage());
-            }
-        });
-        serverThread.setDaemon(true);
-        serverThread.start();
-    }
 
     /**
      * Attend jusqu'à 30 secondes que le serveur REST soit prêt à accepter des connexions
@@ -124,11 +111,6 @@ public class Main {
         if (httpClient != null) {
             System.out.println("- Fermeture du client HTTP...");
             httpClient.fermer();
-        }
-
-        if (apiServer != null && apiServer.isRunning()) {
-            System.out.println("- Arrêt du serveur API...");
-            apiServer.stop();
         }
 
         System.out.println(" Système arrêté proprement");

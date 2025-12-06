@@ -1,10 +1,11 @@
 package ca.udem.maville.api;
 
+import ca.udem.maville.api.exception.ExternalApiException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import org.springframework.cache.annotation.Cacheable;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -27,9 +28,11 @@ public class MontrealApiService {
     
     /**
      * Récupère les travaux en cours depuis l'API de Montréal
+     * Les résultats sont mis en cache pour améliorer les performances
      * @param limit Nombre maximum de résultats (par défaut 10)
      * @return Liste des travaux sous forme de Map
      */
+    @Cacheable(value = "travauxMontreal", unless = "#result == null || #result.isEmpty()")
     public List<Map<String, Object>> getTravauxEnCours(int limit) {
         List<Map<String, Object>> travaux = new ArrayList<>();
         
@@ -41,14 +44,17 @@ public class MontrealApiService {
                 .url(url)
                 .build();
             
-            try (Response response = client.newCall(request).execute()) {
+                try (Response response = client.newCall(request).execute()) {
                 if (response.isSuccessful() && response.body() != null) {
                     String jsonResponse = response.body().string();
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> data = mapper.readValue(jsonResponse, Map.class);
                     
                     // L'API retourne: { "success": true, "result": { "records": [...] } }
                     if (data.get("success").equals(true)) {
+                        @SuppressWarnings("unchecked")
                         Map<String, Object> result = (Map<String, Object>) data.get("result");
+                        @SuppressWarnings("unchecked")
                         List<Map<String, Object>> records = (List<Map<String, Object>>) result.get("records");
                         
                         // Transformer les données pour notre format
@@ -75,25 +81,10 @@ public class MontrealApiService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Erreur lors de l'appel à l'API Montréal: " + e.getMessage());
-            // En cas d'erreur, retourner des données simulées
-            travaux.add(createTravauxSimule());
+            // Lancer une exception pour que le GlobalExceptionHandler la gère
+            throw new ExternalApiException("Erreur lors de la récupération des données de l'API de Montréal: " + e.getMessage(), e);
         }
         
         return travaux;
-    }
-    
-    /**
-     * Crée un travail simulé en cas d'erreur API
-     */
-    private Map<String, Object> createTravauxSimule() {
-        Map<String, Object> travail = new java.util.HashMap<>();
-        travail.put("id", "SIMUL-001");
-        travail.put("arrondissement", "Ville-Marie");
-        travail.put("statut", "En cours");
-        travail.put("motif", "Infrastructure");
-        travail.put("organisation", "Ville de Montréal");
-        travail.put("note", "Données simulées - API non disponible");
-        return travail;
     }
 }
