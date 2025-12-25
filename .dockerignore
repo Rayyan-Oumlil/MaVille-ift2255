@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+DEPLOYMENT.md
+*.md
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+logs/
+*.log
+
+# Node modules (sera installé dans le container)
+node_modules/
+frontend/node_modules/
+
+# Build artifacts
+target/
+frontend/.next/
+frontend/out/
+frontend/dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+e2e/
+__tests__/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Assets temporaires
+assets/
+
+# Rapports
+rapport/jacoco/
+

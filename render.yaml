@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: maville-backend
+    env: docker
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: maville-postgres
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: maville-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: maville-postgres
+          property: password
+      - key: SERVER_PORT
+        value: 7000
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+
+databases:
+  - name: maville-postgres
+    plan: free
+    databaseName: maville
+    user: maville_user
+

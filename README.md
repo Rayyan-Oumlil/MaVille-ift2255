@@ -54,6 +54,23 @@ L'application backend est configurée pour utiliser PostgreSQL automatiquement.
 
 Voir [DOCKER_POSTGRES.md](DOCKER_POSTGRES.md) pour plus de détails sur PostgreSQL.
 
+### 🚀 Déploiement en Production
+
+Pour déployer l'application publiquement et la rendre accessible en tant que démo, consultez le guide complet : **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
+**Options de déploiement disponibles :**
+- 🐳 **Docker Compose** : Déploiement local complet (PostgreSQL + Backend + Frontend)
+- ☁️ **Vercel + Railway/Render** : Déploiement cloud gratuit (Frontend sur Vercel, Backend sur Railway/Render)
+- 🖥️ **VPS** : Déploiement sur un serveur dédié (DigitalOcean, AWS EC2, etc.)
+
+**Démarrage rapide avec Docker Compose :**
+```bash
+docker-compose up -d
+```
+L'application sera accessible sur :
+- Frontend : http://localhost:3000
+- Backend API : http://localhost:7000/api
+
 ### Fonctionnalités principales
 
 **🔐 Authentification :**

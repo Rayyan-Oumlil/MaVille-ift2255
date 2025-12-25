@@ -22,6 +22,49 @@ services:
     networks:
       - maville-network
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: maville-backend
+    restart: unless-stopped
+    ports:
+      - "7000:7000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/maville
+      SPRING_DATASOURCE_USERNAME: maville_user
+      SPRING_DATASOURCE_PASSWORD: maville_password
+      SPRING_PROFILES_ACTIVE: production
+      SERVER_PORT: 7000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - maville-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: maville-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:7000/api
+      NEXT_PUBLIC_WS_URL: ws://localhost:7000/ws
+      NODE_ENV: production
+    depends_on:
+      - backend
+    networks:
+      - maville-network
+
 volumes:
   postgres_data:
     driver: local

@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# Node modules (sera installé dans le container)
+node_modules/
+
+# Build artifacts
+.next/
+out/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+e2e/
+__tests__/
+
+# Coverage
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
