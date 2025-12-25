@@ -2,16 +2,6 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/.next",
   "installCommand": "cd frontend && npm install",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://votre-backend.railway.app/api/:path*"
-    }
-  ],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://votre-backend.railway.app/api",
-    "NEXT_PUBLIC_WS_URL": "wss://votre-backend.railway.app/ws"
-  }
+  "framework": "nextjs"
 }
 
