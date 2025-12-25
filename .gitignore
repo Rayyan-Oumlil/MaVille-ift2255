@@ -39,6 +39,23 @@ build/
 .DS_Store
 
 ### vpp ###
+*.vpp
+*.vpp.bak*
+visual_paradigm/
+
+### Logs ###
+logs/
+*.log
+
+### Assets temporaires (Cursor workspace storage) ###
+assets/
+
+### Documentation de développement temporaire ###
+docs/dev*/
+docs/image/
+
+### Rapports générés ###
+rapport/jacoco/
 
 ### Node modules ###
 node_modules/
