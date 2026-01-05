@@ -98,8 +98,8 @@ export default function Notifications({
   return (
     <Card className="h-full">
       <CardHeader className="flex items-center justify-between pl-3 pr-1">
-        <CardTitle className="flex items-center gap-2.5 text-sm font-medium uppercase">
-          {unreadCount > 0 ? <Badge>{unreadCount}</Badge> : <Bullet />}
+        <CardTitle className="flex items-center gap-2.5 text-sm font-medium uppercase text-black">
+          {unreadCount > 0 ? <Badge className="text-black">{unreadCount}</Badge> : <Bullet />}
           Notifications
         </CardTitle>
         {notifications.length > 0 && (
@@ -114,7 +114,7 @@ export default function Notifications({
         )}
       </CardHeader>
 
-      <CardContent className="!bg-accent p-1.5 overflow-hidden">
+      <CardContent className="!bg-accent p-1.5 overflow-hidden [&_*]:text-black">
         <div className="space-y-2">
           <AnimatePresence initial={false} mode="popLayout">
             {displayedNotifications.map((notification) => (
@@ -136,7 +136,7 @@ export default function Notifications({
 
             {notifications.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-black/70">
                   Aucune notification
                 </p>
               </div>

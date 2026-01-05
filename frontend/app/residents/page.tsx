@@ -7,8 +7,10 @@ import * as api from "@/lib/api"
 import AtomIcon from "@/components/icons/atom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function ResidentsPage() {
+  const { user } = useAuth()
   const { data, isLoading: loading } = useApiQuery(
     ["travaux", "residents"],
     () => api.getResidentsTravaux({ page: 0, size: 20 }),
@@ -18,6 +20,16 @@ export default function ResidentsPage() {
   )
 
   const travaux = data?.data || []
+
+  // Filtrer les travaux pour ne garder que ceux qui ont une description valide
+  const travauxValides = travaux.filter(
+    (travail) => 
+      travail.titre && 
+      travail.titre !== travail.id && 
+      travail.description && 
+      travail.description !== "Aucune description" &&
+      !travail.id.match(/^[a-f0-9]{24}$/i) // Exclure les IDs MongoDB longs
+  )
 
   return (
     <ProtectedRoute>
@@ -31,27 +43,39 @@ export default function ResidentsPage() {
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Travaux en Cours</CardTitle>
+            <CardTitle>Mes Travaux</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <p className="text-sm text-muted-foreground">Chargement...</p>
-            ) : travaux.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucun travail en cours</p>
+            ) : travauxValides.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Aucun travail en cours pour le moment
+              </p>
             ) : (
               <div className="space-y-2">
-                {travaux.map((travail) => (
+                {travauxValides.map((travail) => (
                   <div key={travail.id} className="p-3 border rounded">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-medium">{travail.titre || travail.id}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{travail.description || "Aucune description"}</p>
+                        <h3 className="font-medium">{travail.titre}</h3>
+                        {travail.description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {travail.description}
+                          </p>
+                        )}
                         <div className="flex gap-2 mt-2">
-                          <Badge variant="outline">{travail.source}</Badge>
-                          <Badge variant="secondary">{travail.quartier}</Badge>
-                          <Badge variant={travail.statut === "En cours" ? "default" : "secondary"}>
-                            {travail.statut}
-                          </Badge>
+                          {travail.source && (
+                            <Badge variant="outline">{travail.source}</Badge>
+                          )}
+                          {travail.quartier && (
+                            <Badge variant="secondary">{travail.quartier}</Badge>
+                          )}
+                          {travail.statut && (
+                            <Badge variant={travail.statut === "En cours" ? "default" : "secondary"}>
+                              {travail.statut}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -66,3 +90,4 @@ export default function ResidentsPage() {
     </ProtectedRoute>
   )
 }
+

@@ -30,7 +30,6 @@ import BracketsIcon from "@/components/icons/brackets";
 import ProcessorIcon from "@/components/icons/proccesor";
 import CuteRobotIcon from "@/components/icons/cute-robot";
 import EmailIcon from "@/components/icons/email";
-import GearIcon from "@/components/icons/gear";
 import MonkeyIcon from "@/components/icons/monkey";
 import DotsVerticalIcon from "@/components/icons/dots-vertical";
 import { Bullet } from "@/components/ui/bullet";
@@ -75,13 +74,6 @@ function getMenuItems(userType: UserType) {
       url: "/notifications",
       icon: EmailIcon,
       isActive: false,
-    },
-    {
-      title: "Paramètres",
-      url: "/settings",
-      icon: GearIcon,
-      isActive: false,
-      locked: false,
     },
   ];
 
@@ -178,13 +170,6 @@ const data = {
           icon: EmailIcon,
           isActive: false,
         },
-        {
-          title: "Paramètres",
-          url: "/settings",
-          icon: GearIcon,
-          isActive: false,
-          locked: false,
-        },
       ],
     },
   ],
@@ -209,10 +194,17 @@ export function DashboardSidebar({
   const router = useRouter();
 
   // Obtenir les items du menu selon le type d'utilisateur
-  const menuItems = getMenuItems(userType).map(item => ({
-    ...item,
-    isActive: pathname === item.url || (item.url !== "/" && pathname.startsWith(item.url))
-  }));
+  const menuItems = getMenuItems(userType).map(item => {
+    // Pour la page d'accueil, on vérifie l'égalité exacte
+    if (item.url === "/") {
+      return { ...item, isActive: pathname === "/" };
+    }
+    // Pour les autres pages, on vérifie l'égalité exacte ou si le pathname commence par l'URL suivie d'un "/"
+    return {
+      ...item,
+      isActive: pathname === item.url || pathname.startsWith(item.url + "/")
+    };
+  });
   const sidebarData = {
     ...data,
     navMain: [
@@ -332,10 +324,6 @@ export function DashboardSidebar({
                       <button className="flex items-center px-4 py-2 text-sm hover:bg-accent">
                         <MonkeyIcon className="mr-2 h-4 w-4" />
                         Compte
-                      </button>
-                      <button className="flex items-center px-4 py-2 text-sm hover:bg-accent">
-                        <GearIcon className="mr-2 h-4 w-4" />
-                        Paramètres
                       </button>
                       <button 
                         onClick={() => {

@@ -23,12 +23,13 @@ export default function RecentProblems() {
   const [sortField, setSortField] = useState<SortField>("date")
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc")
 
-  const { data, isLoading: loading } = useApiQuery(
+  const { data, isLoading: loading, error } = useApiQuery(
     ["problemes", "recent"],
     () => api.getStpmProblemes({ page: 0, size: 100 }),
     {
       staleTime: 30 * 1000, // 30 secondes
       refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+      retry: 2, // Retry 2 fois en cas d'erreur
     }
   )
 
@@ -194,10 +195,14 @@ export default function RecentProblems() {
 
       {/* Problems List */}
       <div className="space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-        {filteredProblems.length === 0 && !loading ? (
+        {error ? (
+          <div className="text-red-400 text-sm text-center py-4">
+            Erreur lors du chargement des problèmes. Veuillez réessayer.
+          </div>
+        ) : filteredProblems.length === 0 && !loading ? (
           <div className="text-muted-foreground text-sm text-center py-4">
             {allProblems.length === 0 
-              ? "Aucun problème disponible. Assurez-vous que le backend est démarré sur http://localhost:7000"
+              ? "Aucun problème disponible pour le moment"
               : "Aucun problème trouvé avec les filtres sélectionnés"}
           </div>
         ) : loading ? (

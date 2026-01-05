@@ -101,22 +101,22 @@ export default function Widget({ widgetData }: WidgetProps) {
   return (
     <Card className="w-full aspect-[2] relative overflow-hidden">
       <TVNoise opacity={0.3} intensity={0.2} speed={40} />
-      <CardContent className="!bg-accent flex-1 flex flex-col justify-between text-sm font-medium uppercase relative z-20">
+      <CardContent className="!bg-accent flex-1 flex flex-col justify-between text-sm font-medium uppercase relative z-20 text-black">
         <div className="flex justify-between items-center">
-          <span className="opacity-50">{dateInfo.dayOfWeek}</span>
-          <span>{dateInfo.restOfDate}</span>
+          <span className="opacity-70 text-black">{dateInfo.dayOfWeek}</span>
+          <span className="text-black">{dateInfo.restOfDate}</span>
         </div>
         <div className="text-center">
-          <div className="text-5xl font-display" suppressHydrationWarning>
+          <div className="text-5xl font-display text-black" suppressHydrationWarning>
             {formatTime(currentTime)}
           </div>
         </div>
 
         <div className="flex justify-between items-center">
-          <span className="opacity-50">Montréal</span>
-          <span>Québec, Canada</span>
+          <span className="opacity-70 text-black">Montréal</span>
+          <span className="text-black">Québec, Canada</span>
 
-          <Badge variant="secondary" className="bg-accent">
+          <Badge variant="secondary" className="bg-accent text-black border-black/20">
             UTC{timezoneOffset}
           </Badge>
         </div>
