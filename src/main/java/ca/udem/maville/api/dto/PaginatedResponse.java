@@ -26,7 +26,6 @@ public class PaginatedResponse<T> {
         this.hasPrevious = page > 0;
     }
     
-    // Getters et Setters
     public List<T> getData() {
         return data;
     }

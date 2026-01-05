@@ -20,7 +20,7 @@ export function MobileHeader() {
         const unread = response.notifications.filter((n) => !n.lu).length;
         setUnreadCount(unread);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error("Erreur lors de la récupération des notifications:", error);
       }
     }
     fetchNotifications();

@@ -38,7 +38,7 @@ export default function DashboardOverview() {
           value={loading ? "..." : stats.problems.toString()}
           description="CE MOIS"
           trend="up"
-          icon="📊"
+          icon="chart"
         />
         <StatCard
           label="PROJETS EN COURS"

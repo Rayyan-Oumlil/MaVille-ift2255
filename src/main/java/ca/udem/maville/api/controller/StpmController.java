@@ -126,28 +126,46 @@ public class StpmController {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Taille de la page", example = "10") 
             @RequestParam(defaultValue = "10") int size) {
-        
-        org.springframework.data.domain.Page<ProblemeEntity> pageResult = 
-            dbStorage.findNonResolusWithFilters(null, null, page, size);
-        
-        List<Map<String, Object>> problemesJson = new ArrayList<>();
-        for (ProblemeEntity p : pageResult.getContent()) {
-            Map<String, Object> pJson = new HashMap<>();
-            pJson.put("id", p.getId());
-            pJson.put("lieu", p.getLieu());
-            pJson.put("description", p.getDescription());
-            pJson.put("type", p.getTypeProbleme().getDescription());
-            pJson.put("priorite", p.getPriorite().getDescription());
-            pJson.put("declarant", p.getDeclarant().getNomComplet());
-            pJson.put("date", p.getDateSignalement().toString());
-            problemesJson.add(pJson);
+        try {
+            logger.debug("Récupération des problèmes - page: {}, size: {}", page, size);
+            
+            org.springframework.data.domain.Page<ProblemeEntity> pageResult = 
+                dbStorage.findNonResolusWithFilters(null, null, page, size);
+            
+            logger.debug("Nombre de problèmes trouvés: {}", pageResult.getTotalElements());
+            
+            List<Map<String, Object>> problemesJson = new ArrayList<>();
+            for (ProblemeEntity p : pageResult.getContent()) {
+                try {
+                    Map<String, Object> pJson = new HashMap<>();
+                    pJson.put("id", p.getId());
+                    pJson.put("lieu", p.getLieu() != null ? p.getLieu() : "");
+                    pJson.put("description", p.getDescription() != null ? p.getDescription() : "");
+                    pJson.put("type", p.getTypeProbleme() != null ? p.getTypeProbleme().getDescription() : "");
+                    pJson.put("priorite", p.getPriorite() != null ? p.getPriorite().getDescription() : "");
+                    pJson.put("declarant", p.getDeclarant() != null && p.getDeclarant().getNomComplet() != null 
+                        ? p.getDeclarant().getNomComplet() : "Inconnu");
+                    pJson.put("date", p.getDateSignalement() != null ? p.getDateSignalement().toString() : "");
+                    problemesJson.add(pJson);
+                } catch (Exception e) {
+                    logger.error("Erreur lors de la sérialisation du problème ID: {}", p != null ? p.getId() : "null", e);
+                    // Continuer avec le problème suivant au lieu de faire échouer toute la requête
+                }
+            }
+            
+            PaginatedResponse<Map<String, Object>> response = new PaginatedResponse<>(
+                problemesJson, page, size, (int) pageResult.getTotalElements()
+            );
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération des problèmes", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erreur lors de la récupération des problèmes: " + e.getMessage());
+            error.put("error", e.getClass().getSimpleName());
+            return ResponseEntity.status(500).body(error);
         }
-        
-        PaginatedResponse<Map<String, Object>> response = new PaginatedResponse<>(
-            problemesJson, page, size, (int) pageResult.getTotalElements()
-        );
-        
-        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/notifications")

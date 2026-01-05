@@ -4,13 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import TVNoise from "@/components/ui/tv-noise";
-import type { WidgetData } from "@/types/dashboard";
-
-interface WidgetProps {
-  widgetData: WidgetData;
-}
-
-export default function Widget({ widgetData }: WidgetProps) {
+export default function Widget() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const montrealTimeZone = "America/Montreal";
 

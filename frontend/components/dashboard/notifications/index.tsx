@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Bullet } from "@/components/ui/bullet";
 import NotificationItem from "./notification-item";
 import type { Notification as DashboardNotification } from "@/types/dashboard";
-import { useApiQuery } from "@/hooks/use-api-query";
+import { useApiQuery, useApiMutation } from "@/hooks/use-api-query";
+import { useAuth } from "@/contexts/AuthContext";
 import * as api from "@/lib/api";
 import type { Notification as ApiNotification } from "@/lib/api";
 import { AnimatePresence, motion } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NotificationsProps {
   initialNotifications?: DashboardNotification[];
@@ -55,12 +57,25 @@ export default function Notifications({
   initialNotifications = [],
 }: NotificationsProps) {
   const [showAll, setShowAll] = useState(false);
+  const { user, userType } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Determine which API to use based on user type
+  const getNotificationsFn = useMemo(() => {
+    if (userType === "RESIDENT" && user?.email) {
+      return () => api.getResidentNotifications(user.email!);
+    } else if (userType === "PRESTATAIRE" && user?.neq) {
+      return () => api.getPrestataireNotifications(user.neq!);
+    } else {
+      return () => api.getStpmNotifications();
+    }
+  }, [userType, user]);
 
   const { data, isLoading: loading } = useApiQuery(
-    ["notifications", "stpm", "all"],
-    () => api.getStpmNotifications(),
+    ["notifications", userType, user?.email || user?.neq || "stpm"],
+    getNotificationsFn,
     {
-      enabled: initialNotifications.length === 0,
+      enabled: initialNotifications.length === 0 && !!user,
       staleTime: 30 * 1000,
       refetchInterval: 30000, // Refresh every 30 seconds
     }
@@ -81,18 +96,37 @@ export default function Notifications({
     ? notifications
     : notifications.slice(0, 3);
 
+  // Mutation to clear all notifications
+  const clearAllMutation = useApiMutation(
+    async () => {
+      if (userType === "RESIDENT" && user?.email) {
+        return api.clearAllResidentNotifications(user.email);
+      } else if (userType === "PRESTATAIRE" && user?.neq) {
+        return api.clearAllPrestataireNotifications(user.neq);
+      } else {
+        return api.clearAllStpmNotifications();
+      }
+    },
+    {
+      onSuccess: () => {
+        // Invalidate and refetch notifications
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      },
+    }
+  );
+
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
-    );
+    // TODO: Implémenter l'appel API pour marquer une notification individuelle comme lue
+    // Pour l'instant, cette fonction est vide car l'endpoint backend existe mais doit être appelé
   };
 
   const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+    // TODO: Implémenter l'appel API pour supprimer une notification individuelle
+    // Pour l'instant, cette fonction est vide car l'endpoint backend existe mais doit être appelé
   };
 
   const clearAll = () => {
-    setNotifications([]);
+    clearAllMutation.mutate();
   };
 
   return (

@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Service
 public class ModelMapperService {
     
-    // ========== RESIDENT ==========
     
     public ResidentEntity toEntity(Resident resident) {
         if (resident == null) return null;
@@ -32,7 +31,6 @@ public class ModelMapperService {
                           entity.getTelephone(), entity.getEmail(), entity.getAdresse());
     }
     
-    // ========== PRESTATAIRE ==========
     
     public PrestataireEntity toEntity(Prestataire prestataire) {
         if (prestataire == null) return null;
@@ -51,7 +49,6 @@ public class ModelMapperService {
                               entity.getContactNom(), entity.getTelephone(), entity.getEmail());
     }
     
-    // ========== PROBLEME ==========
     
     public ProblemeEntity toEntity(Probleme probleme, ResidentEntity declarant) {
         if (probleme == null) return null;
@@ -78,7 +75,6 @@ public class ModelMapperService {
         return probleme;
     }
     
-    // ========== CANDIDATURE ==========
     
     public CandidatureEntity toEntity(Candidature candidature, PrestataireEntity prestataire,
                                      List<ProblemeEntity> problemes) {
@@ -118,7 +114,6 @@ public class ModelMapperService {
         return candidature;
     }
     
-    // ========== PROJET ==========
     
     public ProjetEntity toEntity(Projet projet, CandidatureEntity candidature,
                                 List<ProblemeEntity> problemes, PrestataireEntity prestataire) {
@@ -167,7 +162,6 @@ public class ModelMapperService {
         return projet;
     }
     
-    // ========== NOTIFICATION ==========
     
     public NotificationEntity toEntity(Notification notification) {
         if (notification == null) return null;
@@ -197,7 +191,6 @@ public class ModelMapperService {
         return notification;
     }
     
-    // ========== ABONNEMENT ==========
     
     public AbonnementEntity toEntity(Abonnement abonnement) {
         if (abonnement == null) return null;

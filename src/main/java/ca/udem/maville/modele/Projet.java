@@ -30,9 +30,7 @@ public class Projet {
     private LocalDateTime derniereMiseAJour;
     private int nombreRapports;
 
-    // Constructeur par défaut NÉCESSAIRE pour Jackson
     public Projet() {
-        // Constructeur vide pour la désérialisation JSON
         this.problemesVises = new ArrayList<>();
     }
 
@@ -65,7 +63,6 @@ public class Projet {
         this.nombreRapports = problemes.size();
     }
 
-    // Getters et Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     

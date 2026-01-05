@@ -33,7 +33,6 @@ public class ErrorResponse {
         this.message = message;
     }
     
-    // Getters et Setters
     public boolean isSuccess() {
         return success;
     }

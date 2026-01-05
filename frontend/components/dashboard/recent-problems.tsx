@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { useApiQuery } from "@/hooks/use-api-query"
+import { useAuth } from "@/contexts/AuthContext"
 import * as api from "@/lib/api"
 import type { Probleme } from "@/lib/api"
 
@@ -22,14 +23,26 @@ export default function RecentProblems() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all")
   const [sortField, setSortField] = useState<SortField>("date")
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc")
+  const { userType } = useAuth()
+
+  // Utiliser la bonne API selon le type d'utilisateur
+  const getProblemesFn = useMemo(() => {
+    if (userType === "PRESTATAIRE") {
+      return () => api.getPrestatairesProblemes({ page: 0, size: 100 })
+    } else {
+      // STPM et RESIDENT voient tous les problèmes (via STPM endpoint)
+      return () => api.getStpmProblemes({ page: 0, size: 100 })
+    }
+  }, [userType])
 
   const { data, isLoading: loading, error } = useApiQuery(
-    ["problemes", "recent"],
-    () => api.getStpmProblemes({ page: 0, size: 100 }),
+    ["problemes", "recent", userType],
+    getProblemesFn,
     {
       staleTime: 30 * 1000, // 30 secondes
       refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
       retry: 2, // Retry 2 fois en cas d'erreur
+      enabled: !!userType, // Attendre que le type d'utilisateur soit déterminé
     }
   )
 
@@ -196,8 +209,16 @@ export default function RecentProblems() {
       {/* Problems List */}
       <div className="space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
         {error ? (
-          <div className="text-red-400 text-sm text-center py-4">
-            Erreur lors du chargement des problèmes. Veuillez réessayer.
+          <div className="text-red-400 text-sm text-center py-4 space-y-2">
+            <div>Erreur lors du chargement des problèmes.</div>
+            {error instanceof Error && error.message.includes('localhost') && (
+              <div className="text-xs text-red-300">
+                Vérifiez que la variable d'environnement NEXT_PUBLIC_API_URL est configurée.
+              </div>
+            )}
+            <div className="text-xs text-red-300">
+              {error instanceof Error ? error.message : "Veuillez réessayer."}
+            </div>
           </div>
         ) : filteredProblems.length === 0 && !loading ? (
           <div className="text-muted-foreground text-sm text-center py-4">

@@ -6,7 +6,6 @@ public class Abonnement {
     private String valeur; // nom du quartier ou de la rue
     
     public Abonnement() {
-        // Constructeur vide pour JSON
     }
     
     public Abonnement(String residentEmail, String type, String valeur) {
@@ -15,7 +14,6 @@ public class Abonnement {
         this.valeur = valeur;
     }
     
-    // Getters et Setters
     public String getResidentEmail() { return residentEmail; }
     public void setResidentEmail(String residentEmail) { this.residentEmail = residentEmail; }
     

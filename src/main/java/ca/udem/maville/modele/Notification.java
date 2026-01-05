@@ -19,7 +19,6 @@ public class Notification {
     private String priorite; // Nouveau: pour les notifications de priorité
     
     public Notification() {
-        // Constructeur vide pour JSON
     }
     
     // Constructeur pour notifications résidents (existant)
@@ -69,7 +68,6 @@ public class Notification {
         return notif;
     }
     
-    // Getters et Setters
     public String getResidentEmail() { 
     // Pour compatibilité avec l'ancien format
     if ("RESIDENT".equals(typeDestinataire)) {

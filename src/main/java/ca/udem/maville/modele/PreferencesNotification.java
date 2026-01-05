@@ -28,7 +28,6 @@ public class PreferencesNotification {
         this.residentEmail = residentEmail;
     }
     
-    // Getters et Setters
     public String getResidentEmail() { return residentEmail; }
     public void setResidentEmail(String residentEmail) { this.residentEmail = residentEmail; }
     

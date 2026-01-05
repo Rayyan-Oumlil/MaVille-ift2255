@@ -21,9 +21,7 @@ public class Probleme {
     private Priorite priorite;
     private boolean resolu;              
 
-    // Constructeur par défaut NÉCESSAIRE pour Jackson
     public Probleme() {
-        // Constructeur vide pour la désérialisation JSON
     }
 
     /*
@@ -40,7 +38,6 @@ public class Probleme {
         this.resolu = false;
     }
 
-    // Getters et Setters 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     

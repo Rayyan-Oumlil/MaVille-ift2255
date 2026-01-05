@@ -11,7 +11,6 @@ public class AbonnementPrestataire {
     private String valeur; // nom du quartier ou type de travaux
     
     public AbonnementPrestataire() {
-        // Constructeur vide pour JSON
     }
     
     public AbonnementPrestataire(String neq, String type, String valeur) {
@@ -20,7 +19,6 @@ public class AbonnementPrestataire {
         this.valeur = valeur;
     }
     
-    // Getters et Setters
     public String getNeq() { return neq; }
     public void setNeq(String neq) { this.neq = neq; }
     

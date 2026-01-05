@@ -187,11 +187,17 @@ async function fetchAPI<T>(
     // Gérer les erreurs réseau (CORS, connexion refusée, etc.)
     if (error instanceof TypeError) {
       if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
-        const networkError = new Error('Impossible de se connecter au serveur. Vérifiez que le backend est démarré sur http://localhost:7000');
+        const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
+        const errorMessage = isLocalhost
+          ? 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré sur http://localhost:7000'
+          : 'Impossible de se connecter au serveur. Vérifiez que NEXT_PUBLIC_API_URL est configuré dans Vercel.';
+        const networkError = new Error(errorMessage);
         console.error('Network Error:', {
           url,
           message: error.message,
-          hint: 'Vérifiez que le backend est démarré sur http://localhost:7000',
+          hint: isLocalhost 
+            ? 'Vérifiez que le backend est démarré sur http://localhost:7000'
+            : 'Configurez NEXT_PUBLIC_API_URL dans Vercel avec l\'URL Cloud Run',
         });
         reportError(networkError, { url, originalError: error.message });
         throw networkError;
@@ -361,6 +367,27 @@ export async function modifierPrioriteProbleme(id: number, priorite: 'FAIBLE' | 
 
 export async function getStpmNotifications() {
   return fetchAPI<{ notifications: Notification[]; total: number }>('/stpm/notifications');
+}
+
+export async function clearAllStpmNotifications() {
+  return fetchAPI<{ success: boolean; message: string; count: number }>(
+    '/stpm/notifications',
+    { method: 'DELETE' }
+  );
+}
+
+export async function clearAllResidentNotifications(email: string) {
+  return fetchAPI<{ success: boolean; message: string; count: number }>(
+    `/residents/${encodeURIComponent(email)}/notifications`,
+    { method: 'DELETE' }
+  );
+}
+
+export async function clearAllPrestataireNotifications(neq: string) {
+  return fetchAPI<{ success: boolean; message: string; count: number }>(
+    `/prestataires/${encodeURIComponent(neq)}/notifications`,
+    { method: 'DELETE' }
+  );
 }
 
 // Montreal

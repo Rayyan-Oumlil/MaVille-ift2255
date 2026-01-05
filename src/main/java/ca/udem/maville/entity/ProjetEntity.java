@@ -99,7 +99,6 @@ public class ProjetEntity {
         this.statut = StatutProjet.EN_COURS;
     }
     
-    // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

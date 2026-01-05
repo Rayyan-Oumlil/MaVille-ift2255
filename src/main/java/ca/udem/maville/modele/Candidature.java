@@ -25,10 +25,8 @@ public class Candidature {
     private StatutCandidature statut;
     private String commentaireRejet; // Si la candidature est rejetée
 
-    // Constructeur par défaut NÉCESSAIRE pour Jackson
     public Candidature() {
-        // Constructeur vide pour la désérialisation JSON
-        this.problemesVises = new ArrayList<>(); // Initialiser la liste pour éviter NPE
+        this.problemesVises = new ArrayList<>();
     }
 
     /*
@@ -61,7 +59,6 @@ public static void synchroniserCompteurId(List<Candidature> candidaturesExistant
     }
 }
 
-    // Getters et Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     

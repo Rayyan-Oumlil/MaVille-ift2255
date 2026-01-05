@@ -30,7 +30,6 @@ public class CandidatureRequest {
     
     public CandidatureRequest() {}
     
-    // Getters et Setters
     public String getPrestataireId() {
         return prestataireId;
     }

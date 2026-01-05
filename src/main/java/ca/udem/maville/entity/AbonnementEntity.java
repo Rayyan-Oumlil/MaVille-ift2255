@@ -33,7 +33,6 @@ public class AbonnementEntity {
         this.valeur = valeur;
     }
     
-    // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

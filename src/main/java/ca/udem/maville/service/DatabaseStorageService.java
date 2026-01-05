@@ -59,8 +59,6 @@ public class DatabaseStorageService {
     
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
-    // ========== RESIDENTS ==========
-    
     public ResidentEntity findOrCreateResident(String email, String prenom, String nom, 
                                                String telephone, String adresse) {
         Optional<ResidentEntity> existing = residentRepository.findByEmail(email);
@@ -76,7 +74,6 @@ public class DatabaseStorageService {
         return residentRepository.findByEmail(email);
     }
     
-    // ========== PRESTATAIRES ==========
     
     public PrestataireEntity findOrCreatePrestataire(String numeroEntreprise, String nomEntreprise,
                                                      String contactNom, String telephone, String email) {
@@ -94,7 +91,6 @@ public class DatabaseStorageService {
         return prestataireRepository.findByNumeroEntreprise(neq);
     }
     
-    // ========== AUTHENTIFICATION ==========
     
     /**
      * Vérifie si un mot de passe correspond au hash stocké
@@ -113,7 +109,6 @@ public class DatabaseStorageService {
         return passwordEncoder.encode(rawPassword);
     }
     
-    // ========== PROBLEMES ==========
     
     @Transactional
     @CacheEvict(value = "problemes", allEntries = true)
@@ -134,11 +129,31 @@ public class DatabaseStorageService {
     }
     
     // Cache avec clé composite incluant les filtres et pagination
-    @Cacheable(value = "problemes", key = "#quartier + '_' + (#type != null ? #type.name() : 'null') + '_' + #page + '_' + #size")
+    // Note: Le filtre quartier est fait en mémoire car la colonne lieu peut être de type bytea
     public Page<ProblemeEntity> findNonResolusWithFilters(String quartier, TypeTravaux type, 
                                                           int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return problemeRepository.findNonResolusWithFilters(quartier, type, pageable);
+        Page<ProblemeEntity> pageResult = problemeRepository.findNonResolusWithFilters(type, pageable);
+        
+        // Si un filtre quartier est fourni, filtrer en mémoire
+        if (quartier != null && !quartier.trim().isEmpty()) {
+            String quartierLower = quartier.toLowerCase().trim();
+            List<ProblemeEntity> filtered = pageResult.getContent().stream()
+                .filter(p -> {
+                    String lieu = p.getLieu();
+                    return lieu != null && lieu.toLowerCase().contains(quartierLower);
+                })
+                .collect(java.util.stream.Collectors.toList());
+            
+            // Créer une nouvelle page avec les résultats filtrés
+            return new org.springframework.data.domain.PageImpl<>(
+                filtered, 
+                pageable, 
+                filtered.size()
+            );
+        }
+        
+        return pageResult;
     }
     
     public Optional<ProblemeEntity> findProblemeById(@org.springframework.lang.NonNull Long id) {
@@ -149,8 +164,6 @@ public class DatabaseStorageService {
     public ProblemeEntity updateProbleme(@org.springframework.lang.NonNull ProblemeEntity probleme) {
         return problemeRepository.save(probleme);
     }
-    
-    // ========== CANDIDATURES ==========
     
     @Transactional
     public CandidatureEntity createCandidature(PrestataireEntity prestataire, 
@@ -180,7 +193,6 @@ public class DatabaseStorageService {
         return candidatureRepository.save(candidature);
     }
     
-    // ========== PROJETS ==========
     
     @Transactional
     @CacheEvict(value = {"projets", "candidatures"}, allEntries = true)
@@ -210,7 +222,6 @@ public class DatabaseStorageService {
         return projetRepository.save(projet);
     }
     
-    // ========== NOTIFICATIONS ==========
     
     @Transactional
     public NotificationEntity createNotification(String message, String typeChangement,
@@ -339,8 +350,6 @@ public class DatabaseStorageService {
         return count;
     }
     
-    // ========== ABONNEMENTS ==========
-    
     @Transactional
     public AbonnementEntity createAbonnement(String residentEmail, String type, String valeur) {
         // Vérifier si l'abonnement existe déjà
@@ -363,7 +372,6 @@ public class DatabaseStorageService {
         return abonnementRepository.findByTypeAndValeur(type, valeur);
     }
     
-    // ========== PRÉFÉRENCES ==========
     
     /**
      * Récupère les préférences d'un résident par son email
@@ -438,7 +446,6 @@ public class DatabaseStorageService {
         return Objects.requireNonNull(saved);
     }
     
-    // ========== INITIALISATION DES DONNÉES ==========
     
     /**
      * Initialise la base de données avec des données de test si elle est vide
@@ -453,7 +460,6 @@ public class DatabaseStorageService {
         
         logger.info("Initializing database with realistic sample data...");
         
-        // ========== CREATE RESIDENTS ==========
         ResidentEntity resident1 = findOrCreateResident("marie@test.com", "Marie", "Dupont", "514-123-4567", "123 Rue Saint-Denis, Plateau-Mont-Royal");
         if (resident1.getPasswordHash() == null) {
             resident1.setPasswordHash(hashPassword("password123"));
@@ -484,7 +490,6 @@ public class DatabaseStorageService {
             residentRepository.save(resident5);
         }
         
-        // ========== CREATE SERVICE PROVIDERS ==========
         PrestataireEntity prestataire1 = findOrCreatePrestataire("ABC123", "Construction ABC Inc.", "Pierre Lavoie", "514-345-6789", "contact@abc.com");
         if (prestataire1.getPasswordHash() == null) {
             prestataire1.setPasswordHash(hashPassword("password123"));
@@ -509,7 +514,6 @@ public class DatabaseStorageService {
             prestataireRepository.save(prestataire4);
         }
         
-        // ========== CREATE DIVERSE PROBLEMS ==========
         
         // High priority problems
         ProblemeEntity prob1 = createProbleme(
@@ -594,7 +598,6 @@ public class DatabaseStorageService {
             Priorite.FAIBLE
         );
         
-        // ========== CREATE APPLICATIONS ==========
         
         // Application for problem 1 (approved)
         CandidatureEntity cand1 = new CandidatureEntity();
@@ -644,7 +647,6 @@ public class DatabaseStorageService {
         cand4.setStatut(StatutCandidature.SOUMISE);
         candidatureRepository.save(cand4);
         
-        // ========== CREATE PROJECTS ==========
         
         // Project 1: In progress (from approved application)
         ProjetEntity projet1 = new ProjetEntity();

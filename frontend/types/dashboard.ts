@@ -18,16 +18,4 @@ export interface Notification {
   priority: "low" | "medium" | "high";
 }
 
-export interface WidgetData {
-  location: string;
-  timezone: string;
-  temperature: string;
-  weather: string;
-  date: string;
-}
-
-export interface MockData {
-  widgetData: WidgetData;
-}
-
 export type TimePeriod = "week" | "month" | "year";

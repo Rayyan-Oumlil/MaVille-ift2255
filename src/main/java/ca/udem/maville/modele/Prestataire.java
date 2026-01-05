@@ -12,9 +12,7 @@ public class Prestataire {
     private String telephone;
     private String email;
 
-    // Constructeur par défaut NÉCESSAIRE pour Jackson
     public Prestataire() {
-        // Constructeur vide pour la désérialisation JSON
     }
 
     /*
@@ -29,7 +27,6 @@ public class Prestataire {
         this.email = email;
     }
 
-    // Getters et Setters 
     public String getNumeroEntreprise() { return numeroEntreprise; }
     public void setNumeroEntreprise(String numeroEntreprise) { this.numeroEntreprise = numeroEntreprise; }
     

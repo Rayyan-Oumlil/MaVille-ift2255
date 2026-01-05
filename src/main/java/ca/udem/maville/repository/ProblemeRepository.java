@@ -25,11 +25,9 @@ public interface ProblemeRepository extends JpaRepository<ProblemeEntity, Long> 
     Page<ProblemeEntity> findByResoluFalse(Pageable pageable);
     
     @EntityGraph(attributePaths = {"declarant"})
-    @Query("SELECT p FROM ProblemeEntity p WHERE p.resolu = false AND " +
-           "(:quartier IS NULL OR LOWER(p.lieu) LIKE LOWER(CONCAT('%', :quartier, '%'))) AND " +
+    @Query(value = "SELECT p FROM ProblemeEntity p WHERE p.resolu = false AND " +
            "(:type IS NULL OR p.typeProbleme = :type)")
     Page<ProblemeEntity> findNonResolusWithFilters(
-        @Param("quartier") String quartier,
         @Param("type") TypeTravaux type,
         Pageable pageable
     );

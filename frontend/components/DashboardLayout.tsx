@@ -4,12 +4,8 @@ import { usePathname } from "next/navigation"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { MobileHeader } from "@/components/dashboard/mobile-header"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
-import mockDataJson from "@/mock.json"
-import type { MockData } from "@/types/dashboard"
 import Widget from "@/components/dashboard/widget"
 import Notifications from "@/components/dashboard/notifications"
-
-const mockData = mockDataJson as MockData
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -34,7 +30,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <div className="col-span-1 lg:col-span-7">{children}</div>
         <div className="col-span-3 hidden lg:block">
           <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
-            <Widget widgetData={mockData.widgetData} />
+            <Widget />
             <Notifications />
           </div>
         </div>

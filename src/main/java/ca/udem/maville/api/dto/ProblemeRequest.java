@@ -27,7 +27,6 @@ public class ProblemeRequest {
         this.residentId = residentId;
     }
     
-    // Getters et Setters
     public String getLieu() {
         return lieu;
     }
