@@ -39,6 +39,28 @@ import Image from "next/image";
 import { useIsV0 } from "@/lib/v0-context";
 import PlusIcon from "@/components/icons/plus";
 
+// Fonction pour obtenir l'avatar de l'utilisateur
+function getUserAvatar(user: { email?: string; neq?: string; nom?: string }): string {
+  const avatars = [
+    "/avatars/user_krimson.png",
+    "/avatars/user_mati.png",
+    "/avatars/user_pek.png",
+    "/avatars/user_joyboy.png",
+  ];
+  
+  // Utiliser l'email ou NEQ pour sélectionner un avatar de manière cohérente
+  const identifier = user.email || user.neq || user.nom || "";
+  if (!identifier) return avatars[0];
+  
+  // Hash simple pour toujours obtenir le même avatar pour le même utilisateur
+  let hash = 0;
+  for (let i = 0; i < identifier.length; i++) {
+    hash = identifier.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return avatars[Math.abs(hash) % avatars.length];
+}
+
 // Fonction pour obtenir les items du menu selon le type d'utilisateur
 function getMenuItems(userType: UserType) {
   const baseItems = [
@@ -173,7 +195,7 @@ const data = {
   user: {
     name: "ADMIN",
     email: "admin@maville.mtl",
-    avatar: "/avatars/user_krimson.png",
+    avatar: "/avatars/user_krimson.png", // Default avatar
   },
 };
 
@@ -281,10 +303,11 @@ export function DashboardSidebar({
                   <PopoverTrigger className="flex gap-0.5 w-full group cursor-pointer">
                     <div className="shrink-0 flex size-14 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground overflow-clip">
                       <Image
-                        src={data.user.avatar}
-                        alt={data.user.name}
+                        src={user ? getUserAvatar(user) : data.user.avatar}
+                        alt={user?.nom || data.user.name}
                         width={120}
                         height={120}
+                        className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="group/item pl-3 pr-1.5 pt-2 pb-1.5 flex-1 flex bg-sidebar-accent hover:bg-sidebar-accent-active/75 items-center rounded group-data-[state=open]:bg-sidebar-accent-active group-data-[state=open]:hover:bg-sidebar-accent-active group-data-[state=open]:text-sidebar-accent-foreground">

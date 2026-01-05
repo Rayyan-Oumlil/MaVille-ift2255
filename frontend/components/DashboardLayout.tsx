@@ -8,8 +8,6 @@ import mockDataJson from "@/mock.json"
 import type { MockData } from "@/types/dashboard"
 import Widget from "@/components/dashboard/widget"
 import Notifications from "@/components/dashboard/notifications"
-import { MobileChat } from "@/components/chat/mobile-chat"
-import Chat from "@/components/chat"
 
 const mockData = mockDataJson as MockData
 
@@ -38,13 +36,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="space-y-gap py-sides min-h-screen max-h-screen sticky top-0 overflow-clip">
             <Widget widgetData={mockData.widgetData} />
             <Notifications />
-            <Chat />
           </div>
         </div>
       </div>
-
-      {/* Mobile Chat - floating CTA with drawer */}
-      <MobileChat />
     </SidebarProvider>
   )
 }

@@ -393,16 +393,17 @@ public class DatabaseStorageService {
     /**
      * Initialise la base de données avec des données de test si elle est vide
      */
+    @Transactional
     public void initializeWithSampleData() {
         // Vérifier si la base contient déjà des données
         if (!residentRepository.findAll().isEmpty()) {
-            logger.debug("Base de données déjà initialisée, skip de l'initialisation");
+            logger.debug("Database already initialized, skipping initialization");
             return;
         }
         
-        logger.info("Initialisation de la base de données avec des données de test...");
+        logger.info("Initializing database with realistic sample data...");
         
-        // Créer quelques résidents de test avec mots de passe
+        // ========== CREATE RESIDENTS ==========
         ResidentEntity resident1 = findOrCreateResident("marie@test.com", "Marie", "Dupont", "514-123-4567", "123 Rue Saint-Denis, Plateau-Mont-Royal");
         if (resident1.getPasswordHash() == null) {
             resident1.setPasswordHash(hashPassword("password123"));
@@ -415,38 +416,224 @@ public class DatabaseStorageService {
             residentRepository.save(resident2);
         }
         
-        // Créer quelques prestataires de test avec mots de passe
-        PrestataireEntity prestataire1 = findOrCreatePrestataire("ABC123", "Entreprise ABC", "Contact ABC", "514-345-6789", "contact@abc.com");
+        ResidentEntity resident3 = findOrCreateResident("sophie.tremblay@gmail.com", "Sophie", "Tremblay", "514-345-6789", "789 Boulevard Saint-Laurent, Rosemont");
+        if (resident3.getPasswordHash() == null) {
+            resident3.setPasswordHash(hashPassword("password123"));
+            residentRepository.save(resident3);
+        }
+        
+        ResidentEntity resident4 = findOrCreateResident("luc.gagnon@outlook.com", "Luc", "Gagnon", "514-456-7890", "321 Rue Sherbrooke, Ville-Marie");
+        if (resident4.getPasswordHash() == null) {
+            resident4.setPasswordHash(hashPassword("password123"));
+            residentRepository.save(resident4);
+        }
+        
+        ResidentEntity resident5 = findOrCreateResident("amelie.roy@yahoo.ca", "Amélie", "Roy", "514-567-8901", "654 Avenue Mont-Royal, Le Plateau");
+        if (resident5.getPasswordHash() == null) {
+            resident5.setPasswordHash(hashPassword("password123"));
+            residentRepository.save(resident5);
+        }
+        
+        // ========== CREATE SERVICE PROVIDERS ==========
+        PrestataireEntity prestataire1 = findOrCreatePrestataire("ABC123", "Construction ABC Inc.", "Pierre Lavoie", "514-345-6789", "contact@abc.com");
         if (prestataire1.getPasswordHash() == null) {
             prestataire1.setPasswordHash(hashPassword("password123"));
             prestataireRepository.save(prestataire1);
         }
         
-        PrestataireEntity prestataire2 = findOrCreatePrestataire("XYZ789", "Entreprise XYZ", "Contact XYZ", "514-456-7890", "contact@xyz.com");
+        PrestataireEntity prestataire2 = findOrCreatePrestataire("XYZ789", "Pavage XYZ Ltée", "Isabelle Côté", "514-456-7890", "contact@xyz.com");
         if (prestataire2.getPasswordHash() == null) {
             prestataire2.setPasswordHash(hashPassword("password123"));
             prestataireRepository.save(prestataire2);
         }
         
-        // Créer quelques problèmes de test
-        createProbleme(
+        PrestataireEntity prestataire3 = findOrCreatePrestataire("MTL456", "Électricité Montréal Pro", "Marc Dubois", "514-678-9012", "info@mtlpro.ca");
+        if (prestataire3.getPasswordHash() == null) {
+            prestataire3.setPasswordHash(hashPassword("password123"));
+            prestataireRepository.save(prestataire3);
+        }
+        
+        PrestataireEntity prestataire4 = findOrCreatePrestataire("QC2024", "Plomberie Québec Expert", "Nathalie Bergeron", "514-789-0123", "service@qcexpert.com");
+        if (prestataire4.getPasswordHash() == null) {
+            prestataire4.setPasswordHash(hashPassword("password123"));
+            prestataireRepository.save(prestataire4);
+        }
+        
+        // ========== CREATE DIVERSE PROBLEMS ==========
+        
+        // High priority problems
+        ProblemeEntity prob1 = createProbleme(
             "123 Rue Saint-Denis, Plateau-Mont-Royal",
             TypeTravaux.ENTRETIEN_URBAIN,
-            "Trou dans la chaussée",
+            "Large pothole causing vehicle damage. Urgent repair needed.",
             resident1,
-            Priorite.MOYENNE
+            Priorite.ELEVEE
         );
         
-        createProbleme(
+        ProblemeEntity prob2 = createProbleme(
             "456 Avenue du Parc, Villeray",
             TypeTravaux.TRAVAUX_ROUTIERS,
-            "Signalisation manquante",
+            "Missing stop sign at busy intersection. Safety hazard.",
             resident2,
             Priorite.ELEVEE
         );
         
-        logger.info("Données de test initialisées : {} résidents, {} prestataires, {} problèmes",
-            residentRepository.count(), prestataireRepository.count(), problemeRepository.count());
+        ProblemeEntity prob3 = createProbleme(
+            "789 Boulevard Saint-Laurent, Rosemont",
+            TypeTravaux.TRAVAUX_GAZ_ELECTRICITE,
+            "Gas leak detected near residential building. Immediate attention required.",
+            resident3,
+            Priorite.ELEVEE
+        );
+        
+        // Medium priority problems
+        ProblemeEntity prob4 = createProbleme(
+            "321 Rue Sherbrooke, Ville-Marie",
+            TypeTravaux.TRAVAUX_SIGNALISATION_ECLAIRAGE,
+            "Street lights not working for 3 blocks. Poor visibility at night.",
+            resident4,
+            Priorite.MOYENNE
+        );
+        
+        ProblemeEntity prob5 = createProbleme(
+            "654 Avenue Mont-Royal, Le Plateau",
+            TypeTravaux.ENTRETIEN_PAYSAGER,
+            "Overgrown trees blocking sidewalk and street signs.",
+            resident5,
+            Priorite.MOYENNE
+        );
+        
+        ProblemeEntity prob6 = createProbleme(
+            "987 Rue Ontario, Hochelaga",
+            TypeTravaux.TRAVAUX_SOUTERRAINS,
+            "Sewer backup causing flooding in basement. Water damage ongoing.",
+            resident1,
+            Priorite.MOYENNE
+        );
+        
+        ProblemeEntity prob7 = createProbleme(
+            "234 Avenue Papineau, Centre-Sud",
+            TypeTravaux.TRAVAUX_TRANSPORTS_COMMUN,
+            "Bus shelter damaged and glass shattered. Unsafe for commuters.",
+            resident2,
+            Priorite.MOYENNE
+        );
+        
+        // Low priority problems
+        ProblemeEntity prob8 = createProbleme(
+            "567 Rue Sainte-Catherine, Downtown",
+            TypeTravaux.ENTRETIEN_URBAIN,
+            "Graffiti on public wall. Aesthetic improvement needed.",
+            resident3,
+            Priorite.FAIBLE
+        );
+        
+        ProblemeEntity prob9 = createProbleme(
+            "890 Boulevard René-Lévesque, Griffintown",
+            TypeTravaux.CONSTRUCTION_RENOVATION,
+            "Sidewalk uneven but passable. Minor repair recommended.",
+            resident4,
+            Priorite.FAIBLE
+        );
+        
+        ProblemeEntity prob10 = createProbleme(
+            "111 Rue Beaubien, Rosemont",
+            TypeTravaux.ENTRETIEN_RESEAUX_TELECOM,
+            "Loose telecom cables hanging low. Not urgent but should be secured.",
+            resident5,
+            Priorite.FAIBLE
+        );
+        
+        // ========== CREATE APPLICATIONS ==========
+        
+        // Application for problem 1 (approved)
+        CandidatureEntity cand1 = new CandidatureEntity();
+        cand1.setPrestataire(prestataire1);
+        cand1.setProblemes(List.of(prob1));
+        cand1.setDescriptionProjet("Complete pothole repair with asphalt resurfacing. Includes traffic management.");
+        cand1.setCoutEstime(3500.0);
+        cand1.setDateDepot(LocalDateTime.now().minusDays(3));
+        cand1.setDateDebutPrevue(LocalDate.now().plusDays(5));
+        cand1.setDateFinPrevue(LocalDate.now().plusDays(7));
+        cand1.setStatut(StatutCandidature.APPROUVEE);
+        candidatureRepository.save(cand1);
+        
+        // Application for problem 2 (submitted)
+        CandidatureEntity cand2 = new CandidatureEntity();
+        cand2.setPrestataire(prestataire2);
+        cand2.setProblemes(List.of(prob2));
+        cand2.setDescriptionProjet("Install new stop sign with reinforced post. Includes signage and road marking.");
+        cand2.setCoutEstime(1200.0);
+        cand2.setDateDepot(LocalDateTime.now().minusDays(2));
+        cand2.setDateDebutPrevue(LocalDate.now().plusDays(3));
+        cand2.setDateFinPrevue(LocalDate.now().plusDays(4));
+        cand2.setStatut(StatutCandidature.SOUMISE);
+        candidatureRepository.save(cand2);
+        
+        // Application for problem 3 (approved)
+        CandidatureEntity cand3 = new CandidatureEntity();
+        cand3.setPrestataire(prestataire3);
+        cand3.setProblemes(List.of(prob3));
+        cand3.setDescriptionProjet("Emergency gas leak repair. 24/7 service with safety inspection.");
+        cand3.setCoutEstime(5000.0);
+        cand3.setDateDepot(LocalDateTime.now().minusDays(2));
+        cand3.setDateDebutPrevue(LocalDate.now().plusDays(1));
+        cand3.setDateFinPrevue(LocalDate.now().plusDays(2));
+        cand3.setStatut(StatutCandidature.APPROUVEE);
+        candidatureRepository.save(cand3);
+        
+        // Application for problem 4 (submitted)
+        CandidatureEntity cand4 = new CandidatureEntity();
+        cand4.setPrestataire(prestataire3);
+        cand4.setProblemes(List.of(prob4));
+        cand4.setDescriptionProjet("Replace 15 LED street lights. Energy-efficient upgrade with 5-year warranty.");
+        cand4.setCoutEstime(8500.0);
+        cand4.setDateDepot(LocalDateTime.now().minusDays(1));
+        cand4.setDateDebutPrevue(LocalDate.now().plusDays(10));
+        cand4.setDateFinPrevue(LocalDate.now().plusDays(15));
+        cand4.setStatut(StatutCandidature.SOUMISE);
+        candidatureRepository.save(cand4);
+        
+        // ========== CREATE PROJECTS ==========
+        
+        // Project 1: In progress (from approved application)
+        ProjetEntity projet1 = new ProjetEntity();
+        projet1.setPrestataire(prestataire1);
+        projet1.setCandidature(cand1);
+        projet1.setProblemes(List.of(prob1));
+        projet1.setDescriptionProjet("Pothole repair on Rue Saint-Denis");
+        projet1.setLocalisation("123 Rue Saint-Denis, Plateau-Mont-Royal");
+        projet1.setTypeTravail(TypeTravaux.ENTRETIEN_URBAIN);
+        projet1.setPriorite(Priorite.ELEVEE);
+        projet1.setCout(3500.0);
+        projet1.setDateCreation(LocalDateTime.now().minusDays(2));
+        projet1.setDateDebutPrevue(LocalDate.now().plusDays(5));
+        projet1.setDateFinPrevue(LocalDate.now().plusDays(7));
+        projet1.setDateDebutReelle(LocalDate.now().plusDays(5));
+        projet1.setStatut(StatutProjet.EN_COURS);
+        projet1.setNombreRapports(0);
+        projetRepository.save(projet1);
+        
+        // Project 2: Approved, not started yet
+        ProjetEntity projet2 = new ProjetEntity();
+        projet2.setPrestataire(prestataire3);
+        projet2.setCandidature(cand3);
+        projet2.setProblemes(List.of(prob3));
+        projet2.setDescriptionProjet("Emergency gas leak repair");
+        projet2.setLocalisation("789 Boulevard Saint-Laurent, Rosemont");
+        projet2.setTypeTravail(TypeTravaux.TRAVAUX_GAZ_ELECTRICITE);
+        projet2.setPriorite(Priorite.ELEVEE);
+        projet2.setCout(5000.0);
+        projet2.setDateCreation(LocalDateTime.now().minusDays(1));
+        projet2.setDateDebutPrevue(LocalDate.now().plusDays(1));
+        projet2.setDateFinPrevue(LocalDate.now().plusDays(2));
+        projet2.setStatut(StatutProjet.APPROUVE);
+        projet2.setNombreRapports(0);
+        projetRepository.save(projet2);
+        
+        logger.info("Realistic sample data initialized: {} residents, {} service providers, {} problems, {} applications, {} projects",
+            residentRepository.count(), prestataireRepository.count(), problemeRepository.count(), 
+            candidatureRepository.count(), projetRepository.count());
     }
 }
 
