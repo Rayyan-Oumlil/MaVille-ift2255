@@ -32,7 +32,7 @@ export default function DashboardOverview() {
       }}
     >
       {/* Statistics Cards - 4 columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <StatCard
           label="PROBLÈMES SIGNALÉS"
           value={loading ? "..." : stats.problems.toString()}
@@ -69,13 +69,13 @@ export default function DashboardOverview() {
       </div>
 
       {/* Bottom grid - Recent Problems and Pending Applications */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         <RecentProblems />
         <PendingApplications />
       </div>
 
       {/* Bottom grid - Active Projects and Recent Notifications */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <ActiveProjects />
         <RecentNotifications />
       </div>

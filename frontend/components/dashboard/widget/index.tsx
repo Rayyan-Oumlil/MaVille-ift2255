@@ -96,21 +96,20 @@ export default function Widget() {
     <Card className="w-full aspect-[2] relative overflow-hidden">
       <TVNoise opacity={0.3} intensity={0.2} speed={40} />
       <CardContent className="!bg-accent flex-1 flex flex-col justify-between text-sm font-medium uppercase relative z-20 text-black">
-        <div className="flex justify-between items-center">
-          <span className="opacity-70 text-black">{dateInfo.dayOfWeek}</span>
-          <span className="text-black">{dateInfo.restOfDate}</span>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-0">
+          <span className="opacity-70 text-black text-xs sm:text-sm">{dateInfo.dayOfWeek}</span>
+          <span className="text-black text-xs sm:text-sm break-words">{dateInfo.restOfDate}</span>
         </div>
         <div className="text-center">
-          <div className="text-5xl font-display text-black" suppressHydrationWarning>
+          <div className="text-3xl sm:text-4xl lg:text-5xl font-display text-black break-words" suppressHydrationWarning>
             {formatTime(currentTime)}
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <span className="opacity-70 text-black">Montréal</span>
-          <span className="text-black">Québec, Canada</span>
-
-          <Badge variant="secondary" className="bg-accent text-black border-black/20">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <span className="opacity-70 text-black text-xs sm:text-sm">Montréal</span>
+          <span className="text-black text-xs sm:text-sm">Québec, Canada</span>
+          <Badge variant="secondary" className="bg-accent text-black border-black/20 text-xs">
             UTC{timezoneOffset}
           </Badge>
         </div>

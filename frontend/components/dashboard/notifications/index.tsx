@@ -131,14 +131,14 @@ export default function Notifications({
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex items-center justify-between pl-3 pr-1">
-        <CardTitle className="flex items-center gap-2.5 text-sm font-medium uppercase text-white">
-          {unreadCount > 0 ? <Badge className="text-white bg-white/20">{unreadCount}</Badge> : <Bullet />}
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pl-3 pr-1">
+        <CardTitle className="flex items-center gap-2.5 text-xs sm:text-sm font-medium uppercase text-white">
+          {unreadCount > 0 ? <Badge className="text-white bg-white/20 text-xs">{unreadCount}</Badge> : <Bullet />}
           Notifications
         </CardTitle>
         {notifications.length > 0 && (
           <Button
-            className="opacity-50 hover:opacity-100 uppercase text-white"
+            className="opacity-50 hover:opacity-100 uppercase text-white text-xs sm:text-sm"
             size="sm"
             variant="ghost"
             onClick={clearAll}

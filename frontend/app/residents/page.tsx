@@ -55,24 +55,24 @@ export default function ResidentsPage() {
             ) : (
               <div className="space-y-2">
                 {travauxValides.map((travail) => (
-                  <div key={travail.id} className="p-3 border rounded">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium">{travail.titre}</h3>
+                  <div key={travail.id} className="p-3 sm:p-4 border rounded">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-sm sm:text-base break-words">{travail.titre}</h3>
                         {travail.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">
                             {travail.description}
                           </p>
                         )}
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex flex-wrap gap-2 mt-2">
                           {travail.source && (
-                            <Badge variant="outline">{travail.source}</Badge>
+                            <Badge variant="outline" className="text-xs">{travail.source}</Badge>
                           )}
                           {travail.quartier && (
-                            <Badge variant="secondary">{travail.quartier}</Badge>
+                            <Badge variant="secondary" className="text-xs">{travail.quartier}</Badge>
                           )}
                           {travail.statut && (
-                            <Badge variant={travail.statut === "En cours" ? "default" : "secondary"}>
+                            <Badge variant={travail.statut === "En cours" ? "default" : "secondary"} className="text-xs">
                               {travail.statut}
                             </Badge>
                           )}
