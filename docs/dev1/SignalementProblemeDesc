@@ -1,5 +1,0 @@
-Le designe du Diagramme de sequence realise applique l'encapsulation, le faible couplage et la forte cohesion ainsi que l'abstraction fonctionnelle.
-D'abord, l'encapsulation est respectee par la structuration des objets (ex : FormulaireSignalement, SignalementService...). Chaqu'un de ces objets manipule ses propres donnees pour simplifier la maintenance.
-Le systeme maintient un faible couplage car les objets ne dependent que des interfaces publiques (ex : InterfaceApp qui appelle des methodes sans connaitre les details) ce qui permet de modifier les composants internes sans affecter le reste.
-Pour la cohesion forte, chaque classe a une seule reponsabilite clairement definie. SignalementService gere que les signalements par exemple.
-Chaque utilisateur agit de maniere abstraite et les details sont caches par des appels.
