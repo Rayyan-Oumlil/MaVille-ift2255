@@ -34,7 +34,7 @@ $DB_ROOT_PASSWORD_TEXT = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Run
 $DB_USER_PASSWORD = Read-Host "Enter PostgreSQL user password" -AsSecureString
 $DB_USER_PASSWORD_TEXT = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($DB_USER_PASSWORD))
 
-$FRONTEND_URL = Read-Host "Enter your Vercel frontend URL (e.g., https://maville.vercel.app)"
+$FRONTEND_URL = Read-Host "Enter your Vercel frontend URL"
 
 # Step 1: Set project
 Write-Host "`nStep 1: Setting active project..." -ForegroundColor Blue
@@ -94,7 +94,7 @@ gcloud run deploy $SERVICE_NAME `
   --region $REGION `
   --allow-unauthenticated `
   --add-cloudsql-instances $CONNECTION_NAME `
-  --set-env-vars "DATABASE_URL=jdbc:postgresql:///$DB_NAME?cloudSqlInstance=$CONNECTION_NAME&socketFactory=com.google.cloud.sql.postgres.SocketFactory" `
+  --set-env-vars "DATABASE_URL=jdbc:postgresql:///$DB_NAME`?cloudSqlInstance=$CONNECTION_NAME`&socketFactory=com.google.cloud.sql.postgres.SocketFactory" `
   --set-env-vars "DATABASE_USER=$DB_USER" `
   --set-env-vars "DATABASE_PASSWORD=$DB_USER_PASSWORD_TEXT" `
   --set-env-vars "CORS_ORIGINS=$FRONTEND_URL,http://localhost:3000" `
