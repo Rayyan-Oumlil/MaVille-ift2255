@@ -48,13 +48,13 @@ export default function NotificationItem({
     switch (priority) {
       case "high":
         return (
-          <Badge variant="destructive" className="text-xs">
+          <Badge variant="destructive" className="text-xs text-white bg-red-500/30">
             HIGH
           </Badge>
         );
       case "medium":
         return (
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs text-white bg-white/20">
             MED
           </Badge>
         );
@@ -80,8 +80,8 @@ export default function NotificationItem({
         "group p-3 rounded-lg border transition-all duration-200 hover:shadow-sm",
         !notification.read && "cursor-pointer",
         notification.read
-          ? "bg-background/50 border-border/30"
-          : "bg-background border-border shadow-sm"
+          ? "bg-white/10 border-white/20"
+          : "bg-white/15 border-white/30 shadow-sm"
       )}
       onClick={handleNotificationClick}
     >
@@ -100,7 +100,7 @@ export default function NotificationItem({
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <h4
                     className={cn(
-                      "text-sm font-medium truncate",
+                      "text-sm font-medium truncate text-white",
                       !notification.read && "font-semibold"
                     )}
                   >
@@ -112,16 +112,16 @@ export default function NotificationItem({
                   variant="ghost"
                   size="sm"
                   onClick={handleClearClick}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-xs h-6 px-2 text-muted-foreground hover:text-destructive shrink-0"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-xs h-6 px-2 text-white/70 hover:text-white shrink-0"
                 >
                   clear
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground line-clamp-2">
+              <p className="text-xs text-white/80 line-clamp-2">
                 {notification.message}
               </p>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-white/60">
                   {formatTimestamp(notification.timestamp)}
                 </span>
               </div>

@@ -5,6 +5,7 @@ import ca.udem.maville.api.exception.ResourceNotFoundException;
 import ca.udem.maville.entity.*;
 import ca.udem.maville.modele.*;
 import ca.udem.maville.service.DatabaseStorageService;
+import ca.udem.maville.repository.NotificationRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,9 +27,11 @@ public class StpmController {
     private static final Logger logger = LoggerFactory.getLogger(StpmController.class);
     
     private final DatabaseStorageService dbStorage;
+    private final NotificationRepository notificationRepository;
     
-    public StpmController(DatabaseStorageService dbStorage) {
+    public StpmController(DatabaseStorageService dbStorage, NotificationRepository notificationRepository) {
         this.dbStorage = dbStorage;
+        this.notificationRepository = notificationRepository;
     }
     
     @GetMapping("/candidatures")
@@ -166,6 +169,106 @@ public class StpmController {
         response.put("notifications", notificationsJson);
         response.put("total", notificationsJson.size());
         return ResponseEntity.ok(response);
+    }
+    
+    @PutMapping("/notifications/{id}/marquer-lu")
+    @Transactional
+    @Operation(summary = "Mark single STPM notification as read")
+    public ResponseEntity<?> marquerNotificationLue(@PathVariable Long id) {
+        try {
+            if (id == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "ID de notification invalide");
+                return ResponseEntity.status(400).body(error);
+            }
+            NotificationEntity notification = notificationRepository.findById(id).orElse(null);
+            if (notification == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Notification non trouvée");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            if (!"STPM".equals(notification.getTypeDestinataire())) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Cette notification n'appartient pas à STPM");
+                return ResponseEntity.status(403).body(error);
+            }
+            
+            boolean updated = dbStorage.markNotificationAsRead(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", updated);
+            response.put("message", updated ? "Notification marquée comme lue" : "Erreur lors de la mise à jour");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Erreur lors du marquage de la notification {} pour STPM", id, e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erreur lors de la mise à jour: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+    
+    @DeleteMapping("/notifications/{id}")
+    @Transactional
+    @Operation(summary = "Delete single STPM notification")
+    public ResponseEntity<?> supprimerNotification(@PathVariable Long id) {
+        try {
+            if (id == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "ID de notification invalide");
+                return ResponseEntity.status(400).body(error);
+            }
+            NotificationEntity notification = notificationRepository.findById(id).orElse(null);
+            if (notification == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Notification non trouvée");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            if (!"STPM".equals(notification.getTypeDestinataire())) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Cette notification n'appartient pas à STPM");
+                return ResponseEntity.status(403).body(error);
+            }
+            
+            boolean deleted = dbStorage.deleteNotification(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", deleted);
+            response.put("message", deleted ? "Notification supprimée" : "Erreur lors de la suppression");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la suppression de la notification {} pour STPM", id, e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erreur lors de la suppression: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+    
+    @DeleteMapping("/notifications")
+    @Transactional
+    @Operation(summary = "Clear all STPM notifications")
+    public ResponseEntity<?> supprimerToutesNotifications() {
+        try {
+            int count = dbStorage.deleteAllStpmNotifications();
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", count + " notification(s) supprimée(s)");
+            response.put("count", count);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la suppression de toutes les notifications STPM", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erreur lors de la suppression: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
     
     @PutMapping("/problemes/{id}/priorite")

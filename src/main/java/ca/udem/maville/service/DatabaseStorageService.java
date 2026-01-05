@@ -289,6 +289,56 @@ public class DatabaseStorageService {
         });
     }
     
+    @Transactional
+    public boolean markNotificationAsRead(Long notificationId) {
+        if (notificationId == null) {
+            return false;
+        }
+        return notificationRepository.findById(notificationId)
+            .map(notif -> {
+                notif.setLu(true);
+                notificationRepository.save(notif);
+                return true;
+            })
+            .orElse(false);
+    }
+    
+    @Transactional
+    public boolean deleteNotification(Long notificationId) {
+        if (notificationId == null) {
+            return false;
+        }
+        if (notificationRepository.existsById(notificationId)) {
+            notificationRepository.deleteById(notificationId);
+            return true;
+        }
+        return false;
+    }
+    
+    @Transactional
+    public int deleteAllResidentNotifications(String email) {
+        List<NotificationEntity> notifications = notificationRepository.findByResidentEmail(email);
+        int count = notifications.size();
+        notificationRepository.deleteAll(notifications);
+        return count;
+    }
+    
+    @Transactional
+    public int deleteAllStpmNotifications() {
+        List<NotificationEntity> notifications = notificationRepository.findStpmNotifications();
+        int count = notifications.size();
+        notificationRepository.deleteAll(notifications);
+        return count;
+    }
+    
+    @Transactional
+    public int deleteAllPrestataireNotifications(String neq) {
+        List<NotificationEntity> notifications = notificationRepository.findPrestataireNotifications(neq);
+        int count = notifications.size();
+        notificationRepository.deleteAll(notifications);
+        return count;
+    }
+    
     // ========== ABONNEMENTS ==========
     
     @Transactional
