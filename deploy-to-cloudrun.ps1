@@ -77,7 +77,7 @@ try {
 
 # Step 5: Get connection name
 Write-Host "`nStep 5: Getting Cloud SQL connection name..." -ForegroundColor Blue
-$CONNECTION_NAME = gcloud sql instances describe $DB_INSTANCE --format="value(connectionName)"
+$CONNECTION_NAME = gcloud sql instances describe $DB_INSTANCE --format='value(connectionName)'
 Write-Host "  Connection: $CONNECTION_NAME"
 
 # Step 6: Build and push Docker image
@@ -109,7 +109,7 @@ Write-Host "`nStep 8: Getting service URL..." -ForegroundColor Blue
 $SERVICE_URL = gcloud run services describe $SERVICE_NAME `
   --platform managed `
   --region $REGION `
-  --format "value(status.url)"
+  --format 'value(status.url)'
 
 Write-Host "`n✅ Deployment complete!`n" -ForegroundColor Green
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
