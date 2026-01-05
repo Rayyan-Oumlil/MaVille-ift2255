@@ -1,0 +1,64 @@
+# Maven
+target/
+!target/*.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.metadata/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+rapport/
+*.md
+!README.md
+*.vpp
+screenshots/
+
+# Frontend
+frontend/
+node_modules/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Legacy
+legacy/
+
+# Tests
+src/test/
+
+# Environment
+.env
+.env.local
+
