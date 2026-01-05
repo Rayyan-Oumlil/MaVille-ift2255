@@ -13,7 +13,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/montreal")
-@Tag(name = "Montréal", description = "Endpoints pour intégrer les données de l'API officielle de Montréal")
+@Tag(name = "Montreal", description = "Endpoints to integrate data from Montreal's official API")
 public class MontrealController {
     private final MontrealApiService montrealApiService;
     
@@ -22,8 +22,8 @@ public class MontrealController {
     }
     
     @GetMapping("/travaux")
-    @Operation(summary = "Récupérer les travaux de Montréal", 
-               description = "Récupère les travaux en cours depuis l'API officielle de données ouvertes de Montréal")
+    @Operation(summary = "Get Montreal public works", 
+               description = "Fetches ongoing public works from Montreal's official open data API")
     public ResponseEntity<?> getTravauxMontreal() {
         List<Map<String, Object>> travaux = montrealApiService.getTravauxEnCours(50);
         

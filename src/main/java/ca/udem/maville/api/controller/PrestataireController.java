@@ -20,11 +20,11 @@ import java.time.LocalDate;
 import java.util.*;
 
 /**
- * Contrôleur REST pour les prestataires
+ * REST Controller for service providers
  */
 @RestController
 @RequestMapping("/api/prestataires")
-@Tag(name = "Prestataires", description = "Endpoints pour les prestataires : consulter problèmes, soumettre candidatures, gérer projets")
+@Tag(name = "Service Providers", description = "Endpoints for service providers: view problems, submit applications, manage projects")
 public class PrestataireController {
     private static final Logger logger = LoggerFactory.getLogger(PrestataireController.class);
     
@@ -35,19 +35,19 @@ public class PrestataireController {
     }
     
     @GetMapping("/problemes")
-    @Operation(summary = "Consulter les problèmes disponibles", 
-               description = "Retourne la liste paginée des problèmes disponibles avec filtres optionnels")
+    @Operation(summary = "View available problems", 
+               description = "Returns paginated list of available problems with optional filters")
     public ResponseEntity<?> consulterProblemes(
-            @Parameter(description = "Filtrer par quartier") 
+            @Parameter(description = "Filter by neighborhood") 
             @RequestParam(required = false) String quartier,
-            @Parameter(description = "Filtrer par type de travaux") 
+            @Parameter(description = "Filter by work type") 
             @RequestParam(required = false) String type,
-            @Parameter(description = "Numéro de page (0-indexé)", example = "0") 
+            @Parameter(description = "Page number (0-indexed)", example = "0") 
             @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Taille de la page", example = "10") 
+            @Parameter(description = "Page size", example = "10") 
             @RequestParam(defaultValue = "10") int size) {
         
-        // Convertir type string en enum si fourni
+        // Convert string type to enum if provided
         TypeTravaux typeEnum = null;
         if (type != null && !type.trim().isEmpty()) {
             try {
@@ -82,8 +82,8 @@ public class PrestataireController {
     }
     
     @PostMapping("/candidatures")
-    @Operation(summary = "Soumettre une candidature", 
-               description = "Permet à un prestataire de soumettre une candidature pour un ou plusieurs problèmes")
+    @Operation(summary = "Submit an application", 
+               description = "Allows a service provider to submit an application for one or more problems")
     @Transactional
     public ResponseEntity<?> soumettreCandidature(@Valid @RequestBody CandidatureRequest request) {
         // Validation automatique via @Valid - gérée par GlobalExceptionHandler

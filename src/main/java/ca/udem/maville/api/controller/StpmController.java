@@ -21,7 +21,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/stpm")
-@Tag(name = "STPM", description = "Endpoints pour les agents STPM : valider candidatures, gérer problèmes et priorités")
+@Tag(name = "STPM", description = "Endpoints for STPM agents: validate applications, manage problems and priorities")
 public class StpmController {
     private static final Logger logger = LoggerFactory.getLogger(StpmController.class);
     
@@ -32,10 +32,10 @@ public class StpmController {
     }
     
     @GetMapping("/candidatures")
-    @Operation(summary = "Consulter les candidatures", 
-               description = "Retourne la liste paginée de toutes les candidatures soumises par les prestataires")
+    @Operation(summary = "View applications", 
+               description = "Returns paginated list of all applications submitted by service providers")
     public ResponseEntity<?> consulterCandidatures(
-            @Parameter(description = "Numéro de page (0-indexé)", example = "0") 
+            @Parameter(description = "Page number (0-indexed)", example = "0") 
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Taille de la page", example = "10") 
             @RequestParam(defaultValue = "10") int size) {
@@ -61,8 +61,8 @@ public class StpmController {
     }
     
     @PutMapping("/candidatures/{id}/valider")
-    @Operation(summary = "Valider ou refuser une candidature", 
-               description = "Permet à un agent STPM d'accepter ou refuser une candidature. L'acceptation crée automatiquement un projet.")
+    @Operation(summary = "Validate or reject an application", 
+               description = "Allows an STPM agent to accept or reject an application. Acceptance automatically creates a project.")
     @Transactional
     public ResponseEntity<?> validerCandidature(
             @Parameter(description = "ID de la candidature") 
@@ -116,10 +116,10 @@ public class StpmController {
     }
     
     @GetMapping("/problemes")
-    @Operation(summary = "Consulter les problèmes", 
-               description = "Retourne la liste paginée de tous les problèmes signalés")
+    @Operation(summary = "View problems", 
+               description = "Returns paginated list of all reported problems")
     public ResponseEntity<?> consulterProblemes(
-            @Parameter(description = "Numéro de page (0-indexé)", example = "0") 
+            @Parameter(description = "Page number (0-indexed)", example = "0") 
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Taille de la page", example = "10") 
             @RequestParam(defaultValue = "10") int size) {
@@ -169,11 +169,11 @@ public class StpmController {
     }
     
     @PutMapping("/problemes/{id}/priorite")
-    @Operation(summary = "Modifier la priorité d'un problème", 
-               description = "Permet à un agent STPM de modifier la priorité d'un problème (FAIBLE, MOYENNE, ELEVEE)")
+    @Operation(summary = "Change problem priority", 
+               description = "Allows an STPM agent to modify a problem's priority (LOW, MEDIUM, HIGH)")
     @Transactional
     public ResponseEntity<?> modifierPrioriteProbleme(
-            @Parameter(description = "ID du problème") 
+            @Parameter(description = "Problem ID") 
             @PathVariable int id, 
             @RequestBody Map<String, Object> requestData) {
         String prioriteStr = (String) requestData.get("priorite");

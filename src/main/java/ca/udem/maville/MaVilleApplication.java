@@ -10,8 +10,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 /**
- * Application principale Spring Boot pour MaVille
- * Utilise H2 en mémoire par défaut (peut être changé pour PostgreSQL)
+ * Main Spring Boot application for MaVille
+ * Uses PostgreSQL as the default database
  */
 @SpringBootApplication
 public class MaVilleApplication {
@@ -30,22 +30,22 @@ public class MaVilleApplication {
     
     @EventListener(ApplicationReadyEvent.class)
     public void initializeData() {
-        logger.info("Initialisation des données...");
+        logger.info("Initializing data...");
         
         try {
             if (dbStorage == null) {
-                logger.debug("DatabaseStorageService non disponible (contexte de test slice?): skip initialisation");
+                logger.debug("DatabaseStorageService not available (slice test context?): skipping initialization");
                 return;
             }
 
-            // Initialiser avec des données de test si la base est vide
+            // Initialize with sample data if database is empty
             dbStorage.initializeWithSampleData();
-            logger.info("Données initialisées avec succès");
+            logger.info("Data initialized successfully");
         } catch (Exception e) {
-            logger.warn("Impossible d'initialiser les données (PostgreSQL non disponible?): {}", e.getMessage());
+            logger.warn("Unable to initialize data (PostgreSQL not available?): {}", e.getMessage());
         }
         
-        logger.info("Application MaVille démarrée avec succès");
+        logger.info("MaVille application started successfully");
     }
 }
 

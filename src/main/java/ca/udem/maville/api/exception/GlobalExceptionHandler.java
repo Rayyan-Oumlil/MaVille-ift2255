@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Gestionnaire global d'exceptions pour l'API
- * Centralise la gestion de toutes les erreurs avec messages en français
- * et stack traces uniquement en mode développement
+ * Global exception handler for the API
+ * Centralizes error handling with English messages
+ * and stack traces only in development mode
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,12 +30,12 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Vérifie si on est en mode développement
+     * Check if we're in development mode
      */
     private boolean isDevMode() {
         String[] activeProfiles = environment.getActiveProfiles();
         if (activeProfiles.length == 0) {
-            // Pas de profil actif = développement par défaut
+            // No active profile = development by default
             return true;
         }
         for (String profile : activeProfiles) {
@@ -47,21 +47,21 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Traduit les messages d'erreur de validation en français
+     * Translate validation error messages to French
      */
     private String translateValidationMessage(String defaultMessage) {
         if (defaultMessage == null) {
-            return "Erreur de validation des données";
+            return "Data validation error";
         }
         
-        // Traductions courantes
+        // Common translations
         Map<String, String> translations = new HashMap<>();
-        translations.put("must not be null", "ne doit pas être vide");
-        translations.put("must not be empty", "ne doit pas être vide");
-        translations.put("must not be blank", "ne doit pas être vide");
-        translations.put("size must be between", "la taille doit être entre");
-        translations.put("must be a valid email", "doit être un email valide");
-        translations.put("must match", "doit correspondre au format");
+        translations.put("must not be null", "must not be empty");
+        translations.put("must not be empty", "must not be empty");
+        translations.put("must not be blank", "must not be empty");
+        translations.put("size must be between", "size must be between");
+        translations.put("must be a valid email", "must be a valid email");
+        translations.put("must match", "must match the format");
         
         String message = defaultMessage.toLowerCase();
         for (Map.Entry<String, String> entry : translations.entrySet()) {
@@ -74,12 +74,12 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Gère les erreurs de validation (@Valid)
+     * Handle validation errors (@Valid)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, WebRequest request) {
-        logger.warn("Erreur de validation: {}", ex.getMessage());
+        logger.warn("Validation error: {}", ex.getMessage());
         
         Map<String, Object> details = new HashMap<>();
         final String[] firstErrorMessage = {null};
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
             }
         });
         
-        String message = firstErrorMessage[0] != null ? firstErrorMessage[0] : "Erreur de validation des données";
+        String message = firstErrorMessage[0] != null ? firstErrorMessage[0] : "Data validation error";
         
         ErrorResponse errorResponse = new ErrorResponse(
             "VALIDATION_ERROR",
@@ -102,7 +102,7 @@ public class GlobalExceptionHandler {
         );
         errorResponse.setDetails(details);
         
-        // Ajouter stack trace seulement en dev
+        // Add stack trace only in dev
         if (isDevMode()) {
             errorResponse.setStackTrace(getStackTrace(ex));
         }
@@ -111,12 +111,12 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Gère les exceptions de validation personnalisées
+     * Handle custom validation exceptions
      */
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             ValidationException ex, WebRequest request) {
-        logger.warn("Erreur de validation: {}", ex.getMessage());
+        logger.warn("Validation error: {}", ex.getMessage());
         
         ErrorResponse errorResponse = new ErrorResponse(
             "VALIDATION_ERROR",
@@ -125,7 +125,7 @@ public class GlobalExceptionHandler {
             request.getDescription(false).replace("uri=", "")
         );
         
-        // Ajouter stack trace seulement en dev
+        // Add stack trace only in dev
         if (isDevMode()) {
             errorResponse.setStackTrace(getStackTrace(ex));
         }
@@ -134,16 +134,16 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Gère les ressources non trouvées
+     * Handle resource not found exceptions
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex, WebRequest request) {
-        logger.warn("Ressource non trouvée: {}", ex.getMessage());
+        logger.warn("Resource not found: {}", ex.getMessage());
         
         String message = ex.getMessage();
         if (message == null || message.isEmpty()) {
-            message = "La ressource demandée n'a pas été trouvée";
+            message = "The requested resource was not found";
         }
         
         ErrorResponse errorResponse = new ErrorResponse(
@@ -153,7 +153,7 @@ public class GlobalExceptionHandler {
             request.getDescription(false).replace("uri=", "")
         );
         
-        // Ajouter stack trace seulement en dev
+        // Add stack trace only in dev
         if (isDevMode()) {
             errorResponse.setStackTrace(getStackTrace(ex));
         }
@@ -162,16 +162,16 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Gère les erreurs d'API externe
+     * Handle external API errors
      */
     @ExceptionHandler(ExternalApiException.class)
     public ResponseEntity<ErrorResponse> handleExternalApiException(
             ExternalApiException ex, WebRequest request) {
-        logger.error("Erreur API externe: {}", ex.getMessage(), ex);
+        logger.error("External API error: {}", ex.getMessage(), ex);
         
         String message = ex.getMessage();
         if (message == null || message.isEmpty()) {
-            message = "Erreur lors de la communication avec l'API externe";
+            message = "Error communicating with external API";
         }
         
         ErrorResponse errorResponse = new ErrorResponse(
@@ -181,7 +181,7 @@ public class GlobalExceptionHandler {
             request.getDescription(false).replace("uri=", "")
         );
         
-        // Ajouter stack trace seulement en dev
+        // Add stack trace only in dev
         if (isDevMode()) {
             errorResponse.setStackTrace(getStackTrace(ex));
         }
@@ -190,16 +190,16 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Gère toutes les autres exceptions non gérées
+     * Handle all other unhandled exceptions
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
-        logger.error("Erreur non gérée: {}", ex.getMessage(), ex);
+        logger.error("Unhandled error: {}", ex.getMessage(), ex);
         
         String message = isDevMode() 
-            ? "Une erreur interne est survenue: " + ex.getMessage()
-            : "Une erreur interne est survenue. Veuillez réessayer plus tard.";
+            ? "An internal error occurred: " + ex.getMessage()
+            : "An internal error occurred. Please try again later.";
         
         ErrorResponse errorResponse = new ErrorResponse(
             "INTERNAL_ERROR",
@@ -208,7 +208,7 @@ public class GlobalExceptionHandler {
             request.getDescription(false).replace("uri=", "")
         );
         
-        // Ajouter stack trace seulement en dev
+        // Add stack trace only in dev
         if (isDevMode()) {
             errorResponse.setStackTrace(getStackTrace(ex));
         }
@@ -217,7 +217,7 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Extrait la stack trace sous forme de chaîne
+     * Extract stack trace as string
      */
     private String getStackTrace(Exception ex) {
         java.io.StringWriter sw = new java.io.StringWriter();

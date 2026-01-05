@@ -15,11 +15,11 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api")
-@Tag(name = "Health", description = "Endpoints pour vérifier l'état de santé de l'API")
+@Tag(name = "Health", description = "Endpoints to check API health status")
 public class HealthController {
     
     @GetMapping("/health")
-    @Operation(summary = "Vérifier l'état de santé de l'API", 
+    @Operation(summary = "Check API health status", 
                description = "Retourne le statut de l'API et des informations de base")
     public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> response = new HashMap<>();
@@ -30,8 +30,8 @@ public class HealthController {
     }
     
     @GetMapping
-    @Operation(summary = "Informations sur l'API", 
-               description = "Retourne les informations générales sur l'API MaVille")
+    @Operation(summary = "API information", 
+               description = "Returns general information about the MaVille API")
     public ResponseEntity<Map<String, Object>> apiInfo() {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Bienvenue sur l'API MaVille");

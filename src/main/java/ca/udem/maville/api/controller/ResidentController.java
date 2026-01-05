@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * Contrôleur REST pour les résidents
+ * REST Controller for residents
  */
 @RestController
 @RequestMapping("/api/residents")
-@Tag(name = "Résidents", description = "Endpoints pour les résidents : signaler des problèmes, consulter les travaux et notifications")
+@Tag(name = "Residents", description = "Endpoints for residents: report problems, view public works and notifications")
 public class ResidentController {
     private static final Logger logger = LoggerFactory.getLogger(ResidentController.class);
     
@@ -50,11 +50,11 @@ public class ResidentController {
     }
     
     @PostMapping("/problemes")
-    @Operation(summary = "Signaler un problème", 
-               description = "Permet à un résident de signaler un problème routier ou urbain")
+    @Operation(summary = "Report a problem", 
+               description = "Allows a resident to report a road or urban problem")
     @Transactional
     public ResponseEntity<?> signalerProbleme(@Valid @RequestBody ProblemeRequest request) {
-        // Validation automatique via @Valid - gérée par GlobalExceptionHandler
+        // Automatic validation via @Valid - handled by GlobalExceptionHandler
         // Sanitization
         String lieu = ValidationUtil.sanitize(request.getLieu());
         String description = ValidationUtil.sanitize(request.getDescription());
@@ -108,16 +108,16 @@ public class ResidentController {
     }
     
     @GetMapping("/travaux")
-    @Operation(summary = "Consulter les travaux", 
-               description = "Retourne la liste paginée des travaux en cours (MaVille + API Montréal) avec filtres optionnels")
+    @Operation(summary = "View public works", 
+               description = "Returns paginated list of ongoing public works (MaVille + Montreal API) with optional filters")
     public ResponseEntity<?> consulterTravaux(
-            @Parameter(description = "Filtrer par quartier") 
+            @Parameter(description = "Filter by neighborhood") 
             @RequestParam(required = false) String quartier,
-            @Parameter(description = "Filtrer par type de travaux") 
+            @Parameter(description = "Filter by work type") 
             @RequestParam(required = false) String type,
-            @Parameter(description = "Numéro de page (0-indexé)", example = "0") 
+            @Parameter(description = "Page number (0-indexed)", example = "0") 
             @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Taille de la page", example = "10") 
+            @Parameter(description = "Page size", example = "10") 
             @RequestParam(defaultValue = "10") int size) {
         List<Map<String, Object>> tousTravaux = new ArrayList<>();
         
@@ -283,7 +283,7 @@ public class ResidentController {
     }
     
     @GetMapping("/{email}/preferences")
-    @Operation(summary = "Récupérer les préférences d'un résident")
+    @Operation(summary = "Get resident preferences")
     public ResponseEntity<?> getPreferences(@PathVariable @org.springframework.lang.NonNull String email) {
         try {
             ca.udem.maville.entity.PreferenceEntity prefs = dbStorage.findOrCreatePreferencesByEmail(email);
@@ -310,7 +310,7 @@ public class ResidentController {
     
     @PutMapping("/{email}/preferences")
     @Transactional
-    @Operation(summary = "Modifier les préférences d'un résident")
+    @Operation(summary = "Update resident preferences")
     public ResponseEntity<?> modifierPreferences(@PathVariable String email, @RequestBody Map<String, Object> preferences) {
         try {
             Boolean notificationsEmail = preferences.get("notificationsEmail") != null 

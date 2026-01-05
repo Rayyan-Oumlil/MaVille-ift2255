@@ -57,14 +57,14 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- H2 Database (pour tests et développement) -->
+        <!-- H2 Database (for tests and development) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Testcontainers pour tests d'intégration PostgreSQL -->
+        <!-- Testcontainers for PostgreSQL integration tests -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -91,7 +91,7 @@
             <version>2.0.4</version>
         </dependency>
 
-        <!-- Logging structuré JSON -->
+        <!-- Structured JSON logging -->
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
@@ -181,7 +181,7 @@
                 </configuration>
             </plugin>
 
-        <!-- Plugin JaCoCo pour la couverture (désactivé temporairement pour Java 25) -->
+        <!-- JaCoCo plugin for coverage (temporarily disabled for Java 25) -->
         <!--
         <plugin>
             <groupId>org.jacoco</groupId>

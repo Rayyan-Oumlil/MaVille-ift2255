@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Authentification", description = "Endpoints pour la connexion des utilisateurs")
+@Tag(name = "Authentication", description = "Endpoints for user login")
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     
@@ -30,8 +30,8 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    @Operation(summary = "Connexion", 
-               description = "Permet à un utilisateur de se connecter avec son email (résident) ou NEQ (prestataire)")
+    @Operation(summary = "Login", 
+               description = "Allows a user to login with their email (resident) or NEQ (service provider)")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String identifier = credentials.get("identifier"); // email ou NEQ
         String password = credentials.get("password");
