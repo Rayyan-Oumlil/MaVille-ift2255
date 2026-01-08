@@ -164,6 +164,33 @@ MaVille-ift2255/
 - **Database**: Supabase PostgreSQL (managed)
 - **Frontend**: Vercel (Next.js hosting)
 
+### Cloud Run scaling (important)
+
+- **Why you sometimes see “3 containers/instances”**:
+  - **Local Docker**: `docker-compose.yml` in this repo only runs **PostgreSQL** (`maville-postgres`). If you saw ~3 containers locally, it was likely from other `docker run` / older compose projects (or you were running frontend/backend as containers separately).
+  - **Cloud Run**: you’re seeing **instances** (Cloud Run spins up multiple copies of your container) when traffic/concurrency requires it (or because long-lived connections like WebSocket can tie up an instance).
+
+- **Cap the number of instances** (recommended if you want max 1 or 2):
+  - Using gcloud:
+
+```bash
+# max 1 instance, allow scale-to-zero
+gcloud run services update maville-backend \
+  --region YOUR_REGION \
+  --min-instances 0 \
+  --max-instances 1
+
+# or allow up to 2 instances
+gcloud run services update maville-backend \
+  --region YOUR_REGION \
+  --min-instances 0 \
+  --max-instances 2
+```
+
+- **Note about WebSocket vs SSE**:
+  - WebSocket connections are long-lived and can prevent scale-to-zero while users are connected.
+  - This project supports **SSE** for notifications (better fit for Cloud Run). The frontend defaults to SSE for that reason.
+
 ### Environment Variables
 
 **Backend:**
