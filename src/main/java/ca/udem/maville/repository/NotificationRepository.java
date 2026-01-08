@@ -23,6 +23,9 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
            "(n.destinataire = :neq OR n.destinataire IS NULL) ORDER BY n.dateCreation DESC")
     List<NotificationEntity> findPrestataireNotifications(@Param("neq") String neq);
     
+    @Query("SELECT n FROM NotificationEntity n WHERE n.typeDestinataire = 'PRESTATAIRE' AND n.destinataire = :neq ORDER BY n.dateCreation DESC")
+    List<NotificationEntity> findByPrestataireNeq(@Param("neq") String neq);
+    
     @Query("SELECT COUNT(n) FROM NotificationEntity n WHERE n.residentEmail = :email AND n.lu = false")
     long countUnreadByResidentEmail(@Param("email") String email);
 }

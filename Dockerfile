@@ -26,9 +26,8 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose port (Cloud Run will override this)
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
+# NOTE: No HEALTHCHECK here - Cloud Run manages its own health checks
+# HEALTHCHECK in Dockerfile prevents scale-to-zero because it keeps pinging the container
 
 # Run the application
 ENTRYPOINT ["java", \

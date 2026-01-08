@@ -2,26 +2,41 @@
 
 import { useEffect } from "react"
 import { toast } from "sonner"
-import { useWebSocket } from "./use-websocket"
+import { useNotifications, type NotificationMethod } from "./use-notifications"
 import type { WebSocketMessage } from "@/lib/websocket"
 import { useAuth } from "@/contexts/AuthContext"
 
+/**
+ * Configuration de la méthode de notification
+ * Peut être définie via variable d'environnement NEXT_PUBLIC_NOTIFICATION_METHOD
+ * Options: "websocket", "sse", "both", "polling"
+ * Par défaut: "sse" (permet scale-to-zero sur Cloud Run)
+ */
+const getNotificationMethod = (): NotificationMethod => {
+  if (typeof window === "undefined") return "sse"
+  const method = process.env.NEXT_PUBLIC_NOTIFICATION_METHOD || "sse"
+  return (["websocket", "sse", "both", "polling"].includes(method) 
+    ? method 
+    : "sse") as NotificationMethod
+}
+
 export function useToastNotifications(enabled: boolean = true) {
   const { user } = useAuth()
+  const method = getNotificationMethod()
   
-  // Déterminer la destination selon le type d'utilisateur
-  const getDestination = () => {
-    if (!user) return "/topic/notifications"
+  // Déterminer l'identifiant utilisateur selon le type
+  const getUserIdentifier = () => {
+    if (!user) return null
     if (user.type === "RESIDENT" && user.email) {
-      return `/topic/notifications/${user.email}`
+      return user.email
     }
     if (user.type === "PRESTATAIRE" && user.neq) {
-      return `/topic/notifications/${user.neq}`
+      return user.neq
     }
     if (user.type === "STPM") {
-      return "/topic/notifications/stpm"
+      return "stpm"
     }
-    return "/topic/notifications"
+    return null
   }
 
   const handleMessage = (message: WebSocketMessage) => {
@@ -48,18 +63,16 @@ export function useToastNotifications(enabled: boolean = true) {
     }
   }
 
-  const destination = getDestination()
-  const { status } = useWebSocket(handleMessage, enabled && !!user, destination)
+  const userIdentifier = getUserIdentifier()
+  const { status } = useNotifications(userIdentifier, handleMessage, method, enabled && !!user)
 
   useEffect(() => {
     if (enabled && status === "connected") {
-      // Ne pas afficher de toast de succès automatiquement pour éviter le spam
-      console.log("Notifications WebSocket activées")
+      console.log(`Notifications ${method} activées`)
     } else if (enabled && status === "error") {
-      // Ne pas afficher d'erreur automatiquement, seulement logger
-      console.warn("Impossible de se connecter aux notifications en temps réel")
+      console.warn(`Impossible de se connecter aux notifications (méthode: ${method})`)
     }
-  }, [status, enabled])
+  }, [status, enabled, method])
 
-  return { status }
+  return { status, method }
 }

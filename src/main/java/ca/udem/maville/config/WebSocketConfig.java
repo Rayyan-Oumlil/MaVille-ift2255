@@ -9,6 +9,12 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 /**
  * Configuration WebSocket pour les notifications en temps réel
+ * 
+ * NOTE: Les WebSockets maintiennent des connexions longues qui peuvent empêcher
+ * Cloud Run de scale-to-zero. Pour réduire les coûts, considérer:
+ * - Utiliser Server-Sent Events (SSE) à la place
+ * - Utiliser polling HTTP périodique
+ * - Accepter qu'une instance reste active pour les WebSockets temps réel
  */
 @Configuration
 @EnableWebSocketMessageBroker
@@ -21,7 +27,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         
         // Préfixe pour les destinations où le serveur envoie des messages aux clients
         // Les clients s'abonnent à /topic/notifications pour recevoir les notifications
-        config.enableSimpleBroker("/topic");
+        // Heartbeat configuré pour maintenir la connexion active
+        config.enableSimpleBroker("/topic")
+                .setHeartbeatValue(new long[]{10000, 10000}); // Heartbeat toutes les 10s
     }
 
     @Override
@@ -30,6 +38,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // Le frontend se connecte à ws://localhost:7000/ws
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*") // En production, spécifier les origines autorisées
-                .withSockJS(); // Support SockJS pour compatibilité navigateurs
+                .withSockJS() // Support SockJS pour compatibilité navigateurs
+                .setHeartbeatTime(25000) // Timeout de 25s pour détecter les connexions mortes
+                .setDisconnectDelay(5000); // Délai avant de nettoyer les connexions fermées
     }
 }

@@ -3,7 +3,7 @@ package ca.udem.maville.api.controller;
 import ca.udem.maville.api.dto.PaginatedResponse;
 import ca.udem.maville.api.dto.ProblemeRequest;
 import ca.udem.maville.api.service.ApiService;
-import ca.udem.maville.api.service.NotificationWebSocketService;
+import ca.udem.maville.api.service.NotificationService;
 import ca.udem.maville.api.util.ValidationUtil;
 import ca.udem.maville.api.MontrealApiService;
 import ca.udem.maville.modele.*;
@@ -36,20 +36,20 @@ public class ResidentController {
     private final ModelMapperService mapper;
     private final ApiService apiService;
     private final MontrealApiService montrealApiService;
-    private final NotificationWebSocketService webSocketService;
+    private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
     
     public ResidentController(DatabaseStorageService dbStorage,
                              ModelMapperService mapper,
                              ApiService apiService,
                              MontrealApiService montrealApiService,
-                             NotificationWebSocketService webSocketService,
+                             NotificationService notificationService,
                              NotificationRepository notificationRepository) {
         this.dbStorage = dbStorage;
         this.mapper = mapper;
         this.apiService = apiService;
         this.montrealApiService = montrealApiService;
-        this.webSocketService = webSocketService;
+        this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
     }
     
@@ -89,9 +89,9 @@ public class ResidentController {
         );
         logger.info("Notification STPM créée pour le nouveau problème #{}", nouveauProbleme.getId());
         
-        // Envoyer notification via WebSocket
+        // Envoyer notification via WebSocket ET SSE (les deux canaux)
         if (notificationStpm != null) {
-            webSocketService.sendToStpm(notificationStpm);
+            notificationService.sendToStpm(notificationStpm, true, true);
         }
         
         // Log structuré avec contexte MDC
