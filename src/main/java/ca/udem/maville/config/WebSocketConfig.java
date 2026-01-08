@@ -1,11 +1,8 @@
 package ca.udem.maville.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -32,7 +29,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // Les clients s'abonnent à /topic/notifications pour recevoir les notifications
         // Heartbeat configuré pour maintenir la connexion active
         config.enableSimpleBroker("/topic")
-                .setHeartbeatValue(new long[]{10000, 10000}); // Heartbeat toutes les 10s
+                .setHeartbeatValue(new long[]{10000, 10000}) // Heartbeat toutes les 10s
+                // TaskScheduler requis pour le mécanisme de heartbeat du broker WebSocket
+                // (évite: "Heartbeat values configured but no TaskScheduler provided")
+                .setTaskScheduler(webSocketHeartbeatTaskScheduler());
     }
 
     @Override
@@ -47,17 +47,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     /**
-     * TaskScheduler requis pour le mécanisme de heartbeat du broker WebSocket.
-     * Sans ce bean, Spring lève une exception lors du démarrage si des valeurs
-     * de heartbeat sont configurées.
+     * Scheduler dédié au heartbeat du broker.
+     *
+     * IMPORTANT: ne pas nommer ce bean "messageBrokerTaskScheduler" car Spring en
+     * déclare déjà un dans `DelegatingWebSocketMessageBrokerConfiguration` et
+     * l'override est désactivé en prod (Cloud Run).
      */
-    @Bean
-    public TaskScheduler messageBrokerTaskScheduler() {
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    private org.springframework.scheduling.TaskScheduler webSocketHeartbeatTaskScheduler() {
+        org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler scheduler =
+                new org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler();
         scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("ws-heartbeat-");
         scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.setAwaitTerminationSeconds(20);
+        scheduler.initialize();
         return scheduler;
     }
 }
