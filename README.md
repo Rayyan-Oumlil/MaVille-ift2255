@@ -178,14 +178,6 @@ MaVille-ift2255/
 
 ---
 
-## Team
-
-- **Younes Lagha** - Backend development
-- **Rayyan Oumlil** - Documentation and architecture
-- **Karim Omairi** - Frontend development
-
----
-
 ## License
 
 Academic project developed for IFT2255 (Software Engineering) at Université de Montréal.
